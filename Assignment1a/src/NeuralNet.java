@@ -6,7 +6,7 @@ public class NeuralNet implements NeuralNetInterface
     private double mArgB;
 
     /**
-     * Constructor. (Cannot be declared in an interface, but your implementation will need one)
+     * Constructor for NeuralNet
      * @param argNumInputs The number of inputs in your input vector
      * @param argNumHidden The number of hidden neurons in your hidden layer. Only a single hidden layer is supported
      * @param argLearningRate The learning rate coefficient
@@ -14,9 +14,14 @@ public class NeuralNet implements NeuralNetInterface
      * @param argA Integer lower bound of sigmoid used by the output neuron only.
      * @param argB Integer upper bound of sigmoid used by the output neuron only.
     */
-    public abstract NeuralNet(int argNumInputs, int argNumHidden, double argLearningRate, double argMomentumTerm, double argA, double argB)
+    public abstract NeuralNet(int argNumInputs,
+                              int argNumHidden,
+                              double argLearningRate,
+                              double argMomentumTerm,
+                              double argA,
+                              double argB)
     {
-        // update out private variables
+        // update our private variables
         mArgA = argA;
         mArgB = argB;
     }
