@@ -7,7 +7,7 @@ import java.lang.Math;
  * a selectable number of hidden neurons (up to MAX_HIDDEN_NEURONS) and a selectable number of
  * inputs (up to MAX_INPUTS)
  */
-public abstract class NeuralNet implements NeuralNetInterface
+public class NeuralNet implements NeuralNetInterface
 {
     // Constants
     static final int MAX_HIDDEN_NEURONS =  256;
@@ -29,9 +29,9 @@ public abstract class NeuralNet implements NeuralNetInterface
     // Array to store input values to the neural network, first index is bias input of 1
     public double[] mInputValues = new double[MAX_INPUTS];
     // Array to store neuron weights of hidden layer
-    public double[] mNeuronWeights = new double[MAX_HIDDEN_NEURONS];
+    public static double[] mNeuronWeights = new double[MAX_HIDDEN_NEURONS];
     // Variable for the value of the output neuron's weight
-    public double mOutputNeuronWeight;
+    public static double mOutputNeuronWeight;
     // Variable for value of output neuron
     public double mOutputValue;
 
@@ -68,7 +68,7 @@ public abstract class NeuralNet implements NeuralNetInterface
      * @param x The input
      * @return f(x) 1 / (1 + exp(-x))
      */
-    double sigmoid(double x)
+    public double sigmoid(double x)
     {
         return 1 / (1 + Math.pow(Math.E,-x));
     }
@@ -78,20 +78,20 @@ public abstract class NeuralNet implements NeuralNetInterface
      * @param x The input
      * @return f(x) = (b - a) / (1 + exp(-x)) - a
      */
-    double customSigmoid(double x)
+    public double customSigmoid(double x)
     {
-        return (mArgB - mArgA) * signmoid(x) + mArgA;
+        return (mArgB - mArgA) * sigmoid(x) + mArgA;
     }
 
     /**
      * Initialize the weights to a random value between
      */
-    void initializeWeights(double min, double max)
+    public void initializeWeights()
     {
 
     }
 
-    void zeroWeights()
+    public void zeroWeights()
     {
 
     }
@@ -100,22 +100,22 @@ public abstract class NeuralNet implements NeuralNetInterface
      * @param x The input vector. An array of doubles.
      * @return The value returned by the NN for this input vector
      */
-    double outputFor(double[] x);
+    public double outputFor(double[] x)
+    {
+        return 1.0;
+    }
+
+    public double train(double[] x, double argValue)
+    {
+        return 1.0;
+    }
+
+    public void save(File argFile)
     {
 
     }
 
-    double train(double[] x, double argValue)
-    {
-
-    }
-
-    void save(File argFile)
-    {
-
-    }
-
-    void load(String argFileName) throws IOException
+    public void load(String argFileName) throws IOException
     {
 
     }
