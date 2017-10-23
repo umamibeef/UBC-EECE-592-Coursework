@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 import java.lang.Math;
+import java.util.Random;
 
 /**
  * NeuralNet class for Assignment 1a of EECE592. A simple neural network with one hidden layer,
@@ -60,7 +61,10 @@ public class NeuralNet implements NeuralNetInterface
         // Update the bias value to one
         mInputValues[BIAS_INDEX] = 1.0;
 
-        // Initialize the weights to a random value between WEIGHT_INIT_MIN and WEIGHT_INIT_MAX
+        System.out.format("Hi. Neural net instantiated with %d inputs and %d hidden neurons.\n", mNumInputs, mNumHiddenNeurons);
+
+        // Print out neuron weights
+        printNeuronWeights();
     }
 
     /**
@@ -84,16 +88,55 @@ public class NeuralNet implements NeuralNetInterface
     }
 
     /**
-     * Initialize the weights to a random value between
+     * Initialize the weights to a random value between WEIGHT_INIT_MIN and WEIGHT_INIT_MAX
      */
     public void initializeWeights()
     {
+        // initialize inner neurons
+        for(int i = 0; i < mNumHiddenNeurons; i++)
+        {
+            mNeuronWeights[i] = getRandomDouble(WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
+        }
+        // initialize the output neuron
+        mOutputNeuronWeight = getRandomDouble(WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
+    }
 
+    public void printNeuronWeights()
+    {
+        System.out.println("Current neuron weights are as follows:");
+        for(int i = 0; i < mNumHiddenNeurons; i++)
+        {
+            System.out.format("\tInner neuron %d has weight of %5f\n",i,mNeuronWeights[i]);
+        }
+        // initialize the output neuron
+        System.out.format("\tOutput neuron weight of %5f\n",mOutputNeuronWeight);
+    }
+
+    /**
+     * Returns a random double value between specified min and max values
+     * @param min minimum number random number can be
+     * @param max maximum number random number can be
+     * @return a random double between specified min and max
+     */
+    private double getRandomDouble(double min, double max)
+    {
+        double random, result;
+
+        random = new Random().nextDouble();
+        result = min + (random * (max - min));
+
+        return result;
     }
 
     public void zeroWeights()
     {
-
+        // initialize inner neurons
+        for(int i = 0; i < mNumHiddenNeurons; i++)
+        {
+            mNeuronWeights[i] = 0.0;
+        }
+        // initialize the output neuron
+        mOutputNeuronWeight = 0.0;
     }
 
     /**

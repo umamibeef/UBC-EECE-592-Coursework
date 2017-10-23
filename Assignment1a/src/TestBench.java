@@ -3,9 +3,19 @@ public class TestBench
 {
     public static void main(String[] args)
     {
-        NeuralNet NeuralNetObj = new NeuralNet(2, 4, 0.5, 0.5, 0, 1);
+        int MIN_VAL = 0;
+        int MAX_VAL = 1;
+        int NUM_INPUTS = 2;
+        int NUM_HIDDEN_NEURONS = 4;
+        double LEARNING_RATE = 0.5;
+        double MOMENTUM = 0.5;
 
-        System.out.format("Hi. Neural net instantiated with %d inputs and %d hidden neurons.", NeuralNetObj.mNumInputs, NeuralNetObj.mNumHiddenNeurons);
+        int[][] XOR_TRAINING_SET = new int[][]{{0,0,0}, {0,1,1}, {1,0,1}, {1,1,0}};
+
+        NeuralNet NeuralNetObj;
+
+        NeuralNetObj = new NeuralNet(NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE, MOMENTUM, MIN_VAL, MAX_VAL);
+        NeuralNetObj.initializeWeights();
+        NeuralNetObj = new NeuralNet(NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE, MOMENTUM, MIN_VAL, MAX_VAL);
     }
 }
-
