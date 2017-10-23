@@ -12,8 +12,11 @@ public class NeuralNet implements NeuralNetInterface
 {
     // Constants
     static final int MAX_HIDDEN_NEURONS =  256;
-    static final int MAX_INPUTS =          4+1;
-    static final int BIAS_INDEX =          0;
+    static final int MAX_INPUTS =          10;
+    static final int FIRST_INPUT_INDEX =   1;
+    static final int BIAS_INPUT_INDEX =    0;
+    static final int FIRST_WEIGHT_INDEX =  1;
+    static final int BIAS_WEIGHT_INDEX =   0;
     static final double WEIGHT_INIT_MIN =  -0.5;
     static final double WEIGHT_INIT_MAX =  0.5;
 
@@ -31,6 +34,8 @@ public class NeuralNet implements NeuralNetInterface
     public double[] mInputValues = new double[MAX_INPUTS];
     // Array to store neuron weights of hidden layer
     public static double[] mNeuronWeights = new double[MAX_HIDDEN_NEURONS];
+    // Array to store neuron outputs of the hidden layer
+    public double[] mNeuronOutputs = new double[MAX_HIDDEN_NEURONS];
     // Variable for the value of the output neuron's weight
     public static double mOutputNeuronWeight;
     // Variable for value of output neuron
@@ -55,26 +60,45 @@ public class NeuralNet implements NeuralNetInterface
         // Update our private variables
         mArgA = argA;
         mArgB = argB;
-        mNumInputs = argNumInputs;
-        mNumHiddenNeurons = argNumHidden;
+        // Add one here so that we don't worry about it later in the code
+        mNumInputs = argNumInputs+1;
+        mNumHiddenNeurons = argNumHidden+1;
 
         // Update the bias value to one
-        mInputValues[BIAS_INDEX] = 1.0;
+        mInputValues[BIAS_INPUT_INDEX] = 1.0;
 
-        System.out.format("Hi. Neural net instantiated with %d inputs and %d hidden neurons.\n", mNumInputs, mNumHiddenNeurons);
+        System.out.format("Hi. Neural net instantiated with %d inputs and %d hidden neurons.\n", mNumInputs-1, mNumHiddenNeurons-1);
 
         // Print out neuron weights
         printNeuronWeights();
     }
 
     /**
-     * This methods implements the sigmoid function
+     * This method implements the sigmoid function
      * @param x The input
-     * @return f(x) 1 / (1 + exp(-x))
+     * @return f(x) = 1 / (1 + exp(-x))
      */
     public double sigmoid(double x)
     {
-        return 1 / (1 + Math.pow(Math.E,-x));
+        double result;
+
+        result =  1 / (1 + Math.pow(Math.E,-x));
+
+        return result;
+    }
+
+    /**
+     * This method implements the first derivative of the sigmoid function
+     * @param x The input
+     * @return f'(x) = (1 / (1 + exp(-x)))(1 - (1 / (1 + exp(-x))))
+     */
+    public double sigmoidDerivative(double x)
+    {
+        double result;
+
+        result = sigmoid(x)*(1 - sigmoid(x));
+
+        return result;
     }
 
     /**
@@ -84,7 +108,25 @@ public class NeuralNet implements NeuralNetInterface
      */
     public double customSigmoid(double x)
     {
-        return (mArgB - mArgA) * sigmoid(x) + mArgA;
+        double result;
+
+        result = (mArgB - mArgA) * sigmoid(x) + mArgA;
+
+        return result;
+    }
+
+    /**
+     * This method implements the first derivative of the general sigmoid above
+     * @param x The input
+     * @return f'(x) = (1 / (b - a))(customSigmoid(x) - a)(b - customSigmoid(x))
+     */
+    public double customSigmoidDerivative(double x)
+    {
+        double result;
+
+        result = (1.0/(mArgB - mArgA)) * (customSigmoid(x) - mArgA) * (mArgB - customSigmoid(x));
+
+        return result;
     }
 
     /**
@@ -145,7 +187,41 @@ public class NeuralNet implements NeuralNetInterface
      */
     public double outputFor(double[] x)
     {
-        return 1.0;
+        int hiddenNeuronIndex, inputIndex, index;
+
+        // Add the inputs to the input array
+        mInputValues[BIAS_INPUT_INDEX] = 1.0;
+        for(index = 1; index < x.length+1; index++)
+        {
+            mInputValues[index] = x[index-1];
+        }
+
+        // Calculate the outputs of the hidden neurons for the given input
+        for(hiddenNeuronIndex = 0; hiddenNeuronIndex < mNumHiddenNeurons; hiddenNeuronIndex++)
+        {
+            mNeuronOutputs[hiddenNeuronIndex] = 0.0;
+
+            // iterate over bias input + inputs
+            for(inputIndex = 0; inputIndex < mNumInputs; inputIndex++)
+            {
+                mNeuronOutputs[hiddenNeuronIndex] += mNeuronWeights[hiddenNeuronIndex] * mInputValues[inputIndex];
+            }
+
+            // Apply the activation function to the weighted sum
+            mNeuronOutputs[hiddenNeuronIndex] = customSigmoid(mNeuronOutputs[hiddenNeuronIndex]);
+        }
+
+        // Calculate the output of the output neuron
+        mOutputValue = 0.0;
+        for(hiddenNeuronIndex = 0; hiddenNeuronIndex < mNumHiddenNeurons; hiddenNeuronIndex++)
+        {
+            mOutputValue += mNeuronOutputs[hiddenNeuronIndex];
+        }
+
+        // Apply the activation function to the weighted sum
+        mOutputValue = customSigmoid(mOutputValue);
+
+        return mOutputValue;
     }
 
     public double train(double[] x, double argValue)
