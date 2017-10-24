@@ -7,7 +7,7 @@ public class TestBench
 {
     public static void main(String[] args) throws IOException
     {
-        int MIN_VAL = 0;
+        int MIN_VAL = -1;
         int MAX_VAL = 1;
         int NUM_INPUTS = 2;
         int NUM_HIDDEN_NEURONS = 4;
@@ -25,7 +25,7 @@ public class TestBench
             {{ 1.0, 0.0, 0.0},
              { 1.0, 0.0, 1.0},
              { 1.0, 1.0, 0.0},
-             { 1.0, 1.0, 0.0}};
+             { 1.0, 1.0, 1.0}};
         double[] BIN_XOR_TRAINING_SET_OUT = new double[]
             { 0.0,
               1.0,
@@ -67,51 +67,34 @@ public class TestBench
         // Part 1a
         // Instantiate the first object
 
-        convergence = 0;
-
-        for(;;)
+        NeuralNetObj = new NeuralNet(NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE, MOMENTUM, MIN_VAL, MAX_VAL);
+        NeuralNetObj.initializeWeights();
+//        NeuralNetObj.printWeights();
+        for(epoch = 0; epoch < 100000; epoch++)
         {
-            NeuralNetObj = new NeuralNet(NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE, MOMENTUM, MIN_VAL, MAX_VAL);
-            NeuralNetObj.initializeWeights();
-
-            epoch = 0;
-
-            do
+            cummError = 0.0;
+            for (index = 0; index < 4; index++)
             {
+                inputVector = XOR_TRAINING_SET_IN[index];
+                outExp = XOR_TRAINING_SET_OUT[index];
+//                System.out.format("Input: %1f %1f %1f ", inputVector[0], inputVector[1], inputVector[2]);
+                NeuralNetObj.outputFor(inputVector);
+                outReal = NeuralNetObj.mOutputNeuronValue;
+//                System.out.format("Output: %5f (expect %1f)\n",
+//                outReal, outExp);
 
-                cummError = 0.0;
+                instError = Math.pow(NeuralNetObj.train(inputVector, outExp), 2.0);
+                cummError += instError;
 
-                for (index = 0; index < 4; index++)
-                {
-                    inputVector = XOR_TRAINING_SET_IN[index];
-                    outExp = XOR_TRAINING_SET_OUT[index];
-
-                    NeuralNetObj.outputFor(inputVector);
-                    outReal = NeuralNetObj.mOutputNeuronValue;
-                                    System.out.format("Output for %1f %1f: %5f (expect %5f)\n",
-                                    inputVector[1], inputVector[2], outReal, outExp);
-
-                    instError = Math.pow(NeuralNetObj.train(inputVector, outExp), 2.0);
-                    cummError += instError;
-
-                }
-                cummError *= 0.5;
-                System.out.println(cummError);
-                epoch++;
             }
-            while(Math.abs(cummError) > 0.05 && epoch < 200000);
-//            System.out.format("Bailed at %d epochs\n", epoch);
-            if(epoch < 200000 && Math.abs(cummError) < 0.05)
+            cummError *= 0.5;
+            if(cummError < 0.05)
             {
-                System.out.format("*** CONVERGED ON EPOCH %d ***\n", epoch);
-                convergence++;
-            }
-
-            if(convergence == 20)
-            {
+                System.out.format("Convered on epoch %d", epoch);
                 break;
             }
         }
+//        NeuralNetObj.printWeights();
     }
 
     public static void printCustomSigmoidFunctions(NeuralNet neuralNetObj, String fileName) throws IOException

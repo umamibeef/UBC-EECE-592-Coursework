@@ -94,9 +94,6 @@ public class NeuralNet implements NeuralNetInterface
         // Zero out the weights (also clears previous entry)
         zeroWeights();
 
-        // Update the bias value to one
-        mInputValues[BIAS_INPUT_INDEX] = 1.0;
-
 //        System.out.format("Hi. Neural net instantiated with %5d inputs and %5d hidden neurons.\n", mNumInputs-1, mNumHiddenNeurons-1);
     }
 
@@ -183,7 +180,7 @@ public class NeuralNet implements NeuralNetInterface
 
     public double calculateWeightDelta(double weightInput, double error, double currentWeight, double previousWeight)
     {
-        double weightDelta, momentumTerm, learningTerm;
+        double momentumTerm, learningTerm;
 
         momentumTerm = mMomentumTerm * (currentWeight - previousWeight);
         learningTerm = mLearningRate * error * weightInput;
@@ -219,12 +216,16 @@ public class NeuralNet implements NeuralNetInterface
         {
             for(input = 0; input < mNumInputs; input++)
             {
+//                System.out.format("HiddenNeuronWeight[%d][%d] was %f ", hiddenNeuron, input, mInputWeights[hiddenNeuron][input]);
                 mInputWeights[hiddenNeuron][input] +=
                     calculateWeightDelta(
                         mInputValues[input],
                         mHiddenNeuronErrors[hiddenNeuron],
                         mInputWeights[hiddenNeuron][input],
                         mPreviousInputWeights[hiddenNeuron][input]);
+//                System.out.format("now %f\n", mInputWeights[hiddenNeuron][input]);
+//                System.out.format("Error was %f\n", mHiddenNeuronErrors[hiddenNeuron]);
+//                System.out.format("Input was %f\n", mInputValues[input]);
             }
         }
     }
@@ -320,6 +321,8 @@ public class NeuralNet implements NeuralNetInterface
     {
         int hiddenNeuron, input;
 
+        mInputValues = x;
+
         // Calculate hidden neuron outputs
         // Bias is included in input vector as the first index
         for(hiddenNeuron = 0; hiddenNeuron < mNumHiddenNeurons; hiddenNeuron++)
@@ -378,11 +381,8 @@ public class NeuralNet implements NeuralNetInterface
      */
     public double train(double[] x, double argValue)
     {
-        // Print weights for debug
-        printWeights();
-
         // Feed forward stage: calculate the output value
-        // this will update the mOutputNeuronValue variable
+        // this will update the neuron outputs
         outputFor(x);
 
         // Calculate errors
