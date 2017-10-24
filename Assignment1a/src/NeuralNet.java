@@ -178,7 +178,7 @@ public class NeuralNet implements NeuralNetInterface
         int i, j;
         double momentumTerm, learningTerm;
 
-        for(i = 1; i < mNumHiddenNeurons; i++)
+        for(i = 0; i < mNumHiddenNeurons; i++)
         {
             // Update the weights to the output neuron
             // Calculate terms
