@@ -35,13 +35,16 @@ public class NeuralNet implements NeuralNetInterface
     public double mLearningRate;
     public double mMomentumTerm;
 
-    // Array to store input values to the neural network, first index is bias input of 1
+    // Array to store input values to the neural network, first index is bias input of 1.0
     public double[] mInputValues = new double[MAX_INPUTS];
 
-    // Array to store neuron weights of hidden layer
-    public static double[][] mHiddenNeuronWeights = new double[MAX_HIDDEN_NEURONS][MAX_INPUTS];
+    // Array to store input weights to the neurons of the hidden layer
+    public static double[][] mInputWeights = new double[MAX_HIDDEN_NEURONS][MAX_INPUTS];
     // Array to store previous weights
-    public static double[][] mPreviousHiddenNeuronWeights = new double[MAX_HIDDEN_NEURONS][MAX_INPUTS];
+    public static double[][] mPreviousInputWeights = new double[MAX_HIDDEN_NEURONS][MAX_INPUTS];
+
+    // Array to store unactivated neuron outputs of the hidden layer
+    public double[] mHiddenNeuronUnactivatedOutputs = new double[MAX_HIDDEN_NEURONS];
     // Array to store neuron outputs of the hidden layer
     public double[] mHiddenNeuronOutputs = new double[MAX_HIDDEN_NEURONS];
     // Array to store neuron errors of the hidden layer
@@ -51,6 +54,12 @@ public class NeuralNet implements NeuralNetInterface
     public static double[] mOutputNeuronWeights = new double[MAX_HIDDEN_NEURONS];
     // Array to store the previous output neuron's weights
     public static double[] mPreviousOutputNeuronWeights = new double[MAX_HIDDEN_NEURONS];
+    // Variables for output neuron bias weight
+    public static double mOutputNeuronBiasWeight;
+    public static double mPreviousOutputNeuronBiasWeight;
+
+    // Variable for unactivated output neuron value
+    public double mOutputNeuronUnactivatedValue;
     // Variable for value of output neuron
     public double mOutputNeuronValue;
     // Variable for out neuron error
@@ -76,8 +85,8 @@ public class NeuralNet implements NeuralNetInterface
         mArgA = argA;
         mArgB = argB;
         // Add one here so that we don't worry about it later in the code (for bias)
-        mNumInputs = argNumInputs+1;
-        mNumHiddenNeurons = argNumHidden+1;
+        mNumInputs = argNumInputs + 1;
+        mNumHiddenNeurons = argNumHidden;
         // Record the learning and momentum rates
         mLearningRate = argLearningRate;
         mMomentumTerm = argMomentumTerm;
@@ -159,15 +168,27 @@ public class NeuralNet implements NeuralNetInterface
         {
             for(j = 0; j < mNumInputs; j++)
             {
-                mHiddenNeuronWeights[i][j] = getRandomDouble(WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
+                mInputWeights[i][j] = getRandomDouble(WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
             }
-            // initialize the output neuron
+            // initialize the output neuron weights
             mOutputNeuronWeights[i] = getRandomDouble(WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
+            mOutputNeuronBiasWeight = getRandomDouble(WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
         }
 
-        mHiddenNeuronWeights[0][0] = 42.0;
-        mHiddenNeuronWeights[0][1] = 42.0;
-        mHiddenNeuronWeights[0][2] = 42.0;
+        // Copy the initial weights into the delta tracking variables
+        mPreviousInputWeights = mInputWeights.clone();
+        mPreviousOutputNeuronWeights = mOutputNeuronWeights.clone();
+        mPreviousOutputNeuronBiasWeight = mOutputNeuronBiasWeight;
+    }
+
+    public double calculateWeightDelta(double weightInput, double error, double currentWeight, double previousWeight)
+    {
+        double weightDelta, momentumTerm, learningTerm;
+
+        momentumTerm = mMomentumTerm * (currentWeight - previousWeight);
+        learningTerm = mLearningRate * error * weightInput;
+
+        return (momentumTerm + learningTerm);
     }
 
     /**
@@ -175,33 +196,35 @@ public class NeuralNet implements NeuralNetInterface
      */
     public void updateWeights()
     {
-        int i, j;
+        int hiddenNeuron, input;
         double momentumTerm, learningTerm;
 
-        for(i = 0; i < mNumHiddenNeurons; i++)
+        // Update the weights to the output neuron
+        // Update the bias input to the output neuron weight
+        mPreviousOutputNeuronBiasWeight = mOutputNeuronBiasWeight;
+        mOutputNeuronBiasWeight +=
+            calculateWeightDelta(1.0, mOutputNeuronError, mOutputNeuronBiasWeight, mPreviousOutputNeuronBiasWeight);
+        for(hiddenNeuron = 0; hiddenNeuron < mNumHiddenNeurons; hiddenNeuron++)
         {
-            // Update the weights to the output neuron
-            // Calculate terms
-            momentumTerm = mMomentumTerm * (mOutputNeuronWeights[i] - mPreviousOutputNeuronWeights[i]);
-            learningTerm = mLearningRate * mOutputNeuronError * mHiddenNeuronOutputs[i];
-            // Save old values
-            mPreviousOutputNeuronWeights = mOutputNeuronWeights.clone();
-            mOutputNeuronWeights[i] = mOutputNeuronWeights[i] + momentumTerm + learningTerm;
+            mOutputNeuronWeights[hiddenNeuron] +=
+                calculateWeightDelta(
+                    mHiddenNeuronOutputs[hiddenNeuron],
+                    mOutputNeuronError,
+                    mOutputNeuronWeights[hiddenNeuron],
+                    mPreviousOutputNeuronWeights[hiddenNeuron]);
+        }
 
-            // No input weights for bias, continue
-            if(i != 0)
+        // Update the weights to the hidden neurons
+        for(hiddenNeuron = 0; hiddenNeuron < mNumHiddenNeurons; hiddenNeuron++)
+        {
+            for(input = 0; input < mNumInputs; input++)
             {
-                for(j = 0; j < mNumInputs; j++)
-                {
-                    // Update the weights to the hidden neurons
-                    // Calculate terms
-                    momentumTerm = mMomentumTerm * (mHiddenNeuronWeights[i][j] - mPreviousHiddenNeuronWeights[i][j]);
-                    learningTerm = mLearningRate * mHiddenNeuronErrors[i] * mInputValues[j];
-                    // Save old values
-                    mPreviousHiddenNeuronWeights = mHiddenNeuronWeights.clone();
-                    // Update hidden neuron weights
-                    mHiddenNeuronWeights[i][j] = mHiddenNeuronWeights[i][j] + momentumTerm + learningTerm;
-                }
+                mInputWeights[hiddenNeuron][input] +=
+                    calculateWeightDelta(
+                        mInputValues[input],
+                        mHiddenNeuronErrors[hiddenNeuron],
+                        mInputWeights[hiddenNeuron][input],
+                        mPreviousInputWeights[hiddenNeuron][input]);
             }
         }
     }
@@ -234,24 +257,23 @@ public class NeuralNet implements NeuralNetInterface
         System.out.format("%5f\n", mOutputNeuronError);
     }
 
-    public void printNeuronWeights()
+    public void printWeights()
     {
         int i, j;
 
         System.out.println("Current neuron weights are as follows:");
-        System.out.println("\tInput neuron weights");
+        System.out.println("\tHidden neuron weights");
         for(i = 0; i < mNumHiddenNeurons; i++)
         {
             for (j = 0; j < mNumInputs; j++)
             {
-//                System.out.format("\t\tInner neuron %d input %d has weight of %5f\n", i, j, mHiddenNeuronWeights[i][j]);
-                System.out.format("%d %d %5f\n", i, j, mHiddenNeuronWeights[i][j]);
+                System.out.format("%d %d %5f\n", i, j, mInputWeights[i][j]);
             }
         }
-        System.out.println("\tOutput Neuron Weights");
+        System.out.println("\tOutput neuron weights");
+        System.out.format("b %5f\n", mOutputNeuronBiasWeight);
         for(i = 0; i < mNumHiddenNeurons; i++)
         {
-//            System.out.format("\t\tOutput neuron input %d has weight of %5f\n", i, mOutputNeuronWeights[i]);
             System.out.format("%d %5f\n", i, mOutputNeuronWeights[i]);
         }
     }
@@ -281,8 +303,8 @@ public class NeuralNet implements NeuralNetInterface
         {
             for(j = 0; j < mNumInputs; j++)
             {
-                mPreviousHiddenNeuronWeights[i][j] = 0.0;
-                mHiddenNeuronWeights[i][j] = 0.0;
+                mInputWeights[i][j] = 0.0;
+                mPreviousInputWeights[i][j] = 0.0;
             }
             // initialize the output neuron
             mPreviousOutputNeuronWeights[i] = 0.0;
@@ -296,38 +318,54 @@ public class NeuralNet implements NeuralNetInterface
      */
     public double outputFor(double[] x)
     {
-        int i, j;
+        int hiddenNeuron, input;
 
-//        System.out.format("Input values: %1f %1f %1f\n", mInputValues[0], mInputValues[1], mInputValues[2]);
-
-        // Calculate the outputs of the hidden neurons for the given input
-        // We use the mHiddenNeuronOutputs[0] as the bias input to the output stage
-        mHiddenNeuronOutputs[BIAS_INPUT_INDEX] = 1.0;
-        for(i = 1; i < mNumHiddenNeurons; i++)
+        // Calculate hidden neuron outputs
+        // Bias is included in input vector as the first index
+        for(hiddenNeuron = 0; hiddenNeuron < mNumHiddenNeurons; hiddenNeuron++)
         {
-            mHiddenNeuronOutputs[i] = 0.0;
 
+            mHiddenNeuronUnactivatedOutputs[hiddenNeuron] = 0.0;
             // iterate over bias input + inputs
-            for(j = 0; j < mNumInputs; j++)
+            for(input = 0; input < mNumInputs; input++)
             {
-                mHiddenNeuronOutputs[i] += mHiddenNeuronWeights[i][j] * mInputValues[j];
+                mHiddenNeuronUnactivatedOutputs[hiddenNeuron] += mInputWeights[hiddenNeuron][input] * mInputValues[input];
             }
-
             // Apply the activation function to the weighted sum
-            mHiddenNeuronOutputs[i] = customSigmoid(mHiddenNeuronOutputs[i]);
+            mHiddenNeuronOutputs[hiddenNeuron] = customSigmoid(mHiddenNeuronUnactivatedOutputs[hiddenNeuron]);
         }
 
         // Calculate the output of the output neuron
-        mOutputNeuronValue = 0.0;
-        for(i = 0; i < mNumHiddenNeurons; i++)
+        mOutputNeuronUnactivatedValue = 0.0;
+        for(hiddenNeuron = 0; hiddenNeuron < mNumHiddenNeurons; hiddenNeuron++)
         {
-            mOutputNeuronValue += mHiddenNeuronOutputs[i] * mOutputNeuronWeights[i];
+            mOutputNeuronUnactivatedValue += mHiddenNeuronOutputs[hiddenNeuron] * mOutputNeuronWeights[hiddenNeuron];
         }
-
+        // Add the output bias
+        mOutputNeuronUnactivatedValue += (1.0 * mOutputNeuronBiasWeight);
         // Apply the activation function to the weighted sum
-        mOutputNeuronValue = customSigmoid(mOutputNeuronValue);
+        mOutputNeuronValue = customSigmoid(mOutputNeuronUnactivatedValue);
 
         return mOutputNeuronValue;
+    }
+
+    /**
+     * This method calculates the error based on the current input & output.
+     * It is expected that outputFor has been called before this method call.
+     * @param expectedValue The expected output value for the current input
+     */
+    public void calculateErrors(double expectedValue)
+    {
+        int hiddenNeuron;
+
+        // Calculate the output error from the feed forward
+        mOutputNeuronError = (expectedValue - mOutputNeuronValue) * customSigmoidDerivative(mOutputNeuronUnactivatedValue);
+
+        // Backpropagate the output error
+        for(hiddenNeuron = 0; hiddenNeuron < mNumHiddenNeurons; hiddenNeuron++)
+        {
+            mHiddenNeuronErrors[hiddenNeuron] = mOutputNeuronError * mOutputNeuronWeights[hiddenNeuron] * customSigmoidDerivative(mHiddenNeuronUnactivatedOutputs[hiddenNeuron]);
+        }
     }
 
     /**
@@ -340,19 +378,15 @@ public class NeuralNet implements NeuralNetInterface
      */
     public double train(double[] x, double argValue)
     {
-        int i;
+        // Print weights for debug
+        printWeights();
 
-        // calculate the output value
+        // Feed forward stage: calculate the output value
+        // this will update the mOutputNeuronValue variable
         outputFor(x);
 
-        // calculate the output error
-        mOutputNeuronError = (argValue - mOutputNeuronValue) * customSigmoidDerivative(mOutputNeuronValue);
-
-        // backpropagate the output error
-        for(i = 0; i < mNumHiddenNeurons; i++)
-        {
-            mHiddenNeuronErrors[i] = mOutputNeuronError * mOutputNeuronWeights[i] * customSigmoidDerivative(mHiddenNeuronOutputs[i]);
-        }
+        // Calculate errors
+        calculateErrors(argValue);
 
         // perform weight update
         updateWeights();

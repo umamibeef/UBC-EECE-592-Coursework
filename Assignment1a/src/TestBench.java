@@ -1,7 +1,11 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class TestBench
 {
-    public static void main(String[] args)
+    public static void main(String[] args) throws IOException
     {
         int MIN_VAL = 0;
         int MAX_VAL = 1;
@@ -49,6 +53,17 @@ public class TestBench
             XOR_TRAINING_SET_OUT = BIP_XOR_TRAINING_SET_OUT;
         }
 
+        // Print out a CSV to validate the sigmoid function implementations
+//        NeuralNetObj = new NeuralNet(NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE, MOMENTUM, MIN_VAL, MAX_VAL);
+//        try
+//        {
+//            printCustomSigmoidFunctions(NeuralNetObj, "sigmoids.csv");
+//        }
+//        catch (IOException e)
+//        {
+//            System.out.println("Couldn't write to csv");
+//        }
+
         // Part 1a
         // Instantiate the first object
 
@@ -72,9 +87,9 @@ public class TestBench
                     outExp = XOR_TRAINING_SET_OUT[index];
 
                     NeuralNetObj.outputFor(inputVector);
-//                    outReal = NeuralNetObj.mOutputNeuronValue;
-//                                    System.out.format("Output for %1f %1f: %5f (expect %5f)\n",
-//                                    inputVector[1], inputVector[2], outReal, outExp);
+                    outReal = NeuralNetObj.mOutputNeuronValue;
+                                    System.out.format("Output for %1f %1f: %5f (expect %5f)\n",
+                                    inputVector[1], inputVector[2], outReal, outExp);
 
                     instError = Math.pow(NeuralNetObj.train(inputVector, outExp), 2.0);
                     cummError += instError;
@@ -97,5 +112,21 @@ public class TestBench
                 break;
             }
         }
+    }
+
+    public static void printCustomSigmoidFunctions(NeuralNet neuralNetObj, String fileName) throws IOException
+    {
+        double x, y, yPrime;
+
+        PrintWriter printWriter = new PrintWriter(new FileWriter(fileName));
+
+        printWriter.printf("x, Y(x), Y'(x),\n");
+        for(x = -5.0; x <= 5.0; x += 0.1)
+        {
+            y = neuralNetObj.customSigmoid(x);
+            yPrime = neuralNetObj.customSigmoidDerivative(x);
+            printWriter.printf("%f, %f, %f\n", x, y, yPrime);
+        }
+        printWriter.close();
     }
 }
