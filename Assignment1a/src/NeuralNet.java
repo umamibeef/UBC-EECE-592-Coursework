@@ -47,7 +47,7 @@ public class NeuralNet implements NeuralNetInterface
     // Array to store neuron errors of the hidden layer
     public double[] mHiddenNeuronErrors = new double[MAX_HIDDEN_NEURONS];
 
-    // Array to store the output neuron's weights
+    // Array to store the output neuron's input weights
     public static double[] mOutputNeuronWeights = new double[MAX_HIDDEN_NEURONS];
     // Array to store the previous output neuron's weights
     public static double[] mPreviousOutputNeuronWeights = new double[MAX_HIDDEN_NEURONS];
@@ -88,7 +88,7 @@ public class NeuralNet implements NeuralNetInterface
         // Update the bias value to one
         mInputValues[BIAS_INPUT_INDEX] = 1.0;
 
-        System.out.format("Hi. Neural net instantiated with %5d inputs and %5d hidden neurons.\n", mNumInputs-1, mNumHiddenNeurons-1);
+//        System.out.format("Hi. Neural net instantiated with %5d inputs and %5d hidden neurons.\n", mNumInputs-1, mNumHiddenNeurons-1);
     }
 
     /**
@@ -180,22 +180,29 @@ public class NeuralNet implements NeuralNetInterface
 
         for(i = 1; i < mNumHiddenNeurons; i++)
         {
-            for(j = 0; j < mNumInputs; j++)
-            {
-                // Calculate terms
-                momentumTerm = mMomentumTerm * (mHiddenNeuronWeights[i][j] - mPreviousHiddenNeuronWeights[i][j]);
-                learningTerm = mLearningRate * mHiddenNeuronErrors[i] * mInputValues[j];
-                // Save old values
-                mPreviousHiddenNeuronWeights = mHiddenNeuronWeights.clone();
-                // Update hidden neuron weights
-                mHiddenNeuronWeights[i][j] = mHiddenNeuronWeights[i][j] + momentumTerm + learningTerm;
-            }
+            // Update the weights to the output neuron
             // Calculate terms
             momentumTerm = mMomentumTerm * (mOutputNeuronWeights[i] - mPreviousOutputNeuronWeights[i]);
             learningTerm = mLearningRate * mOutputNeuronError * mHiddenNeuronOutputs[i];
             // Save old values
             mPreviousOutputNeuronWeights = mOutputNeuronWeights.clone();
             mOutputNeuronWeights[i] = mOutputNeuronWeights[i] + momentumTerm + learningTerm;
+
+            // No input weights for bias, continue
+            if(i != 0)
+            {
+                for(j = 0; j < mNumInputs; j++)
+                {
+                    // Update the weights to the hidden neurons
+                    // Calculate terms
+                    momentumTerm = mMomentumTerm * (mHiddenNeuronWeights[i][j] - mPreviousHiddenNeuronWeights[i][j]);
+                    learningTerm = mLearningRate * mHiddenNeuronErrors[i] * mInputValues[j];
+                    // Save old values
+                    mPreviousHiddenNeuronWeights = mHiddenNeuronWeights.clone();
+                    // Update hidden neuron weights
+                    mHiddenNeuronWeights[i][j] = mHiddenNeuronWeights[i][j] + momentumTerm + learningTerm;
+                }
+            }
         }
     }
 
@@ -291,13 +298,6 @@ public class NeuralNet implements NeuralNetInterface
     {
         int i, j;
 
-        // Add the inputs to the input array
-        // We use mInputValues[0] as the bias input to the hidden neuron stage
-        mInputValues[BIAS_INPUT_INDEX] = 1.0;
-        for(i = 1; i < x.length+1; i++)
-        {
-            mInputValues[i] = x[i-1];
-        }
 //        System.out.format("Input values: %1f %1f %1f\n", mInputValues[0], mInputValues[1], mInputValues[2]);
 
         // Calculate the outputs of the hidden neurons for the given input
@@ -330,19 +330,6 @@ public class NeuralNet implements NeuralNetInterface
         return mOutputNeuronValue;
     }
 
-    public double calculateError(double[] required, double[] actual)
-    {
-        double result = 0;
-        int i;
-
-        for(i = 0; i < required.length; i++)
-        {
-            result += Math.pow((actual[i] - required[i]), 2);
-        }
-
-        return result * 0.5;
-    }
-
     /**
      * This method will tell the NN the output
      * value that should be mapped to the given input vector. I.e.
@@ -356,29 +343,22 @@ public class NeuralNet implements NeuralNetInterface
         int i;
 
         // calculate the output value
-//        printNeuronWeights();
         outputFor(x);
-//        printNeuronOutputs();
 
         // calculate the output error
-        mOutputNeuronError = (argValue - mOutputNeuronValue) * mOutputNeuronValue * customSigmoidDerivative(mOutputNeuronValue);
-//        System.out.format("Expected %1f but got %5f, giving error of %5f\n", argValue, mOutputNeuronValue, mOutputNeuronError);
+        mOutputNeuronError = (argValue - mOutputNeuronValue) * customSigmoidDerivative(mOutputNeuronValue);
 
-        // backpropagate the error
+        // backpropagate the output error
         for(i = 0; i < mNumHiddenNeurons; i++)
         {
             mHiddenNeuronErrors[i] = mOutputNeuronError * mOutputNeuronWeights[i] * customSigmoidDerivative(mHiddenNeuronOutputs[i]);
         }
 
-//        printNeuronErrors();
-
         // perform weight update
-//        System.out.println("WEIGHT UPDATE");
         updateWeights();
-//        printNeuronWeights();
 
         // Return the error in the output from what we expected
-        return argValue - mOutputNeuronValue;
+        return (argValue - mOutputNeuronValue);
     }
 
     public void save(File argFile)
