@@ -184,7 +184,6 @@ public class NeuralNet implements NeuralNetInterface
 
         momentumTerm = mMomentumTerm * (currentWeight - previousWeight);
         learningTerm = mLearningRate * error * weightInput;
-
         return (momentumTerm + learningTerm);
     }
 
@@ -194,16 +193,16 @@ public class NeuralNet implements NeuralNetInterface
     public void updateWeights()
     {
         int hiddenNeuron, input;
-        double momentumTerm, learningTerm;
+        double newOutputNeuronBiasWeight;
+        double[] newOutputNeuronWeights = new double[MAX_HIDDEN_NEURONS];
+        double[][] newInputNeuronWeights = new double[MAX_HIDDEN_NEURONS][MAX_INPUTS];
 
         // Update the weights to the output neuron
         // Update the bias input to the output neuron weight
-        mPreviousOutputNeuronBiasWeight = mOutputNeuronBiasWeight;
-        mOutputNeuronBiasWeight +=
-            calculateWeightDelta(1.0, mOutputNeuronError, mOutputNeuronBiasWeight, mPreviousOutputNeuronBiasWeight);
+        newOutputNeuronBiasWeight = mOutputNeuronBiasWeight + calculateWeightDelta(1.0, mOutputNeuronError, mOutputNeuronBiasWeight, mPreviousOutputNeuronBiasWeight);
         for(hiddenNeuron = 0; hiddenNeuron < mNumHiddenNeurons; hiddenNeuron++)
         {
-            mOutputNeuronWeights[hiddenNeuron] +=
+            newOutputNeuronWeights[hiddenNeuron] = mOutputNeuronWeights[hiddenNeuron] +
                 calculateWeightDelta(
                     mHiddenNeuronOutputs[hiddenNeuron],
                     mOutputNeuronError,
@@ -211,23 +210,28 @@ public class NeuralNet implements NeuralNetInterface
                     mPreviousOutputNeuronWeights[hiddenNeuron]);
         }
 
+
         // Update the weights to the hidden neurons
         for(hiddenNeuron = 0; hiddenNeuron < mNumHiddenNeurons; hiddenNeuron++)
         {
             for(input = 0; input < mNumInputs; input++)
             {
-//                System.out.format("HiddenNeuronWeight[%d][%d] was %f ", hiddenNeuron, input, mInputWeights[hiddenNeuron][input]);
-                mInputWeights[hiddenNeuron][input] +=
+                newInputNeuronWeights[hiddenNeuron][input] = mInputWeights[hiddenNeuron][input] +
                     calculateWeightDelta(
                         mInputValues[input],
                         mHiddenNeuronErrors[hiddenNeuron],
                         mInputWeights[hiddenNeuron][input],
                         mPreviousInputWeights[hiddenNeuron][input]);
-//                System.out.format("now %f\n", mInputWeights[hiddenNeuron][input]);
-//                System.out.format("Error was %f\n", mHiddenNeuronErrors[hiddenNeuron]);
-//                System.out.format("Input was %f\n", mInputValues[input]);
             }
         }
+
+        mPreviousOutputNeuronBiasWeight = mOutputNeuronBiasWeight;
+        mPreviousOutputNeuronWeights = mOutputNeuronWeights.clone();
+        mPreviousInputWeights = mInputWeights.clone();
+
+        mOutputNeuronBiasWeight = newOutputNeuronBiasWeight;
+        mOutputNeuronWeights = newOutputNeuronWeights.clone();
+        mInputWeights = newInputNeuronWeights.clone();
     }
 
     public void printNeuronOutputs()
