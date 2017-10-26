@@ -13,17 +13,13 @@ public class NeuralNet implements NeuralNetInterface
     // Constants
     static final int MAX_HIDDEN_NEURONS =  16;
     static final int MAX_INPUTS =          16;
-    static final int FIRST_INPUT_INDEX =   1;
-    static final int BIAS_INPUT_INDEX =    0;
-    static final int FIRST_WEIGHT_INDEX =  1;
-    static final int BIAS_WEIGHT_INDEX =   0;
-    static final double WEIGHT_INIT_MIN =  -0.5;
-    static final double WEIGHT_INIT_MAX =  0.5;
 
     // Private member variables
     // Limits for custom sigmoid activation function used by the output neuron
     private double mArgA;
     private double mArgB;
+    private double mWeightInitMin;
+    private double mWeightInitMax;
 
     // Public member variables
     // Neural network parameters
@@ -75,22 +71,25 @@ public class NeuralNet implements NeuralNetInterface
      * @param argB Integer upper bound of sigmoid used by the output neuron only.
     */
     public NeuralNet(int argNumInputs,
-                              int argNumHidden,
-                              double argLearningRate,
-                              double argMomentumTerm,
-                              double argA,
-                              double argB)
+                     int argNumHidden,
+                     double argLearningRate,
+                     double argMomentumTerm,
+                     double argA,
+                     double argB,
+                     double argWeightInitMin,
+                     double argWeightInitMax)
     {
         // Update our private variables
         mArgA = argA;
         mArgB = argB;
+        mWeightInitMin = argWeightInitMin;
+        mWeightInitMax = argWeightInitMax;
         // Add one here so that we don't worry about it later in the code (for bias)
         mNumInputs = argNumInputs + 1;
         mNumHiddenNeurons = argNumHidden;
         // Record the learning and momentum rates
         mLearningRate = argLearningRate;
         mMomentumTerm = argMomentumTerm;
-
         // Zero out the weights (also clears previous entry)
         zeroWeights();
 
@@ -165,11 +164,11 @@ public class NeuralNet implements NeuralNetInterface
         {
             for(j = 0; j < mNumInputs; j++)
             {
-                mInputWeights[i][j] = getRandomDouble(WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
+                mInputWeights[i][j] = getRandomDouble(mWeightInitMin, mWeightInitMax);
             }
             // initialize the output neuron weights
-            mOutputNeuronWeights[i] = getRandomDouble(WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
-            mOutputNeuronBiasWeight = getRandomDouble(WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
+            mOutputNeuronWeights[i] = getRandomDouble(mWeightInitMin, mWeightInitMax);
+            mOutputNeuronBiasWeight = getRandomDouble(mWeightInitMin, mWeightInitMax);
         }
 
         // Copy the initial weights into the delta tracking variables

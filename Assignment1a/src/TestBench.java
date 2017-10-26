@@ -41,16 +41,22 @@ public class TestBench
     static final int MAX_VAL_1A = 1;
     static final double MOMENTUM_1A = 0.0;
     static final double LEARNING_RATE_1A = 0.2;
+    static final double WEIGHT_INIT_MIN_1A = -0.5;
+    static final double WEIGHT_INIT_MAX_1A = 0.5;
     // 1b
     static final int MIN_VAL_1B = -1;
     static final int MAX_VAL_1B = 1;
     static final double MOMENTUM_1B = 0.0;
     static final double LEARNING_RATE_1B = 0.2;
+    static final double WEIGHT_INIT_MIN_1B = -1.5;
+    static final double WEIGHT_INIT_MAX_1B = 1.5;
     // 1c
     static final int MIN_VAL_1C = -1;
     static final int MAX_VAL_1C = 1;
     static final double MOMENTUM_1C = 0.9;
     static final double LEARNING_RATE_1C = 0.2;
+    static final double WEIGHT_INIT_MIN_1C = -1.5;
+    static final double WEIGHT_INIT_MAX_1C = 1.5;
 
     public static void main(String[] args) throws IOException
     {
@@ -61,7 +67,8 @@ public class TestBench
         try
         {
             // Print out a CSV to validate the sigmoid function implementations
-            neuralNetObj = new NeuralNet(NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE_1A, MOMENTUM_1A, MIN_VAL_1A, MAX_VAL_1A);
+            neuralNetObj = new NeuralNet(
+                NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE_1A, MOMENTUM_1A, MIN_VAL_1A, MAX_VAL_1A, WEIGHT_INIT_MIN_1A, WEIGHT_INIT_MAX_1A);
             printCustomSigmoidFunctions(neuralNetObj, "sigmoids.csv");
 
             // Part 1a
@@ -70,7 +77,8 @@ public class TestBench
             // perform many trials to get your results, although you don’t need to plot them all.
             // Find out average number of epochs it takes to converge on binary XOR
             System.out.println("Starting 1a...");
-            neuralNetObj = new NeuralNet(NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE_1A, MOMENTUM_1A, MIN_VAL_1A, MAX_VAL_1A);
+            neuralNetObj = new NeuralNet(
+                NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE_1A, MOMENTUM_1A, MIN_VAL_1A, MAX_VAL_1A, WEIGHT_INIT_MIN_1A, WEIGHT_INIT_MAX_1A);
             epochAverage = runTrials(neuralNetObj, BIN_XOR_TRAINING_SET_IN, BIN_XOR_TRAINING_SET_OUT, CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, MAXIMUM_EPOCHS, results);
             System.out.format("1a: %d successful trials to %1.2f total squared error convergence was average %1.3f\n", CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, epochAverage);
             printTrialResults(results, "1a.csv");
@@ -79,7 +87,8 @@ public class TestBench
             // This time use a bipolar representation. Again, graph your results to show the total error varying
             // against number of epochs. On average, how many epochs to reach a total error of less than 0.05?
             System.out.println("Starting 1b...");
-            neuralNetObj = new NeuralNet(NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE_1B, MOMENTUM_1B, MIN_VAL_1B, MAX_VAL_1B);
+            neuralNetObj = new NeuralNet(
+                NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE_1B, MOMENTUM_1B, MIN_VAL_1B, MAX_VAL_1B, WEIGHT_INIT_MIN_1B, WEIGHT_INIT_MAX_1B);
             epochAverage = runTrials(neuralNetObj, BIP_XOR_TRAINING_SET_IN, BIP_XOR_TRAINING_SET_OUT, CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, MAXIMUM_EPOCHS, results);
             System.out.format("1b: %d successful trials to %1.2f total squared error convergence was average %1.3f\n", CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, epochAverage);
             printTrialResults(results, "1b.csv");
@@ -87,7 +96,8 @@ public class TestBench
             // Part 1c
             // Now set the momentum to 0.9. What does the graph look like now and how fast can 0.05 be reached?
             System.out.println("Starting 1c...");
-            neuralNetObj = new NeuralNet(NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE_1C, MOMENTUM_1C, MIN_VAL_1C, MAX_VAL_1C);
+            neuralNetObj = new NeuralNet(
+                NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE_1C, MOMENTUM_1C, MIN_VAL_1C, MAX_VAL_1C, WEIGHT_INIT_MIN_1C, WEIGHT_INIT_MAX_1C);
             epochAverage = runTrials(neuralNetObj, BIP_XOR_TRAINING_SET_IN, BIP_XOR_TRAINING_SET_OUT, CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, MAXIMUM_EPOCHS, results);
             System.out.format("1c: %d successful trials to %1.2f total squared error convergence was average %1.3f\n", CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, epochAverage);
             printTrialResults(results, "1c.csv");
