@@ -1,8 +1,7 @@
 /**
  * Interface for the Look Up Table (LUT) Class
  * You should 'implement' this interface
- * @date 20 June 012
- * @author sarbjit
+ * @author mmkakulp
  *
  */
 public interface LUTInterface extends CommonInterface
