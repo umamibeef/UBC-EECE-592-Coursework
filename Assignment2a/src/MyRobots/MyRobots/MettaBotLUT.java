@@ -1,17 +1,20 @@
 package MyRobots;
 
 import robocode.*;
+import robocode.Robot;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Set;
 
 import static java.awt.event.KeyEvent.*;
 
-public class MettaBotLUT extends AdvancedRobot
+public class MettaBotLUT extends AdvancedRobot //Robot
 {
-    // Constants used in the robot
+    // Misc. Constants used in the robot
     public static final int ARENA_SIZEX_PX = 800;
     public static final int ARENA_SIZEY_PX = 600;
     public static final int ENEMY_ENERGY_THRESHOLD = 50;
@@ -41,6 +44,9 @@ public class MettaBotLUT extends AdvancedRobot
     public static final int ACTION_AIM_WIDTH = 2;
     public static final int ACTION_FIRE_OFFSET = 4;
     public static final int ACTION_FIRE_WIDTH = 2;
+    // LUT file and properties
+    public static final String lutFileName = "./ass2lut.dat";
+    File mLutFile;
 
     // State variables
     public boolean mDebug = DEBUG_ON;
@@ -72,6 +78,8 @@ public class MettaBotLUT extends AdvancedRobot
 
     public void run()
     {
+        Set<Integer> keys;
+
         // Set colours
         setColors(Color.PINK, Color.PINK, Color.PINK, Color.PINK, Color.PINK);
         // Set robot properties
@@ -79,18 +87,21 @@ public class MettaBotLUT extends AdvancedRobot
         setAdjustRadarForGunTurn(true);
         setAdjustRadarForRobotTurn(true);
 
-        waitFor(mTurnComplete);
-        waitFor(mMoveComplete);
-        waitFor(mGunMoveComplete);
+        mLutFile = getDataFile(lutFileName);
+        loadLut(mLutFile);
 
-        // Put robot in a known orientation
-        turnGunRight(-getGunHeading());
-        setTurnRight(-getHeading());
-        execute();
+        keys = mReinforcementLearningLUTHashMap.keySet();
+
+        for(Integer i: keys)
+        {
+            printDebug("0x%08x %f\n", i, mReinforcementLearningLUTHashMap.get(i));
+        }
+
+        printDebug("Data available: %d bytes\n", 	getDataQuotaAvailable());
 
         for(;;)
         {
-            turnRadarRight(90);
+            turnRadarRight(360);
             performRandomAction();
         }
     }
@@ -108,18 +119,18 @@ public class MettaBotLUT extends AdvancedRobot
     {
         switch (e.getKeyCode())
         {
-//            case VK_UP:
-//                parseActionHash(generateActionHash(MOVE_UP, FIRE_0, AIM_ST));
-//                break;
-//            case VK_DOWN:
-//                parseActionHash(generateActionHash(MOVE_DN, FIRE_0, AIM_ST));
-//                break;
-//            case VK_LEFT:
-//                parseActionHash(generateActionHash(MOVE_LT, FIRE_0, AIM_ST));
-//                break;
-//            case VK_RIGHT:
-//                parseActionHash(generateActionHash(MOVE_RT, FIRE_0, AIM_ST));
-//                break;
+            //case VK_UP:
+            //    parseActionHash(generateActionHash(MOVE_UP, FIRE_0, AIM_ST));
+            //    break;
+            //case VK_DOWN:
+            //    parseActionHash(generateActionHash(MOVE_DN, FIRE_0, AIM_ST));
+            //    break;
+            //case VK_LEFT:
+            //    parseActionHash(generateActionHash(MOVE_LT, FIRE_0, AIM_ST));
+            //    break;
+            //case VK_RIGHT:
+            //    parseActionHash(generateActionHash(MOVE_RT, FIRE_0, AIM_ST));
+            //    break;
         }
     }
 
@@ -127,7 +138,7 @@ public class MettaBotLUT extends AdvancedRobot
     {
         double angle;
 
-        System.out.println("==[SCAN]================================");
+        printDebug("==[SCAN]==========================================\n");
         // Obtain state information
         // Robot's info
         mRobotX = (int)getX();
@@ -141,7 +152,7 @@ public class MettaBotLUT extends AdvancedRobot
         mEnemyDistance = (int)event.getDistance();
         mEnemyHeading = (int)event.getHeading();
         mEnemyBearing = (int)event.getBearing();
-        mEnemyBearingFromGun = mRobotGunBearing + mEnemyBearing;
+        mEnemyBearingFromGun = normalizeAngle(mRobotGunBearing + mEnemyBearing);
         mEnemyEnergy = (int)event.getEnergy();
         // Calculate the enemy's last know position
         // Calculate the angle to the scanned robot
@@ -150,26 +161,22 @@ public class MettaBotLUT extends AdvancedRobot
         mEnemyX = (int)(getX() + Math.sin(angle) * event.getDistance());
         mEnemyY = (int)(getY() + Math.cos(angle) * event.getDistance());
 
-        if(mDebug)
-        {
-            System.out.format("Robot: X %d Y %d Heading %d GunHeading %d Energy %d\n",
+
+        printDebug("Robot: X %d Y %d Heading %d GunHeading %d Energy %d\n",
             mRobotX, mRobotY, mRobotHeading, mRobotGunHeading, mRobotEnergy);
-            System.out.format("Enemy: Distance %d Heading %d Bearing %d BearingFromGun %d Energy %d\n",
+        printDebug("Enemy: Distance %d Heading %d Bearing %d BearingFromGun %d Energy %d\n",
             mEnemyDistance, mEnemyHeading, mEnemyBearing, mEnemyBearingFromGun, mEnemyEnergy);
-        }
 
-        generateStateHash();
-
+        mReinforcementLearningLUTHashMap.put(generateStateHash(), 0.5);
     }
 
     public void onBattleEnded(BattleEndedEvent event)
     {
-
+        saveLut(mLutFile);
     }
 
     public void onDeath(DeathEvent event)
     {
-
     }
 
     public void onWin(WinEvent event)
@@ -239,12 +246,9 @@ public class MettaBotLUT extends AdvancedRobot
         stateHash = updateIntField(stateHash, 5, 20, quantEnemyBearingFromGun);
         stateHash = updateIntField(stateHash, 1, 25, quantEnemyEnergy);
 
-        if(mDebug)
-        {
-            System.out.format("Quantized values: %d %d %d %d %d %d\n",
-                quantRobotX, quantRobotY, quantDistance, quantRobotHeading, quantEnemyBearingFromGun, quantEnemyEnergy);
-            System.out.format("State hash: 0x%08x\n", stateHash);
-        }
+        printDebug("Quantized values: %d %d %d %d %d %d\n",
+            quantRobotX, quantRobotY, quantDistance, quantRobotHeading, quantEnemyBearingFromGun, quantEnemyEnergy);
+        printDebug("State hash: 0x%08x\n", stateHash);
 
         // Check if any values are negative, something went wrong
         if( (quantRobotX < 0) || (quantRobotY < 0) ||
@@ -274,10 +278,7 @@ public class MettaBotLUT extends AdvancedRobot
         actionHash = updateIntField(actionHash, ACTION_FIRE_WIDTH, ACTION_FIRE_OFFSET, fireAction);
         actionHash = updateIntField(actionHash, ACTION_AIM_WIDTH, ACTION_AIM_OFFSET, aimAction);
 
-        if(mDebug)
-        {
-            System.out.format("Action hash: 0x%08x\n", actionHash);
-        }
+        printDebug("Action hash: 0x%08x\n", actionHash);
 
         return actionHash;
     }
@@ -315,10 +316,12 @@ public class MettaBotLUT extends AdvancedRobot
                 break;
         }
         setTurnRight(newHeading);
+        //turnRight(newHeading);
         // Execute the turn
         execute();
         waitFor(mTurnComplete);
         setAhead(MOVE_DISTANCE);
+        //ahead(MOVE_DISTANCE);
         // Execute the ahead
         execute();
         waitFor(mMoveComplete);
@@ -335,15 +338,18 @@ public class MettaBotLUT extends AdvancedRobot
         {
             case AIM_ST:
                 // Aim directly for the enemy
-                setTurnGunRight(estimatedEnemyBearingFromGun);
+                //setTurnGunRight(estimatedEnemyBearingFromGun);
+                turnGunRight(estimatedEnemyBearingFromGun);
                 break;
             case AIM_LT:
                 // Aim to the left of the enemy by a modifier
-                setTurnGunRight(estimatedEnemyBearingFromGun - AIM_MOD);
+                //setTurnGunRight(estimatedEnemyBearingFromGun - AIM_MOD);
+                turnGunRight(estimatedEnemyBearingFromGun - AIM_MOD);
                 break;
             case AIM_RT:
                 // Aim to the ri ght of the enemy by a modifier
-                setTurnGunRight(estimatedEnemyBearingFromGun + AIM_MOD);
+                //setTurnGunRight(estimatedEnemyBearingFromGun + AIM_MOD);
+                turnGunRight(estimatedEnemyBearingFromGun + AIM_MOD);
                 break;
             default:
                 // We should never be in here, do nothing.
@@ -363,10 +369,12 @@ public class MettaBotLUT extends AdvancedRobot
             case FIRE_1:
                 // Fire a 1 power bullet
                 setFireBullet(1.0);
+                //fireBullet(1.0);
                 break;
             case FIRE_3:
                 // Fire a 3 power bullet
                 setFireBullet(3.0);
+                //fireBullet(3.0);
                 break;
             default:
                 // We should never be in here, do nothing.
@@ -402,24 +410,28 @@ public class MettaBotLUT extends AdvancedRobot
         int xo = x1 - x0;
         int yo = y1 - y0;
         double hyp = calculateDistance(x0, y0, x1, y1);
-        double arcSin = Math.toDegrees(Math.asin(xo / hyp));
+        double asin = Math.toDegrees(Math.asin(xo / hyp));
         double bearing = 0;
 
         if (xo > 0 && yo > 0)
-        { // both pos: lower-Left
-            bearing = arcSin;
+        {
+            // both pos: lower-Left
+            bearing = asin;
         }
         else if (xo < 0 && yo > 0)
-        { // x neg, y pos: lower-right
-            bearing = 360 + arcSin; // arcsin is negative here, actually 360 - ang
+        {
+            // x neg, y pos: lower-right
+            bearing = 360 + asin; // arcsin is negative here, actually 360 - ang
         }
         else if (xo > 0 && yo < 0)
-        { // x pos, y neg: upper-left
-            bearing = 180 - arcSin;
+        {
+            // x pos, y neg: upper-left
+            bearing = 180 - asin;
         }
         else if (xo < 0 && yo < 0)
-        { // both neg: upper-right
-            bearing = 180 - arcSin; // arcsin is negative here, actually 180 + ang
+        {
+            // both neg: upper-right
+            bearing = 180 - asin; // arcsin is negative here, actually 180 + ang
         }
 
         return bearing;
@@ -505,5 +517,62 @@ public class MettaBotLUT extends AdvancedRobot
         quantizedVal = (int)((double)value * (double)quantizedMax / (double)realMax);
 
         return quantizedVal;
+    }
+
+    /**
+     * Conditionally prints a message if the debug flag is on
+     * @param format The string to format
+     * @param arguments The string format's variables
+     */
+    public void printDebug(String format, Object... arguments)
+    {
+        if(mDebug)
+        {
+            System.out.format(format, arguments);
+        }
+    }
+
+    /**
+     * Save the lookup table hashmap
+     * @param lutFile The filename to use for the lookup table hashmap
+     */
+    public void saveLut(File lutFile)
+    {
+        try
+        {
+            RobocodeFileOutputStream fileOut = new RobocodeFileOutputStream(lutFile);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(mReinforcementLearningLUTHashMap);
+            out.close();
+            fileOut.close();
+        }
+        catch (IOException exception)
+        {
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * Load the lookup table hashmap
+     * @param lutFile The filename to use for the lookup table hashmap
+     */
+    public void loadLut(File lutFile)
+    {
+        try
+        {
+            FileInputStream fileIn = new FileInputStream(lutFile);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            mReinforcementLearningLUTHashMap = (HashMap<Integer,Double>)in.readObject();
+            in.close();
+            fileIn.close();
+        }
+        catch (IOException exception)
+        {
+            exception.printStackTrace();
+        }
+        catch (ClassNotFoundException exception)
+        {
+            exception.printStackTrace();
+        }
     }
 }
