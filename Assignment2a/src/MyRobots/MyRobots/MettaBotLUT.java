@@ -50,12 +50,15 @@ public class MettaBotLUT extends AdvancedRobot
     public int mRobotY;
     public int mRobotHeading;
     public int mRobotGunHeading;
+    public int mRobotGunBearing;
     public int mRobotEnergy;
     public int mEnemyDistance;
     public int mEnemyHeading;
     public int mEnemyBearing;
     public int mEnemyBearingFromGun;
     public int mEnemyEnergy;
+    public int mEnemyX;
+    public int mEnemyY;
 
     public Random mRandomInt = new Random();
 
@@ -87,26 +90,16 @@ public class MettaBotLUT extends AdvancedRobot
 
         for(;;)
         {
-            turnRadarRight(20);
+            turnRadarRight(90);
+            performRandomAction();
         }
     }
 
     // Called when a key has been pressed
     public void onKeyPressed(java.awt.event.KeyEvent e)
     {
-        int randomActionHash;
-
-        switch (e.getKeyCode()) {
-            case VK_R:
-                // Perform a random action
-                randomActionHash = mRandomInt.nextInt();
-                parseActionHash(randomActionHash);
-                execute();
-
-                waitFor(mTurnComplete);
-                waitFor(mMoveComplete);
-                waitFor(mGunMoveComplete);
-                break;
+        switch (e.getKeyCode())
+        {
         }
     }
 
@@ -115,26 +108,47 @@ public class MettaBotLUT extends AdvancedRobot
     {
         switch (e.getKeyCode())
         {
+//            case VK_UP:
+//                parseActionHash(generateActionHash(MOVE_UP, FIRE_0, AIM_ST));
+//                break;
+//            case VK_DOWN:
+//                parseActionHash(generateActionHash(MOVE_DN, FIRE_0, AIM_ST));
+//                break;
+//            case VK_LEFT:
+//                parseActionHash(generateActionHash(MOVE_LT, FIRE_0, AIM_ST));
+//                break;
+//            case VK_RIGHT:
+//                parseActionHash(generateActionHash(MOVE_RT, FIRE_0, AIM_ST));
+//                break;
         }
     }
 
     public void onScannedRobot(ScannedRobotEvent event)
     {
+        double angle;
+
+        System.out.println("==[SCAN]================================");
         // Obtain state information
         // Robot's info
         mRobotX = (int)getX();
         mRobotY = (int)getY();
         mRobotHeading = (int)getHeading();
         mRobotGunHeading = (int)getGunHeading();
+        mRobotGunBearing = normalizeAngle(mRobotHeading - mRobotGunHeading);
+
         mRobotEnergy = (int)getEnergy();
         // Enemy's info
         mEnemyDistance = (int)event.getDistance();
-        mEnemyHeading = (int) event.getHeading();
+        mEnemyHeading = (int)event.getHeading();
         mEnemyBearing = (int)event.getBearing();
-        mEnemyBearingFromGun = mRobotHeading - mRobotGunHeading + mEnemyBearing;
+        mEnemyBearingFromGun = mRobotGunBearing + mEnemyBearing;
         mEnemyEnergy = (int)event.getEnergy();
-
-        generateStateHash();
+        // Calculate the enemy's last know position
+        // Calculate the angle to the scanned robot
+        angle = Math.toRadians(getHeading() + event.getBearing() % 360);
+        // Calculate the coordinates of the robot
+        mEnemyX = (int)(getX() + Math.sin(angle) * event.getDistance());
+        mEnemyY = (int)(getY() + Math.cos(angle) * event.getDistance());
 
         if(mDebug)
         {
@@ -143,6 +157,9 @@ public class MettaBotLUT extends AdvancedRobot
             System.out.format("Enemy: Distance %d Heading %d Bearing %d BearingFromGun %d Energy %d\n",
             mEnemyDistance, mEnemyHeading, mEnemyBearing, mEnemyBearingFromGun, mEnemyEnergy);
         }
+
+        generateStateHash();
+
     }
 
     public void onBattleEnded(BattleEndedEvent event)
@@ -158,6 +175,21 @@ public class MettaBotLUT extends AdvancedRobot
     public void onWin(WinEvent event)
     {
 
+    }
+
+    /**
+     * Normalize an angle
+     * @param angle The angle to normalize
+     * @return The normalized angle
+     */
+    public int normalizeAngle(int angle)
+    {
+        int result = angle;
+
+        while (result >  180) result -= 360;
+        while (result < -180) result += 360;
+
+        return result;
     }
 
     /**
@@ -214,6 +246,14 @@ public class MettaBotLUT extends AdvancedRobot
             System.out.format("State hash: 0x%08x\n", stateHash);
         }
 
+        // Check if any values are negative, something went wrong
+        if( (quantRobotX < 0) || (quantRobotY < 0) ||
+        (quantDistance < 0) || (quantRobotHeading < 0) ||
+        (quantEnemyBearingFromGun) < 0 || (quantEnemyEnergy < 0))
+        {
+            throw new ArithmeticException("Quantized value cannot be negative!!!");
+        }
+
         return stateHash;
     }
 
@@ -243,48 +283,76 @@ public class MettaBotLUT extends AdvancedRobot
     }
 
     /**
-     * This parses the actions to take based on a given action hash
+     * This parses the actions to take based on a given action hash.
      * @param actionHash The action hash to parse into action
      */
     public void parseActionHash(int actionHash)
     {
-        int moveDirection, fireType, aimType;
+        int moveDirection, fireType, aimType, newHeading, estimatedEnemyBearingFromGun;
+        double angle;
 
         moveDirection = getIntFieldVal(actionHash, ACTION_MOVE_WIDTH, ACTION_MOVE_OFFSET);
         fireType = getIntFieldVal(actionHash, ACTION_FIRE_WIDTH, ACTION_FIRE_OFFSET);
         aimType = getIntFieldVal(actionHash, ACTION_AIM_WIDTH, ACTION_AIM_OFFSET);
 
         // Perform the move action
+        newHeading = -1 * normalizeAngle((int)getHeading());
         switch(moveDirection)
         {
             case MOVE_UP:
-                setTurnRight(-getHeading());
-                execute();
-                waitFor(mTurnComplete);
-                setAhead(MOVE_DISTANCE);
                 break;
             case MOVE_DN:
-                setTurnRight(-getHeading()+180);
-                execute();
-                waitFor(mTurnComplete);
-                setAhead(MOVE_DISTANCE);
+                newHeading = normalizeAngle(newHeading + 180);
                 break;
             case MOVE_LT:
-                setTurnRight(-getHeading()+270);
-                execute();
-                waitFor(mTurnComplete);
-                setAhead(MOVE_DISTANCE);
+                newHeading = normalizeAngle(newHeading + 270);
                 break;
             case MOVE_RT:
-                setTurnRight(-getHeading()+90);
-                execute();
-                waitFor(mTurnComplete);
-                setAhead(MOVE_DISTANCE);
+                newHeading = normalizeAngle(newHeading + 90);
                 break;
             default:
                 // We should never be in here, do nothing.
                 break;
         }
+        setTurnRight(newHeading);
+        // Execute the turn
+        execute();
+        waitFor(mTurnComplete);
+        setAhead(MOVE_DISTANCE);
+        // Execute the ahead
+        execute();
+        waitFor(mMoveComplete);
+
+        // Re-calculate the enemy's bearing based on its last know position
+        // calculate gun turn to predicted x,y location
+
+        angle = absoluteBearing((int)getX(), (int)getY(), mEnemyX, mEnemyY);
+        // turn the gun to the predicted x,y location
+        estimatedEnemyBearingFromGun = normalizeAngle((int)(angle - getGunHeading()));
+
+        // Perform the aim type action
+        switch(aimType)
+        {
+            case AIM_ST:
+                // Aim directly for the enemy
+                setTurnGunRight(estimatedEnemyBearingFromGun);
+                break;
+            case AIM_LT:
+                // Aim to the left of the enemy by a modifier
+                setTurnGunRight(estimatedEnemyBearingFromGun - AIM_MOD);
+                break;
+            case AIM_RT:
+                // Aim to the ri ght of the enemy by a modifier
+                setTurnGunRight(estimatedEnemyBearingFromGun + AIM_MOD);
+                break;
+            default:
+                // We should never be in here, do nothing.
+                break;
+        }
+
+        // Execute the aim right away
+        execute();
+        waitFor(mGunMoveComplete);
 
         // Perform the firing type action
         switch(fireType)
@@ -304,29 +372,57 @@ public class MettaBotLUT extends AdvancedRobot
                 // We should never be in here, do nothing.
                 break;
         }
+        // Execute the fire action
+        execute();
+    }
 
-        // Perform the aim type action
-        if(mEnemyBearing != 0)
-        {
-            switch(aimType)
-            {
-                case AIM_ST:
-                    // Aim directly for the enemy
-                    setTurnGunRight(mEnemyBearingFromGun);
-                    break;
-                case AIM_LT:
-                    // Aim to the left of the enemy by a modifier
-                    setTurnGunRight(mEnemyBearingFromGun - AIM_MOD);
-                    break;
-                case AIM_RT:
-                    // Aim to the right of the enemy by a modifier
-                    setTurnGunRight(mEnemyBearingFromGun + AIM_MOD);
-                    break;
-                default:
-                    // We should never be in here, do nothing.
-                    break;
-            }
+    /**
+     * Perform a random action with the robot by randomizing the action hash
+     */
+    public void performRandomAction()
+    {
+        int randomActionHash;
+
+        // Perform a random action
+        randomActionHash = mRandomInt.nextInt();
+        parseActionHash(randomActionHash);
+    }
+
+
+    /**
+     * Returns an absolute bearing between two points
+     * @param x0 Point 0's x coordinate
+     * @param y0 Point 0's y coordinate
+     * @param x1 Point 1's x coordinate
+     * @param y1 Point 1's y coordinate
+     * @return
+     */
+    double absoluteBearing(int x0, int y0, int x1, int y1)
+    {
+        int xo = x1 - x0;
+        int yo = y1 - y0;
+        double hyp = calculateDistance(x0, y0, x1, y1);
+        double arcSin = Math.toDegrees(Math.asin(xo / hyp));
+        double bearing = 0;
+
+        if (xo > 0 && yo > 0)
+        { // both pos: lower-Left
+            bearing = arcSin;
         }
+        else if (xo < 0 && yo > 0)
+        { // x neg, y pos: lower-right
+            bearing = 360 + arcSin; // arcsin is negative here, actually 360 - ang
+        }
+        else if (xo > 0 && yo < 0)
+        { // x pos, y neg: upper-left
+            bearing = 180 - arcSin;
+        }
+        else if (xo < 0 && yo < 0)
+        { // both neg: upper-right
+            bearing = 180 - arcSin; // arcsin is negative here, actually 180 + ang
+        }
+
+        return bearing;
     }
 
     /**
