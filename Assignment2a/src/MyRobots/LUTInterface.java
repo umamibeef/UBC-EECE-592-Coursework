@@ -1,3 +1,5 @@
+package MyRobots;
+
 /**
  * Interface for the Look Up Table (LUT) Class
  * You should 'implement' this interface
