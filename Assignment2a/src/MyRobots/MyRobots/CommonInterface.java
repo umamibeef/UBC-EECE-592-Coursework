@@ -10,7 +10,7 @@ import java.io.IOException;
  * @author mmkakulp
  *
  */
-public interface CommonInterface
+interface CommonInterface
 {
     /**
      * @param x The input vector. An array of doubles.
