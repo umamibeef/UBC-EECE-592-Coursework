@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ace93363-42b6-4bc2-8595-f76370707b01" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java" afterPath="$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -18,11 +17,26 @@
       <file leaf-file-name="MettaBotLUT.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="504">
-              <caret line="73" column="22" lean-forward="true" selection-start-line="73" selection-start-column="22" selection-end-line="73" selection-end-column="22" />
+            <state relative-caret-position="692">
+              <caret line="84" column="0" lean-forward="true" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#18529#18530#0" expanded="true" />
+                <element signature="e#18565#18566#0" expanded="true" />
+                <element signature="e#18626#18627#0" expanded="true" />
+                <element signature="e#18662#18663#0" expanded="true" />
+                <marker date="1510651960030" expanded="true" signature="1358:1622" ph="..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LUTInterface.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/LUTInterface.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="144">
+              <caret line="8" column="17" lean-forward="false" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -38,36 +52,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
+      <find>mCurrentLearningPolicy</find>
+      <find>onWin</find>
+      <find>mLutFile</find>
       <find>saveLut</find>
+      <find>getFile</find>
+      <find>statFileName</find>
+      <find>mStatsFile</find>
       <find>save</find>
-      <find>2620</find>
-      <find>26</find>
-      <find>20A</find>
-      <find>20</find>
-      <find>6</find>
-      <find>6,</find>
+      <find>saveStats</find>
+      <find>mNumWinArray</find>
+      <find>numWin</find>
+      <find>getDist</find>
+      <find>randomaction</find>
+      <find>possible</find>
+      <find>possible</find>
       <find>ACTION_FIELD_OFFSET</find>
-      <find>stateHash</find>
-      <find>on</find>
-      <find>savelut</find>
-      <find>newLutFile</find>
-      <find>creating</find>
-      <find>found best pos</find>
-      <find>FIRE_NUM</find>
+      <find>randomactionhash</find>
       <find>generateActionHash</find>
-      <find>actions</find>
       <find>ACTION_FIRE_OFFSET</find>
+      <find>generatera</find>
+      <find>ran</find>
+      <find>getRandomAction</find>
+      <find>getRandomInt</find>
+      <find>mNumwin</find>
+      <find>quantize</find>
+      <find>onBullet</find>
       <find>generateStateHash</find>
-      <find>getRandomDouble</find>
-      <find>calcnew</find>
-      <find>generatestatehash</find>
-      <find>mdebug</find>
-      <find>learn</find>
-      <find>learn(</find>
-      <find>reward</find>
-      <find>current</find>
-      <find>mprevi</find>
-      <find>calculateQPrevNew</find>
+      <find>onbullet</find>
+      <find>onhitby</find>
+      <find>learning</find>
     </findStrings>
     <replaceStrings>
       <replace>printDebug</replace>
@@ -110,10 +124,9 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="233" />
-    <option name="y" value="142" />
-    <option name="width" value="1808" />
-    <option name="height" value="1008" />
+    <option name="x" value="-7" />
+    <option name="width" value="2004" />
+    <option name="height" value="1047" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -319,15 +332,15 @@
       <workItem from="1510535091849" duration="20617000" />
       <workItem from="1510593560629" duration="1935000" />
       <workItem from="1510595544538" duration="30337000" />
-      <workItem from="1510627822480" duration="11760000" />
+      <workItem from="1510627822480" duration="20711000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="88004000" />
+    <option name="totallyTimeSpent" value="96955000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="233" y="142" width="1808" height="1008" extended-state="0" />
+    <frame x="-7" y="0" width="2004" height="1047" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -343,7 +356,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23158482" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20875251" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -373,13 +386,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/CommonInterface.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="5" column="3" lean-forward="false" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/MyRobots/LUTInterface.java" />
     <entry file="file://$PROJECT_DIR$/Assignment2a.iml">
       <provider selected="true" editor-type-id="text-editor">
@@ -394,6 +400,11 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#18529#18530#0" expanded="true" />
+            <element signature="e#18565#18566#0" expanded="true" />
+            <element signature="e#18626#18627#0" expanded="true" />
+            <element signature="e#18662#18663#0" expanded="true" />
+            <marker date="1510651960030" expanded="true" signature="1358:1622" ph="..." />
           </folding>
         </state>
       </provider>
@@ -419,6 +430,11 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#18529#18530#0" expanded="true" />
+            <element signature="e#18565#18566#0" expanded="true" />
+            <element signature="e#18626#18627#0" expanded="true" />
+            <element signature="e#18662#18663#0" expanded="true" />
+            <marker date="1510651960030" expanded="true" signature="1358:1622" ph="..." />
           </folding>
         </state>
       </provider>
@@ -444,6 +460,11 @@
           <caret line="54" column="22" lean-forward="false" selection-start-line="54" selection-start-column="22" selection-end-line="54" selection-end-column="22" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#18529#18530#0" expanded="true" />
+            <element signature="e#18565#18566#0" expanded="true" />
+            <element signature="e#18626#18627#0" expanded="true" />
+            <element signature="e#18662#18663#0" expanded="true" />
+            <marker date="1510651960030" expanded="true" signature="1358:1622" ph="..." />
           </folding>
         </state>
       </provider>
@@ -534,6 +555,11 @@
           <caret line="41" column="76" lean-forward="false" selection-start-line="41" selection-start-column="76" selection-end-line="41" selection-end-column="76" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#18529#18530#0" expanded="true" />
+            <element signature="e#18565#18566#0" expanded="true" />
+            <element signature="e#18626#18627#0" expanded="true" />
+            <element signature="e#18662#18663#0" expanded="true" />
+            <marker date="1510651960030" expanded="true" signature="1358:1622" ph="..." />
           </folding>
         </state>
       </provider>
@@ -607,17 +633,30 @@
         <state relative-caret-position="-1710">
           <caret line="48" column="4" lean-forward="true" selection-start-line="48" selection-start-column="4" selection-end-line="48" selection-end-column="4" />
           <folding>
-            <element signature="e#0#21120#0" expanded="true" />
+            <element signature="e#0#21120#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/LUTInterface.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="8" column="17" lean-forward="false" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="504">
-          <caret line="73" column="22" lean-forward="true" selection-start-line="73" selection-start-column="22" selection-end-line="73" selection-end-column="22" />
+        <state relative-caret-position="692">
+          <caret line="84" column="0" lean-forward="true" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#18529#18530#0" expanded="true" />
+            <element signature="e#18565#18566#0" expanded="true" />
+            <element signature="e#18626#18627#0" expanded="true" />
+            <element signature="e#18662#18663#0" expanded="true" />
+            <marker date="1510651960030" expanded="true" signature="1358:1622" ph="..." />
           </folding>
         </state>
       </provider>
