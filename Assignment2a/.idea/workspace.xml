@@ -2,8 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ace93363-42b6-4bc2-8595-f76370707b01" name="Default" comment="">
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/MyRobots/MyRobots/CommonInterface.java" afterPath="$PROJECT_DIR$/src/MyRobots/CommonInterface.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/MyRobots/MyRobots/LUTInterface.java" afterPath="$PROJECT_DIR$/src/MyRobots/LUTInterface.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java" afterPath="$PROJECT_DIR$/src/MyRobots/MettaBotLUT.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java" afterPath="$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Assignment2a.iml" afterPath="$PROJECT_DIR$/Assignment2a.iml" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,19 +19,29 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="MettaBotLUT.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java">
+        <entry file="file://$PROJECT_DIR$/src/MyRobots/MettaBotLUT.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="100">
-              <caret line="718" column="18" lean-forward="true" selection-start-line="718" selection-start-column="18" selection-end-line="718" selection-end-column="18" />
+            <state relative-caret-position="144">
+              <caret line="8" column="24" lean-forward="true" selection-start-line="8" selection-start-column="24" selection-end-line="8" selection-end-column="24" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MettaBotLUT.class" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/MyRobots/MettaBotLUT.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding>
-                <element signature="imports" expanded="true" />
+                <element signature="e#0#22381#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="LUTInterface.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/LUTInterface.java">
+        <entry file="file://$PROJECT_DIR$/src/MyRobots/LUTInterface.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="144">
               <caret line="8" column="17" lean-forward="false" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
@@ -106,10 +119,10 @@
         <option value="$PROJECT_DIR$/src/MyRobots/LUTInterface.java" />
         <option value="$PROJECT_DIR$/src/MyRobots/CommonInterface.java" />
         <option value="C:/robocode/robots/MyRobots/MettaBotLUT.java" />
-        <option value="$PROJECT_DIR$/src/MyRobots/MettaBotLUT.java" />
         <option value="$PROJECT_DIR$/Assignment2a.iml" />
         <option value="C:/robocode/robots/MyRobots/MettaBotLUT.class" />
         <option value="$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java" />
+        <option value="$PROJECT_DIR$/src/MyRobots/MettaBotLUT.java" />
       </list>
     </option>
   </component>
@@ -159,13 +172,6 @@
               <item name="Assignment2a" type="b2602c69:ProjectViewProjectNode" />
               <item name="Assignment2a" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="MyRobots" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Assignment2a" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Assignment2a" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="MyRobots" type="462c0819:PsiDirectoryNode" />
               <item name="MyRobots" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -330,12 +336,12 @@
       <workItem from="1510593560629" duration="1935000" />
       <workItem from="1510595544538" duration="30337000" />
       <workItem from="1510627822480" duration="23265000" />
-      <workItem from="1510686924653" duration="105000" />
+      <workItem from="1510686924653" duration="1128000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="99614000" />
+    <option name="totallyTimeSpent" value="100637000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -343,6 +349,7 @@
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17391305" sideWeight="0.4984375" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -366,7 +373,6 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32976446" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17391305" sideWeight="0.4984375" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3202545" sideWeight="0.4984375" order="1" side_tool="false" content_ui="tabs" />
     </layout>
@@ -384,7 +390,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/LUTInterface.java" />
     <entry file="file://$PROJECT_DIR$/Assignment2a.iml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="342">
@@ -392,17 +397,15 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java">
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/MettaBotLUT.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/CommonInterface.java">
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/CommonInterface.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="5" column="3" lean-forward="false" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
@@ -417,17 +420,15 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java">
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/MettaBotLUT.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/CommonInterface.java">
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/CommonInterface.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="84">
           <caret line="5" column="3" lean-forward="false" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
@@ -442,13 +443,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java">
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/MettaBotLUT.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1134">
           <caret line="54" column="22" lean-forward="false" selection-start-line="54" selection-start-column="22" selection-end-line="54" selection-end-column="22" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -469,14 +468,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/MyRobots/MyRobots/MettaBotLUT.java" />
     <entry file="file://$PROJECT_DIR$/src/MyRobots/LUTInterface.java" />
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/CommonInterface.java" />
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/CommonInterface.java" />
     <entry file="file://$PROJECT_DIR$/src/MettaBot.java" />
     <entry file="file://$PROJECT_DIR$/src/MyRobots/LUTInterface.java" />
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/CommonInterface.java" />
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/CommonInterface.java" />
     <entry file="file://$PROJECT_DIR$/src/MettaBot.java" />
     <entry file="file://$PROJECT_DIR$/src/MyRobots/LUTInterface.java" />
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/CommonInterface.java" />
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/CommonInterface.java" />
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/CommonInterface.java" />
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/CommonInterface.java" />
     <entry file="file://$PROJECT_DIR$/src/Michel/MettaBot.java" />
     <entry file="file://$PROJECT_DIR$/src/MyRobots/LUTInterface.java" />
     <entry file="file://$PROJECT_DIR$/src/MettaBot.java" />
@@ -524,7 +523,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/CommonInterface.java">
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/CommonInterface.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
@@ -532,13 +531,11 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/MyRobots/LUTInterface.java" />
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java">
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/MettaBotLUT.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="357">
           <caret line="41" column="76" lean-forward="false" selection-start-line="41" selection-start-column="76" selection-end-line="41" selection-end-column="76" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -585,7 +582,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/CommonInterface.java">
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/CommonInterface.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
           <caret line="5" column="3" lean-forward="false" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
@@ -613,7 +610,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/LUTInterface.java">
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/LUTInterface.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
           <caret line="8" column="17" lean-forward="false" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
@@ -621,13 +618,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java">
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/MettaBotLUT.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="100">
-          <caret line="718" column="18" lean-forward="true" selection-start-line="718" selection-start-column="18" selection-end-line="718" selection-end-column="18" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#0#22381#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/MettaBotLUT.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="8" column="24" lean-forward="true" selection-start-line="8" selection-start-column="24" selection-end-line="8" selection-end-column="24" />
+          <folding />
         </state>
       </provider>
     </entry>

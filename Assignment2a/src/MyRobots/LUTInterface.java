@@ -6,7 +6,7 @@ package MyRobots;
  * @author mmkakulp
  *
  */
-public interface LUTInterface extends CommonInterface
+public interface LUTInterface extends MyRobots.CommonInterface
 {
 
     /**
