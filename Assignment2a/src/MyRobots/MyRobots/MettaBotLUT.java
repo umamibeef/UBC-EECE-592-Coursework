@@ -57,6 +57,8 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     private static final int ACTION_AIM_WIDTH = 2;
     private static final int ACTION_FIRE_OFFSET = 4;
     private static final int ACTION_FIRE_WIDTH = 2;
+    private static final int ACTION_FIELD_WIDTH = 6;
+    private static final int ACTION_FIELD_OFFSET = 20;
 
     // Learning constants
     private static final boolean NON_TERMINAL_STATE = false;
@@ -294,7 +296,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
                 randomActionHash = getRandomAction();
                 printDebug("Taking random action of 0x%02x\n", randomActionHash);
                 // Update current state/action hash
-                mCurrentStateActionHash = updateIntField(currentStateHash, 6, 26, randomActionHash);
+                mCurrentStateActionHash = updateIntField(currentStateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, randomActionHash);
                 parseActionHash(randomActionHash);
             }
             else
@@ -346,7 +348,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
                 {
                     // Calculate the action hash and create the complete hash by adding it to the current state hash
                     actionHash = generateActionHash(moveAction, fireAction, aimAction);
-                    completeHash = updateIntField(currentStateHash, 6, 26, actionHash);
+                    completeHash = updateIntField(currentStateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, actionHash);
                     // Make the entry 0.0 if it doesn't exist
                     mReinforcementLearningLUTHashMap.putIfAbsent(completeHash, 0.0);
                     printDebug("0x%08x: %f\n", completeHash, mReinforcementLearningLUTHashMap.get(completeHash));
@@ -374,7 +376,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         if(currentQMaxActionNum == 1)
         {
             selectedCompleteHash = qMaxActions[0];
-            selectedActionHash = getIntFieldVal(selectedCompleteHash, 6, 26);
+            selectedActionHash = getIntFieldVal(selectedCompleteHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET);
             printDebug("Found best possible action to take [0x%02x] with Q-value of %f\n",
                 qMaxActions[0], mReinforcementLearningLUTHashMap.get(selectedCompleteHash));
         }
@@ -383,7 +385,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
             randomPick = getRandomInt(0, currentQMaxActionNum-1);
             //printDebug("Random pick: %d\n", randomPick);
             selectedCompleteHash = qMaxActions[randomPick];
-            selectedActionHash = getIntFieldVal(selectedCompleteHash, 6, 26);
+            selectedActionHash = getIntFieldVal(selectedCompleteHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET);
             printDebug("Found %d possible actions to take, randomly picking index %d [0x%02x] with Q-value of %f\n",
                 currentQMaxActionNum, randomPick, selectedActionHash, mReinforcementLearningLUTHashMap.get(selectedCompleteHash));
         }
@@ -454,19 +456,20 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         int quantEnemyEnergy;
 
         // Legend: [max] -> quantization -> field width
-        // Current position X                       [800]   -> 32   -> 5
-        // Current position Y                       [600]   -> 32   -> 5
-        // Distance between robot and opponent      [1000]  -> 32   -> 5
-        // Robot bearing                            [360]   -> 32   -> 5
-        // Enemy bearing                            [360]   -> 32   -> 5
+        // Current position X                       [800]   -> 16   -> 4
+        // Current position Y                       [600]   -> 16   -> 4
+        // Distance between robot and opponent      [1000]  -> 8    -> 3
+        // Robot bearing                            [360]   -> 16   -> 4
+        // Enemy bearing                            [360]   -> 16   -> 4
         // Energy of enemy                          [N/A]   -> 2    -> 1
+        // Total space                                                20
 
         // Quantization
-        quantRobotX = quantizeInt(mRobotX, ARENA_SIZEX_PX, 32);
-        quantRobotY = quantizeInt(mRobotY, ARENA_SIZEY_PX, 32);
-        quantDistance = quantizeInt(mEnemyDistance, 1000, 32);
-        quantRobotHeading = quantizeInt(mRobotHeading, 360, 32);
-        quantEnemyBearingFromGun = quantizeInt(mEnemyBearingFromGun + 180, 360, 32);
+        quantRobotX = quantizeInt(mRobotX, ARENA_SIZEX_PX, 16);
+        quantRobotY = quantizeInt(mRobotY, ARENA_SIZEY_PX, 16);
+        quantDistance = quantizeInt(mEnemyDistance, 1000, 8);
+        quantRobotHeading = quantizeInt(mRobotHeading, 360, 16);
+        quantEnemyBearingFromGun = quantizeInt(mEnemyBearingFromGun + 180, 360, 16);
         // For enemy energy, we will only care if it's above a threshold
         if(mEnemyEnergy > ENEMY_ENERGY_THRESHOLD)
         {
@@ -478,12 +481,12 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         }
 
         // Assemble the hash
-        stateHash = updateIntField(stateHash, 5, 0, quantRobotX);
-        stateHash = updateIntField(stateHash, 5, 5, quantRobotY);
-        stateHash = updateIntField(stateHash, 5, 10, quantDistance);
-        stateHash = updateIntField(stateHash, 5, 15, quantRobotHeading);
-        stateHash = updateIntField(stateHash, 5, 20, quantEnemyBearingFromGun);
-        stateHash = updateIntField(stateHash, 1, 25, quantEnemyEnergy);
+        stateHash = updateIntField(stateHash, 4, 0, quantRobotX);
+        stateHash = updateIntField(stateHash, 4, 4, quantRobotY);
+        stateHash = updateIntField(stateHash, 3, 7, quantDistance);
+        stateHash = updateIntField(stateHash, 4, 11, quantRobotHeading);
+        stateHash = updateIntField(stateHash, 4, 15, quantEnemyBearingFromGun);
+        stateHash = updateIntField(stateHash, 1, 19, quantEnemyEnergy);
 
         printDebug("Quantized values: %d %d %d %d %d %d\n",
             quantRobotX, quantRobotY, quantDistance, quantRobotHeading, quantEnemyBearingFromGun, quantEnemyEnergy);
