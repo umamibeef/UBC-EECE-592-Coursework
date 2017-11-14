@@ -1,6 +1,5 @@
 package MyRobots;
 
-import com.sun.xml.internal.bind.v2.model.core.ElementPropertyInfo;
 import robocode.*;
 
 import java.awt.*;
@@ -22,7 +21,8 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     // Learning constants for Q function
     private static final double ALPHA = 0.7;    // Fraction of difference used
     private static final double GAMMA = 0.8;    // Discount factor
-    private static final double EPSILON = 0.2;  // Probability of exploration
+    //private static final double EPSILON = 0.2;  // Probability of exploration
+    private static final double EPSILON = 0.5;  // Probability of exploration
     // Misc. constants used in the robot
     private static final int ARENA_SIZEX_PX = 800;
     private static final int ARENA_SIZEY_PX = 600;
@@ -30,25 +30,38 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     private static final int NULL_32 = 0xFFFFFFFF;
 
     // Move actions
-    private static final int MOVE_UP = 0;
-    private static final int MOVE_DN = 1;
-    private static final int MOVE_LT = 2;
-    private static final int MOVE_RT = 3;
-    private static final int MOVE_NUM = 4;
-    private static final int MOVE_DISTANCE = 50;
+    private static final int ACTION_MOVE_UP = 0;
+    private static final int ACTION_MOVE_DN = 1;
+    private static final int ACTION_MOVE_LT = 2;
+    private static final int ACTION_MOVE_RT = 3;
+    private static final int ACTION_MOVE_NUM = 4;
+    private static final int ACTION_MOVE_DISTANCE = 50;
     // Aim actions
-    //private static final int AIM_ST  = 0;
-    //private static final int AIM_LT  = 1;
-    //private static final int AIM_RT  = 2;
-    //private static final int AIM_NUM = 3;
-    //private static final int AIM_MOD = 10;          // Adds a degree offset to the aim
+    private static final int ACTION_AIM_ST  = 0;
+    private static final int ACTION_AIM_LT = 1;
+    private static final int ACTION_AIM_RT = 2;
+    private static final int ACTION_AIM_NUM = 3;
+    private static final int ACTION_AIM_MOD = 10;          // Adds a degree offset to the aim
     // Fire actions
-    private static final int FIRE_0 = 0;
-    private static final int FIRE_3 = 1;
-    private static final int FIRE_NUM = 2;
+    private static final int ACTION_FIRE_0 = 0;
+    private static final int ACTION_FIRE_3 = 1;
+    private static final int ACTION_FIRE_NUM = 2;
+    // Action constants
+    private static final int ACTION_DIMENSIONALITY = ACTION_MOVE_NUM * ACTION_FIRE_NUM; //* ACTION_AIM_NUM;
 
     // State hash field and offsets
-    // TODO...
+    // Current position X                       [800]   -> 16   -> 4
+    // Current position Y                       [600]   -> 16   -> 4
+    // Robot heading                            [360]   -> 16   -> 4
+    // Distance between robot and opponent      [1000]  -> 16   -> 4
+    private static final int STATE_POS_X_WIDTH = 4;
+    private static final int STATE_POS_X_OFFSET = 0;
+    private static final int STATE_POS_Y_WIDTH = 4;
+    private static final int STATE_POS_Y_OFFSET = 4;
+    private static final int STATE_ROBOT_HEADING_WIDTH = 4;
+    private static final int STATE_ROBOT_HEADING_OFFSET = 8;
+    private static final int STATE_DISTANCE_WIDTH = 4;
+    private static final int STATE_DISTANCE_OFFSET = 12;
     // Action hash field and offsets
     private static final int ACTION_MOVE_OFFSET = 0;
     private static final int ACTION_MOVE_WIDTH = 2;
@@ -79,9 +92,9 @@ public class MettaBotLUT extends AdvancedRobot //Robot
 
     // State variables
     private boolean mDebug = true;
-    private int mCurrentLearningPolicy = NO_LEARNING;
+    //private int mCurrentLearningPolicy = NO_LEARNING;
     //private int mCurrentLearningPolicy = Q_GREEDY;
-    //private int mCurrentLearningPolicy = Q_EXPLORATION;
+    private int mCurrentLearningPolicy = Q_EXPLORATION;
 
     // Variables to track the state of the arena
     private int mRobotX;
@@ -397,16 +410,16 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         double currentMax = -999.0;
         StateActionHashObject selection;
 
-        qMaxActions = new int[MOVE_NUM * FIRE_NUM];// * AIM_NUM];
+        qMaxActions = new int[ACTION_DIMENSIONALITY];
 
         // Iterate through all possible actions
         printDebug("Current state hash: 0x%08x\n", currentStateHash);
         printDebug("Possible Q-values:\n");
-        for (moveAction = 0; moveAction < MOVE_NUM; moveAction++)
+        for (moveAction = 0; moveAction < ACTION_MOVE_NUM; moveAction++)
         {
-            for (fireAction = 0; fireAction < FIRE_NUM; fireAction++)
+            for (fireAction = 0; fireAction < ACTION_FIRE_NUM; fireAction++)
             {
-                //for(aimAction = 0; aimAction < AIM_NUM; aimAction++)
+                //for(aimAction = 0; aimAction < ACTION_AIM_NUM; aimAction++)
                 //{
                 // Calculate the action hash and create the complete hash by adding it to the current state hash
                 actionHash = generateActionHash(moveAction, fireAction);//, aimAction);
@@ -419,7 +432,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
                 {
                     // New max, clear array
                     // We can have a maximum of the number of possible actions as the number of possible actions
-                    qMaxActions = new int[MOVE_NUM * FIRE_NUM];// * AIM_NUM];
+                    qMaxActions = new int[ACTION_DIMENSIONALITY];
                     currentQMaxActionNum = 1;
                     qMaxActions[currentQMaxActionNum - 1] = completeHash;
                     currentMax = mReinforcementLearningLUTHashMap.get(completeHash);
@@ -619,15 +632,15 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         newHeading = -1 * normalizeAngle((int) getHeading());
         switch (moveDirection)
         {
-            case MOVE_UP:
+            case ACTION_MOVE_UP:
                 break;
-            case MOVE_DN:
+            case ACTION_MOVE_DN:
                 newHeading = normalizeAngle(newHeading + 180);
                 break;
-            case MOVE_LT:
+            case ACTION_MOVE_LT:
                 newHeading = normalizeAngle(newHeading + 270);
                 break;
-            case MOVE_RT:
+            case ACTION_MOVE_RT:
                 newHeading = normalizeAngle(newHeading + 90);
                 break;
             default:
@@ -639,7 +652,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         // Execute the turn
         execute();
         waitFor(mTurnComplete);
-        setAhead(MOVE_DISTANCE);
+        setAhead(ACTION_MOVE_DISTANCE);
         //ahead(MOVE_DISTANCE);
         // Execute the ahead
         execute();
@@ -663,15 +676,15 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         //        //setTurnGunRight(estimatedEnemyBearingFromGun);
         //        turnGunRight(estimatedEnemyBearingFromGun);
         //        break;
-        //    case AIM_LT:
+        //    case ACTION_AIM_LT:
         //        // Aim to the left of the enemy by a modifier
-        //        //setTurnGunRight(estimatedEnemyBearingFromGun - AIM_MOD);
-        //        turnGunRight(estimatedEnemyBearingFromGun - AIM_MOD);
+        //        //setTurnGunRight(estimatedEnemyBearingFromGun - ACTION_AIM_MOD);
+        //        turnGunRight(estimatedEnemyBearingFromGun - ACTION_AIM_MOD);
         //        break;
-        //    case AIM_RT:
+        //    case ACTION_AIM_RT:
         //        // Aim to the ri ght of the enemy by a modifier
-        //        //setTurnGunRight(estimatedEnemyBearingFromGun + AIM_MOD);
-        //        turnGunRight(estimatedEnemyBearingFromGun + AIM_MOD);
+        //        //setTurnGunRight(estimatedEnemyBearingFromGun + ACTION_AIM_MOD);
+        //        turnGunRight(estimatedEnemyBearingFromGun + ACTION_AIM_MOD);
         //        break;
         //    default:
         //        // We should never be in here, do nothing.
@@ -685,7 +698,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         // Perform the firing type action
         switch (fireType)
         {
-            case FIRE_0:
+            case ACTION_FIRE_0:
                 // We don't fire in this case
                 break;
             //case FIRE_1:
@@ -693,7 +706,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
             //    setFireBullet(1.0);
             //    //fireBullet(1.0);
             //    break;
-            case FIRE_3:
+            case ACTION_FIRE_3:
                 // Fire a 3 power bullet
                 setFireBullet(3.0);
                 //fireBullet(3.0);
@@ -713,9 +726,9 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     {
         int actionHash, randomMove, randomFire, randomAim;
 
-        randomMove = getRandomInt(0, MOVE_NUM - 1);
-        randomFire = getRandomInt(0, FIRE_NUM - 1);
-        //randomAim = getRandomInt(0, AIM_NUM);
+        randomMove = getRandomInt(0, ACTION_MOVE_NUM - 1);
+        randomFire = getRandomInt(0, ACTION_FIRE_NUM - 1);
+        //randomAim = getRandomInt(0, ACTION_AIM_NUM);
 
         actionHash = generateActionHash(randomMove, randomFire);//, randomAim);
 
