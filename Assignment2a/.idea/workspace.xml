@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ace93363-42b6-4bc2-8595-f76370707b01" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/MyRobots/MettaBotLUT.data/ass2lut.dat" afterPath="$PROJECT_DIR$/src/MyRobots/MettaBotLUT.data/ass2lut.dat" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/MyRobots/MettaBotLUT.data/ass2lut.dat" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java" afterPath="$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -18,8 +18,8 @@
       <file leaf-file-name="MettaBotLUT.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-75">
-              <caret line="335" column="115" lean-forward="true" selection-start-line="335" selection-start-column="115" selection-end-line="335" selection-end-column="115" />
+            <state relative-caret-position="202">
+              <caret line="456" column="66" lean-forward="false" selection-start-line="456" selection-start-column="66" selection-end-line="456" selection-end-column="66" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -38,11 +38,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>bearingfrom</find>
-      <find>mEnemyBearingFromGun</find>
-      <find>robocode</find>
-      <find>generate</find>
-      <find>mReinforcementLearningLUTHashMap</find>
       <find>re</find>
       <find>private</find>
       <find>generateStateHash</find>
@@ -51,13 +46,11 @@
       <find>getRandomInt</find>
       <find>loadLut</find>
       <find>mCurrentStateActionHash</find>
-      <find>learn</find>
       <find>bullet</find>
       <find>NULL_32</find>
       <find>Exploratory</find>
       <find>EPSIOLON</find>
       <find>EPSILON</find>
-      <find>learn(</find>
       <find>mRobotGunHeading</find>
       <find>parseActionHash</find>
       <find>random</find>
@@ -68,6 +61,13 @@
       <find>selection</find>
       <find>StateActionHashObject</find>
       <find>getMaxQActionHash</find>
+      <find>getFiel</find>
+      <find>getintfieldval</find>
+      <find>mDebug</find>
+      <find>saveLut</find>
+      <find>learn</find>
+      <find>learn(</find>
+      <find>save</find>
     </findStrings>
     <replaceStrings>
       <replace>printDebug</replace>
@@ -111,7 +111,7 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="-7" />
-    <option name="width" value="1560" />
+    <option name="width" value="1973" />
     <option name="height" value="1047" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -317,15 +317,15 @@
       <workItem from="1510534632386" duration="366000" />
       <workItem from="1510535091849" duration="20617000" />
       <workItem from="1510593560629" duration="1935000" />
-      <workItem from="1510595544538" duration="26034000" />
+      <workItem from="1510595544538" duration="29034000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="71941000" />
+    <option name="totallyTimeSpent" value="74941000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="0" width="1560" height="1047" extended-state="0" />
+    <frame x="-7" y="0" width="1973" height="1047" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -341,10 +341,10 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26878238" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21205927" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32976446" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32131496" sideWeight="0.4984375" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32119915" sideWeight="0.4984375" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -371,14 +371,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Assignment2a.iml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="19" column="9" lean-forward="false" selection-start-line="19" selection-start-column="9" selection-end-line="19" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -667,10 +659,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/MyRobots/CommonInterface.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="15" column="25" lean-forward="true" selection-start-line="15" selection-start-column="25" selection-end-line="16" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/MyRobots/MyRobots/MettaBotLUT.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-75">
-          <caret line="335" column="115" lean-forward="true" selection-start-line="335" selection-start-column="115" selection-end-line="335" selection-end-column="115" />
+        <state relative-caret-position="202">
+          <caret line="456" column="66" lean-forward="false" selection-start-line="456" selection-start-column="66" selection-end-line="456" selection-end-column="66" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

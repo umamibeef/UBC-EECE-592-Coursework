@@ -58,7 +58,9 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     private static final int ACTION_FIRE_OFFSET = 4;
     private static final int ACTION_FIRE_WIDTH = 2;
 
-    // Learning policies
+    // Learning constants
+    private static final boolean NON_TERMINAL_STATE = false;
+    private static final boolean TERMINAL_STATE = true;
     private static final int SARSA_GREEDY = 0;      // On-policy greedy SARSA
     private static final int SARSA_EXPLORATION = 1; // On-policy SARSA with 1-EPSILON exploration
     private static final int Q_GREEDY = 2;          // Off-policy greedy Q-learning
@@ -177,7 +179,14 @@ public class MettaBotLUT extends AdvancedRobot //Robot
                 printDebug("Current learning policy is exploration with epsilon of %f\n", EPSILON);
                 break;
             case VK_D:
-                mDebug ^= true;
+                if(mDebug)
+                {
+                    mDebug = false;
+                }
+                else
+                {
+                    mDebug = true;
+                }
                 break;
         }
     }
@@ -215,10 +224,10 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         printDebug("Enemy: Distance %d Heading %d Bearing %d BearingFromGun %d Energy %d\n",
             mEnemyDistance, mEnemyHeading, mEnemyBearing, mEnemyBearingFromGun, mEnemyEnergy);
 
-        learn();
+        learn(NON_TERMINAL_STATE);
     }
 
-    private void learn()
+    private void learn(boolean terminalState)
     {
         double qPrevNew, randomDouble;
         int currentStateHash, randomActionHash;
@@ -256,6 +265,13 @@ public class MettaBotLUT extends AdvancedRobot //Robot
 
         // Reset reward until the next learn
         mCurrentReward = 0.0;
+
+        // We're done! No more actions.
+        if(terminalState)
+        {
+            printDebug("Terminal state! No more actions available.\n");
+            return;
+        }
 
         // Choose an action based on policy
         if(mCurrentLearningPolicy == Q_GREEDY)
@@ -321,7 +337,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
 
         // Iterate through all possible actions
         printDebug("Current state hash: 0x%08x\n", currentStateHash);
-        //printDebug("Possible Q-values:\n");
+        printDebug("Possible Q-values:\n");
         for(moveAction = 0; moveAction < MOVE_NUM; moveAction++)
         {
             for(fireAction = 0; fireAction < FIRE_NUM; fireAction++)
@@ -333,7 +349,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
                     completeHash = updateIntField(currentStateHash, 6, 26, actionHash);
                     // Make the entry 0.0 if it doesn't exist
                     mReinforcementLearningLUTHashMap.putIfAbsent(completeHash, 0.0);
-                    //printDebug("0x%08x: %f\n", completeHash, mReinforcementLearningLUTHashMap.get(completeHash));
+                    printDebug("0x%08x: %f\n", completeHash, mReinforcementLearningLUTHashMap.get(completeHash));
                     // Update current max
                     if(mReinforcementLearningLUTHashMap.get(completeHash) > currentMax)
                     {
@@ -369,7 +385,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
             selectedCompleteHash = qMaxActions[randomPick];
             selectedActionHash = getIntFieldVal(selectedCompleteHash, 6, 26);
             printDebug("Found %d possible actions to take, randomly picking index %d [0x%02x] with Q-value of %f\n",
-                currentQMaxActionNum, randomPick, qMaxActions[randomPick], mReinforcementLearningLUTHashMap.get(selectedCompleteHash));
+                currentQMaxActionNum, randomPick, selectedActionHash, mReinforcementLearningLUTHashMap.get(selectedCompleteHash));
         }
 
         // Combine the selected hash along with its Q value into the convenience object
@@ -386,22 +402,25 @@ public class MettaBotLUT extends AdvancedRobot //Robot
 
     public void onBattleEnded(BattleEndedEvent event)
     {
+        // Stop any ongoing actions
+        stop();
         // Save the LUT to the data file
         saveLut(mLutFile);
     }
 
     public void onDeath(DeathEvent event)
     {
+
         // Give terminal reward of -100
         mCurrentReward -= 100;
-        learn();
+        learn(TERMINAL_STATE);
     }
 
     public void onWin(WinEvent event)
     {
         // Give terminal reward of 100
         mCurrentReward += 100;
-        learn();
+        learn(TERMINAL_STATE);
     }
 
     /**
@@ -617,8 +636,6 @@ public class MettaBotLUT extends AdvancedRobot //Robot
 
         actionHash = generateActionHash(randomMove, randomFire, randomAim);
 
-        printDebug("");
-
         return actionHash;
     }
 
@@ -724,7 +741,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         // Mask out the field from the input
         returnValue &= mask;
         // Shift down to grab it
-        returnValue >>= fieldOffset;
+        returnValue >>>= fieldOffset;
 
         return returnValue;
     }
@@ -799,7 +816,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     {
         try
         {
-            printDebug("Saving LUT to file...");
+            printDebug("Saving LUT to file...\n");
             RobocodeFileOutputStream fileOut = new RobocodeFileOutputStream(lutFile);
             ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(fileOut));
             out.writeObject(mReinforcementLearningLUTHashMap);
@@ -820,7 +837,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     {
         try
         {
-            printDebug("Loading LUT from file...");
+            printDebug("Loading LUT from file...\n");
             FileInputStream fileIn = new FileInputStream(lutFile);
             ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(fileIn));
             mReinforcementLearningLUTHashMap = (HashMap<Integer,Double>)in.readObject();
