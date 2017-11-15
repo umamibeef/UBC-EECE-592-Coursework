@@ -55,12 +55,19 @@ public class MettaLUT extends AdvancedRobot //Robot
     // Distance between robot and opponent      [1000]  -> 16   -> 4
     private static final int STATE_POS_X_WIDTH = 4;
     private static final int STATE_POS_X_OFFSET = 0;
+    private static final int STATE_POS_X_MAX = ARENA_SIZEX_PX;
+
     private static final int STATE_POS_Y_WIDTH = 4;
     private static final int STATE_POS_Y_OFFSET = 4;
+    private static final int STATE_POS_Y_MAX = ARENA_SIZEY_PX;
+
     private static final int STATE_ROBOT_HEADING_WIDTH = 4;
     private static final int STATE_ROBOT_HEADING_OFFSET = 8;
+    private static final int STATE_ROBOT_HEADING_MAX = 360;
+
     private static final int STATE_DISTANCE_WIDTH = 4;
     private static final int STATE_DISTANCE_OFFSET = 12;
+    private static final int STATE_DISTANCE_MAX = 1000;
     // Action hash field and offsets
     private static final int ACTION_MOVE_OFFSET = 0;
     private static final int ACTION_MOVE_WIDTH = 2;
@@ -177,7 +184,7 @@ public class MettaLUT extends AdvancedRobot //Robot
         // Robot's infinite loop
         for (;;)
         {
-            turnRadarRight(360);
+            turnRadarRight(20);
         }
     }
 
@@ -275,8 +282,6 @@ public class MettaLUT extends AdvancedRobot //Robot
             // On-policy (SARSA)
             case SARSA:
                 printDebug("SARSA!\n");
-                // Update the previous action hash, we've performed an action so this should be OK
-                mPreviousStateActionHash = mCurrentStateActionHash;
                 // Choose an on-policy action
                 actionHash = getActionHash(ACTION_MODE_EPSILON_GREEDY, currentStateHash);
                 // Calculate new value for previous Q;
@@ -311,12 +316,14 @@ public class MettaLUT extends AdvancedRobot //Robot
                 else
                 {
                     // Choose an on-policy action
+                    printDebug("Choosing on-policy action to take");
                     actionHash = getActionHash(ACTION_MODE_EPSILON_GREEDY, currentStateHash);
                     // Take the action
-                    takeAction(actionHash, currentStateHash);
+                    takeAction(currentStateHash, actionHash);
                     // Observe the new environment
                     currentStateHash = generateStateHash();
                     // Get the action hash that has the maximum Q for this state
+                    printDebug("Find the maximum Q action for this new state");
                     actionHash = getActionHash(ACTION_MODE_MAX_Q, currentStateHash);
                     // Calculate new value for previous Q;
                     qPrevNew = calculateQPrevNew(getQValue(combineStateActionHashes(currentStateHash, actionHash)));
@@ -342,6 +349,8 @@ public class MettaLUT extends AdvancedRobot //Robot
         mCurrentStateActionHash = updateIntField(currentStateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, actionHash);
         // Parse action hash
         parseActionHash(actionHash);
+        // Update the previous action hash
+        mPreviousStateActionHash = mCurrentStateActionHash;
     }
 
     /**
@@ -560,10 +569,10 @@ public class MettaLUT extends AdvancedRobot //Robot
         // Energy of enemy                          [N/A]   -> 2    -> 1
 
         // Quantization
-        quantRobotX = quantizeInt(mRobotX, ARENA_SIZEX_PX, 16);
-        quantRobotY = quantizeInt(mRobotY, ARENA_SIZEY_PX, 16);
-        quantDistance = quantizeInt(mEnemyDistance, 1000, 16);
-        quantRobotHeading = quantizeInt(mRobotHeading, 360, 16);
+        quantRobotX = quantizeInt(mRobotX, ARENA_SIZEX_PX, STATE_POS_X_WIDTH);
+        quantRobotY = quantizeInt(mRobotY, ARENA_SIZEY_PX, STATE_POS_Y_WIDTH);
+        quantDistance = quantizeInt(mEnemyDistance, STATE_DISTANCE_MAX, STATE_DISTANCE_WIDTH);
+        quantRobotHeading = quantizeInt(mRobotHeading, 360, STATE_ROBOT_HEADING_WIDTH);
 
         //quantEnemyBearingFromGun = quantizeInt(mEnemyBearingFromGun + 180, 360, 16);
         // For enemy energy, we will only care if it's above a threshold
@@ -577,10 +586,10 @@ public class MettaLUT extends AdvancedRobot //Robot
         //}
 
         // Assemble the hash
-        stateHash = updateIntField(stateHash, 4, 0, quantRobotX);
-        stateHash = updateIntField(stateHash, 4, 4, quantRobotY);
-        stateHash = updateIntField(stateHash, 4, 8, quantDistance);
-        stateHash = updateIntField(stateHash, 4, 12, quantRobotHeading);
+        stateHash = updateIntField(stateHash, STATE_POS_X_WIDTH, STATE_POS_X_OFFSET, quantRobotX);
+        stateHash = updateIntField(stateHash, STATE_POS_Y_WIDTH, STATE_POS_Y_OFFSET, quantRobotY);
+        stateHash = updateIntField(stateHash, STATE_DISTANCE_WIDTH, STATE_DISTANCE_OFFSET, quantDistance);
+        stateHash = updateIntField(stateHash, STATE_ROBOT_HEADING_WIDTH, STATE_ROBOT_HEADING_OFFSET, quantRobotHeading);
         //stateHash = updateIntField(stateHash, 1, 19, quantEnemyEnergy);
 
         //printDebug("Quantized values: %d %d %d %d %d %d\n",
