@@ -97,8 +97,8 @@ public class MettaLUT extends AdvancedRobot //Robot
     // State variables
     private static boolean mDebug = true;
     //private int mCurrentLearningPolicy = NO_LEARNING;
-    //private int mCurrentLearningPolicy = SARSA;
-    private int mCurrentLearningPolicy = Q_LEARNING;
+    private int mCurrentLearningPolicy = SARSA;
+    //private int mCurrentLearningPolicy = Q_LEARNING;
 
     // Variables to track the state of the arena
     private int mRobotX;
@@ -121,6 +121,8 @@ public class MettaLUT extends AdvancedRobot //Robot
     private int mPreviousEnergyDifference;
     private int mCurrentEnergyDifference;
     private double mCurrentReward;
+    private boolean mIntermediateRewards = true;
+    private boolean mTerminalRewards = true;
 
     private final Random mRandomInt = new Random();
 
@@ -264,9 +266,12 @@ public class MettaLUT extends AdvancedRobot //Robot
         //mCurrentReward += (mRobotEnergy - mEnemyEnergy);
         // NEW:
         // Add to the current reward the CHANGE in difference between previous and current
-        mPreviousEnergyDifference = mCurrentEnergyDifference;
-        mCurrentEnergyDifference = mRobotEnergy - mEnemyEnergy;
-        mCurrentReward += mCurrentEnergyDifference - mPreviousEnergyDifference;
+        if (mIntermediateRewards)
+        {
+            mPreviousEnergyDifference = mCurrentEnergyDifference;
+            mCurrentEnergyDifference = mRobotEnergy - mEnemyEnergy;
+            mCurrentReward += mCurrentEnergyDifference - mPreviousEnergyDifference;
+        }
         printDebug("Current reward: %f\n", mCurrentReward);
 
         switch (mCurrentLearningPolicy)
@@ -473,12 +478,18 @@ public class MettaLUT extends AdvancedRobot //Robot
 
     public void onBulletHit(BulletHitEvent event)
     {
-        mCurrentReward += 30;
+        if (mIntermediateRewards)
+        {
+            mCurrentReward += 30;
+        }
     }
 
     public void onHitByBullet(HitByBulletEvent event)
     {
-        mCurrentReward -= 30;
+        if (mIntermediateRewards)
+        {
+            mCurrentReward -= 30;
+        }
     }
 
     public void onBattleEnded(BattleEndedEvent event)
@@ -493,8 +504,11 @@ public class MettaLUT extends AdvancedRobot //Robot
     {
 
         // Give terminal reward of -100
-        mCurrentReward -= 100;
-        learn(TERMINAL_STATE);
+        if (mTerminalRewards)
+        {
+            mCurrentReward -= 100;
+            learn(TERMINAL_STATE);
+        }
     }
 
     public void onWin(WinEvent event)
@@ -503,8 +517,11 @@ public class MettaLUT extends AdvancedRobot //Robot
         mNumWinArray[(getRoundNum() - 1) / 100]++;
 
         // Give terminal reward of 100
-        mCurrentReward += 100;
-        learn(TERMINAL_STATE);
+        if (mTerminalRewards)
+        {
+            mCurrentReward += 100;
+            learn(TERMINAL_STATE);
+        }
     }
 
     /**
