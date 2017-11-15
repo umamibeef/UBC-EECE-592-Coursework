@@ -15,16 +15,27 @@ import java.util.Random;
 
 public class MettaLUT extends AdvancedRobot //Robot
 {
-    // Learning constants for Q function
-    // These are defaults and can be overridden
+    // Learning constants
+    private static final int NO_LEARNING_RANDOM = 0; // No learning, completely random, baselines behaviour
+    private static final int NO_LEARNING_GREEDY = 1; // No learning, will pick greediest move if LUT is available
+    private static final int SARSA = 2; // On-policy SARSA
+    private static final int Q_LEARNING = 3; // Off-policy Q-learning
+    private static final boolean NON_TERMINAL_STATE = false;
+    private static final boolean TERMINAL_STATE = true;
+
+    // Learning parameters
     private static final double ALPHA = 0.5;    // Fraction of difference used
     private static final double GAMMA = 0.8;    // Discount factor
-    private static final double EPSILON = 1.0;  // Probability of exploration
-    private static boolean mDebug = true;
+    private static final double EPSILON = 0.2;  // Probability of exploration
     //private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
     //private int mCurrentLearningPolicy = NO_LEARNING_GREEDY;
     private int mCurrentLearningPolicy = SARSA;
     //private int mCurrentLearningPolicy = Q_LEARNING;
+    private boolean mIntermediateRewards = true;
+    private boolean mTerminalRewards = true;
+
+    // Debug
+    private static boolean mDebug = true;
 
     // Misc. constants used in the robot
     private static final int ARENA_SIZEX_PX = 800;
@@ -57,8 +68,8 @@ public class MettaLUT extends AdvancedRobot //Robot
     // State hash field and offsets
     // Current position X                       [800]   -> 16   -> 4
     // Current position Y                       [600]   -> 16   -> 4
-    // Robot heading                            [360]   -> 16   -> 4
     // Distance between robot and opponent      [1000]  -> 16   -> 4
+    // Robot heading                            [360]   -> 16   -> 4
     private static final int STATE_POS_X_WIDTH = 4;
     private static final int STATE_POS_X_OFFSET = 0;
     private static final int STATE_POS_X_MAX = ARENA_SIZEX_PX;
@@ -67,13 +78,14 @@ public class MettaLUT extends AdvancedRobot //Robot
     private static final int STATE_POS_Y_OFFSET = 4;
     private static final int STATE_POS_Y_MAX = ARENA_SIZEY_PX;
 
+    private static final int STATE_DISTANCE_WIDTH = 4;
+    private static final int STATE_DISTANCE_OFFSET = 8;
+    private static final int STATE_DISTANCE_MAX = 1000;
+
     private static final int STATE_ROBOT_HEADING_WIDTH = 4;
-    private static final int STATE_ROBOT_HEADING_OFFSET = 8;
+    private static final int STATE_ROBOT_HEADING_OFFSET = 12;
     private static final int STATE_ROBOT_HEADING_MAX = 360;
 
-    private static final int STATE_DISTANCE_WIDTH = 4;
-    private static final int STATE_DISTANCE_OFFSET = 12;
-    private static final int STATE_DISTANCE_MAX = 1000;
     // Action hash field and offsets
     private static final int ACTION_MOVE_OFFSET = 0;
     private static final int ACTION_MOVE_WIDTH = 2;
@@ -85,14 +97,6 @@ public class MettaLUT extends AdvancedRobot //Robot
 
     private static final int ACTION_FIELD_WIDTH = 3;
     private static final int ACTION_FIELD_OFFSET = 16;
-
-    // Learning constants
-    private static final boolean NON_TERMINAL_STATE = false;
-    private static final boolean TERMINAL_STATE = true;
-    private static final int NO_LEARNING_RANDOM = 0; // No learning, completely random, baselines behaviour
-    private static final int NO_LEARNING_GREEDY = 1; // No learning, will pick greediest move if LUT is available
-    private static final int SARSA = 2; // On-policy SARSA
-    private static final int Q_LEARNING = 3; // Off-policy Q-learning
 
     // LUT file and properties
     private static final String LUT_FILE_NAME = "./ass2lut.dat";
@@ -122,10 +126,6 @@ public class MettaLUT extends AdvancedRobot //Robot
     private int mPreviousEnergyDifference;
     private int mCurrentEnergyDifference;
     private double mCurrentReward;
-    private boolean mIntermediateRewards = true;
-    private boolean mTerminalRewards = true;
-
-    private final Random mRandomInt = new Random();
 
     // Hashmap to store state/action probabilities
     private static HashMap<Integer, Double> mReinforcementLearningLUTHashMap = new HashMap<>();
@@ -597,10 +597,10 @@ public class MettaLUT extends AdvancedRobot //Robot
         // Energy of enemy                          [N/A]   -> 2    -> 1
 
         // Quantization
-        quantRobotX = quantizeInt(mRobotX, ARENA_SIZEX_PX, STATE_POS_X_WIDTH);
-        quantRobotY = quantizeInt(mRobotY, ARENA_SIZEY_PX, STATE_POS_Y_WIDTH);
-        quantDistance = quantizeInt(mEnemyDistance, STATE_DISTANCE_MAX, STATE_DISTANCE_WIDTH);
-        quantRobotHeading = quantizeInt(mRobotHeading, 360, STATE_ROBOT_HEADING_WIDTH);
+        quantRobotX = quantizeInt(mRobotX, STATE_POS_X_MAX, 1<<STATE_POS_X_WIDTH);
+        quantRobotY = quantizeInt(mRobotY, STATE_POS_Y_MAX, 1<<STATE_POS_Y_WIDTH);
+        quantDistance = quantizeInt(mEnemyDistance, STATE_DISTANCE_MAX, 1<<STATE_DISTANCE_WIDTH);
+        quantRobotHeading = quantizeInt(mRobotHeading, STATE_ROBOT_HEADING_MAX, 1<<STATE_ROBOT_HEADING_WIDTH);
 
         //quantEnemyBearingFromGun = quantizeInt(mEnemyBearingFromGun + 180, 360, 16);
         // For enemy energy, we will only care if it's above a threshold
