@@ -26,12 +26,12 @@ public class MettaLUT extends AdvancedRobot //Robot
     // Learning parameters
     private static final double ALPHA = 0.5;    // Fraction of difference used
     private static final double GAMMA = 0.8;    // Discount factor
-    private static final double EPSILON = 0.2;  // Probability of exploration
+    private static final double EPSILON = 0.1;  // Probability of exploration
     //private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
     //private int mCurrentLearningPolicy = NO_LEARNING_GREEDY;
     private int mCurrentLearningPolicy = SARSA;
     //private int mCurrentLearningPolicy = Q_LEARNING;
-    private boolean mIntermediateRewards = true;
+    private boolean mIntermediateRewards = false;
     private boolean mTerminalRewards = true;
 
     // Debug
@@ -1033,6 +1033,26 @@ public class MettaLUT extends AdvancedRobot //Robot
             printDebug("Saving stats to file...\n");
             RobocodeFileOutputStream fileOut = new RobocodeFileOutputStream(statsFile);
             PrintStream out = new PrintStream(new BufferedOutputStream(fileOut));
+            out.format("Alpha, %f,\n", ALPHA);
+            out.format("Gamma, %f,\n", GAMMA);
+            out.format("Epsilon, %f,\n", EPSILON);
+            switch(mCurrentLearningPolicy)
+            {
+                case NO_LEARNING_RANDOM:
+                    out.format("Learning Policy, NO LEARNING RANDOM,\n");
+                    break;
+                case NO_LEARNING_GREEDY:
+                    out.format("Learning Policy, NO LEARNING GREEDY,\n");
+                    break;
+                case SARSA:
+                    out.format("Learning Policy, SARSA,\n");
+                    break;
+                case Q_LEARNING:
+                    out.format("Learning Policy, Q LEARNING,\n");
+                    break;
+            }
+            out.format("Intermediate Rewards, %b,\n", mIntermediateRewards);
+            out.format("Terminal Rewards, %b,\n", mTerminalRewards);
             out.format("100 Rounds, Wins,\n");
             for (i = 0; i < getRoundNum()/100; i++)
             {
