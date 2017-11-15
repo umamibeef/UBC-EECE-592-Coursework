@@ -435,7 +435,7 @@ public class MettaLUT extends AdvancedRobot //Robot
             // If we're choosing epsilon greedy, then we must choose between max Q or exploratory, so do that here
             case ACTION_MODE_EPSILON_GREEDY:
                 // Roll the dice
-                printDebug("Greedy chance of %f, exploring chance of %f)\n", (1 - EPSILON), EPSILON);
+                printDebug("Greedy chance of %f, exploring chance of %f\n", (1 - EPSILON), EPSILON);
                 randomDouble = getRandomDouble(0.0, 1.0);
                 if (randomDouble < EPSILON)
                 {
