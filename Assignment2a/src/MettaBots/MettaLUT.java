@@ -19,7 +19,13 @@ public class MettaLUT extends AdvancedRobot //Robot
     // These are defaults and can be overridden
     private static final double ALPHA = 0.5;    // Fraction of difference used
     private static final double GAMMA = 0.8;    // Discount factor
-    private static final double EPSILON = 0.1;  // Probability of exploration
+    private static final double EPSILON = 1.0;  // Probability of exploration
+    private static boolean mDebug = true;
+    //private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
+    //private int mCurrentLearningPolicy = NO_LEARNING_GREEDY;
+    private int mCurrentLearningPolicy = SARSA;
+    //private int mCurrentLearningPolicy = Q_LEARNING;
+
     // Misc. constants used in the robot
     private static final int ARENA_SIZEX_PX = 800;
     private static final int ARENA_SIZEY_PX = 600;
@@ -83,9 +89,10 @@ public class MettaLUT extends AdvancedRobot //Robot
     // Learning constants
     private static final boolean NON_TERMINAL_STATE = false;
     private static final boolean TERMINAL_STATE = true;
-    private static final int NO_LEARNING = 0; // Completely random, baselines behaviour
-    private static final int SARSA = 1; // On-policy SARSA
-    private static final int Q_LEARNING = 2; // Off-policy Q-learning
+    private static final int NO_LEARNING_RANDOM = 0; // No learning, completely random, baselines behaviour
+    private static final int NO_LEARNING_GREEDY = 1; // No learning, will pick greediest move if LUT is available
+    private static final int SARSA = 2; // On-policy SARSA
+    private static final int Q_LEARNING = 3; // Off-policy Q-learning
 
     // LUT file and properties
     private static final String LUT_FILE_NAME = "./ass2lut.dat";
@@ -93,12 +100,6 @@ public class MettaLUT extends AdvancedRobot //Robot
     // Stat file and properties
     private static final String STATS_FILE_NAME = "./ass2stats.csv";
     private File mStatsFile;
-
-    // State variables
-    private static boolean mDebug = true;
-    //private int mCurrentLearningPolicy = NO_LEARNING;
-    private int mCurrentLearningPolicy = SARSA;
-    //private int mCurrentLearningPolicy = Q_LEARNING;
 
     // Variables to track the state of the arena
     private int mRobotX;
@@ -277,11 +278,21 @@ public class MettaLUT extends AdvancedRobot //Robot
         switch (mCurrentLearningPolicy)
         {
             // No learning at all (baseline)
-            case NO_LEARNING:
-                printDebug("No learning!\n");
+            case NO_LEARNING_RANDOM:
+                printDebug("No learning and random!\n");
                 // Take random action
                 actionHash = getRandomAction();
                 printDebug("Taking random action of 0x%02x\n", actionHash);
+                takeAction(currentStateHash, actionHash);
+                break;
+            case NO_LEARNING_GREEDY:
+                printDebug("No learning and totally greedy!\n");
+                // Observe the new environment
+                currentStateHash = generateStateHash();
+                // Get the action hash that has the maximum Q for this state
+                printDebug("Find the maximum Q action for this new state");
+                actionHash = getActionHash(ACTION_MODE_MAX_Q, currentStateHash);
+                // Take the action
                 takeAction(currentStateHash, actionHash);
                 break;
             // On-policy (SARSA)
