@@ -7,9 +7,6 @@ import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.Set;
-
-import static java.awt.event.KeyEvent.*;
 
 /**
  * In order to allow this particular robot to work, robocode.robot.filesystem.quota=4294967296
