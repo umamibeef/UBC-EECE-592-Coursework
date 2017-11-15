@@ -90,8 +90,8 @@ public class MettaLUT extends AdvancedRobot //Robot
     // State variables
     private static boolean mDebug = true;
     //private int mCurrentLearningPolicy = NO_LEARNING;
-    private int mCurrentLearningPolicy = SARSA;
-    //private int mCurrentLearningPolicy = Q_LEARNING;
+    //private int mCurrentLearningPolicy = SARSA;
+    private int mCurrentLearningPolicy = Q_LEARNING;
 
     // Variables to track the state of the arena
     private int mRobotX;
@@ -388,7 +388,7 @@ public class MettaLUT extends AdvancedRobot //Robot
                 //{
                 // Calculate the action hash and create the complete hash by adding it to the current state hash
                 actionHash = generateActionHash(moveAction, fireAction);//, aimAction);
-                completeHash = updateIntField(currentStateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, actionHash);
+                completeHash = combineStateActionHashes(currentStateHash, actionHash);
                 printDebug("0x%08x: %f\n", completeHash, getQValue(completeHash));
 
                 qVal = getQValue(completeHash);
@@ -418,7 +418,7 @@ public class MettaLUT extends AdvancedRobot //Robot
             selectedCompleteHash = qMaxActions[0];
             selectedActionHash = getIntFieldVal(selectedCompleteHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET);
             printDebug("Found best possible action to take [0x%02x] with Q-value of %f\n",
-            selectedActionHash, getQValue(selectedActionHash));
+            selectedActionHash, getQValue(selectedCompleteHash));
         }
         else
         {
@@ -426,7 +426,7 @@ public class MettaLUT extends AdvancedRobot //Robot
             selectedCompleteHash = qMaxActions[randomPick];
             selectedActionHash = getIntFieldVal(selectedCompleteHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET);
             printDebug("Found %d possible actions to take, randomly picking index %d [0x%02x] with Q-value of %f\n",
-            currentQMaxActionNum, randomPick, selectedActionHash, getQValue(selectedActionHash));
+            currentQMaxActionNum, randomPick, selectedActionHash, getQValue(selectedCompleteHash));
         }
 
 
@@ -452,7 +452,7 @@ public class MettaLUT extends AdvancedRobot //Robot
                 break;
             // We should already have max Q from above, so choose that
             case ACTION_MODE_MAX_Q:
-                printDebug("Picking action of 0x%02x\n");
+                printDebug("Picking action of 0x%02x\n", selectedActionHash);
                 break;
             default:
                 // We should never be here
