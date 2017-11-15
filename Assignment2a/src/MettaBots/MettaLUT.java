@@ -89,8 +89,8 @@ public class MettaLUT extends AdvancedRobot //Robot
 
     // State variables
     private static boolean mDebug = true;
-    private int mCurrentLearningPolicy = NO_LEARNING;
-    //private int getmCurrentLearningPolicy = SARSA;
+    //private int mCurrentLearningPolicy = NO_LEARNING;
+    private int mCurrentLearningPolicy = SARSA;
     //private int mCurrentLearningPolicy = Q_LEARNING;
 
     // Variables to track the state of the arena
@@ -280,7 +280,7 @@ public class MettaLUT extends AdvancedRobot //Robot
                 // Choose an on-policy action
                 actionHash = getActionHash(ACTION_MODE_EPSILON_GREEDY, currentStateHash);
                 // Calculate new value for previous Q;
-                qPrevNew = calculateQPrevNew(combineStateActionHashes(currentStateHash, actionHash));
+                qPrevNew = calculateQPrevNew(getQValue(combineStateActionHashes(currentStateHash, actionHash)));
                 // Update the LUT with the new value for the previous Q
                 mReinforcementLearningLUTHashMap.put(mPreviousStateActionHash, qPrevNew);
                 // Reset reward until the next learn
@@ -319,7 +319,7 @@ public class MettaLUT extends AdvancedRobot //Robot
                     // Get the action hash that has the maximum Q for this state
                     actionHash = getActionHash(ACTION_MODE_MAX_Q, currentStateHash);
                     // Calculate new value for previous Q;
-                    qPrevNew = calculateQPrevNew(combineStateActionHashes(currentStateHash, actionHash));
+                    qPrevNew = calculateQPrevNew(getQValue(combineStateActionHashes(currentStateHash, actionHash)));
                     // Update the LUT with the new value for the previous Q
                     mReinforcementLearningLUTHashMap.put(mPreviousStateActionHash, qPrevNew);
                     // Reset reward until the next learn
