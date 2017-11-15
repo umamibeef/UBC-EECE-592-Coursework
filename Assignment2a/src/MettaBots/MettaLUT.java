@@ -88,7 +88,7 @@ public class MettaLUT extends AdvancedRobot //Robot
     private File mStatsFile;
 
     // State variables
-    private static boolean mDebug;
+    private static boolean mDebug = true;
     private int mCurrentLearningPolicy = NO_LEARNING;
     //private int getmCurrentLearningPolicy = SARSA;
     //private int mCurrentLearningPolicy = Q_LEARNING;
@@ -270,6 +270,7 @@ public class MettaLUT extends AdvancedRobot //Robot
                 // Take random action
                 actionHash = getRandomAction();
                 printDebug("Taking random action of 0x%02x\n", actionHash);
+                takeAction(currentStateHash, actionHash);
                 break;
             // On-policy (SARSA)
             case SARSA:
