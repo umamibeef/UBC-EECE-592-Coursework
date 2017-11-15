@@ -1,4 +1,4 @@
-package MyRobots;
+package MettaBots;
 
 import robocode.*;
 
@@ -16,13 +16,13 @@ import static java.awt.event.KeyEvent.*;
  * was set in robocode.properties in order to allow large files to be loaded and saved.
  */
 
-public class MettaBotLUT extends AdvancedRobot //Robot
+public class MettaLUT extends AdvancedRobot //Robot
 {
     // Learning constants for Q function
-    private static final double ALPHA = 0.7;    // Fraction of difference used
+    // These are defaults and can be overridden
+    private static final double ALPHA = 0.5;    // Fraction of difference used
     private static final double GAMMA = 0.8;    // Discount factor
-    //private static final double EPSILON = 0.2;  // Probability of exploration
-    private static final double EPSILON = 0.5;  // Probability of exploration
+    private static final double EPSILON = 0.1;  // Probability of exploration
     // Misc. constants used in the robot
     private static final int ARENA_SIZEX_PX = 800;
     private static final int ARENA_SIZEY_PX = 600;
@@ -48,6 +48,8 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     private static final int ACTION_FIRE_NUM = 2;
     // Action constants
     private static final int ACTION_DIMENSIONALITY = ACTION_MOVE_NUM * ACTION_FIRE_NUM; //* ACTION_AIM_NUM;
+    private static final int ACTION_MODE_MAX_Q = 0;
+    private static final int ACTION_MODE_EPSILON_GREEDY = 1;
 
     // State hash field and offsets
     // Current position X                       [800]   -> 16   -> 4
@@ -78,10 +80,8 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     private static final boolean NON_TERMINAL_STATE = false;
     private static final boolean TERMINAL_STATE = true;
     private static final int NO_LEARNING = 0; // Completely random, baselines behaviour
-    private static final int SARSA_GREEDY = 1; // On-policy greedy SARSA
-    private static final int SARSA_EXPLORATION = 2; // On-policy SARSA with 1-EPSILON exploration
-    private static final int Q_GREEDY = 3; // Off-policy greedy Q-learning
-    private static final int Q_EXPLORATION = 4; // Off-policy Q-learning with 1-EPSILON exploration
+    private static final int SARSA = 1; // On-policy SARSA
+    private static final int Q_LEARNING = 2; // Off-policy Q-learning
 
     // LUT file and properties
     private static final String LUT_FILE_NAME = "./ass2lut.dat";
@@ -91,10 +91,10 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     private File mStatsFile;
 
     // State variables
-    private boolean mDebug = true;
-    //private int mCurrentLearningPolicy = NO_LEARNING;
-    //private int mCurrentLearningPolicy = Q_GREEDY;
-    private int mCurrentLearningPolicy = Q_EXPLORATION;
+    private static boolean mDebug;
+    private int mCurrentLearningPolicy = NO_LEARNING;
+    //private int getmCurrentLearningPolicy = SARSA;
+    //private int mCurrentLearningPolicy = Q_LEARNING;
 
     // Variables to track the state of the arena
     private int mRobotX;
@@ -128,23 +128,6 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     private final MoveCompleteCondition mMoveComplete = new MoveCompleteCondition(this);
     private final GunTurnCompleteCondition mGunMoveComplete = new GunTurnCompleteCondition(this);
 
-    // Convenience class to store a state/action hash along with its components
-    private class StateActionHashObject
-    {
-        int mActionHash;
-        int mStateHash;
-        int mCompleteHash;
-        double mQValue;
-
-        StateActionHashObject(int actionHash, int stateHash, int completeHash, double qValue)
-        {
-            mActionHash = actionHash;
-            mStateHash = stateHash;
-            mCompleteHash = completeHash;
-            mQValue = qValue;
-        }
-    }
-
     // Winrate tracking for every 100 rounds
     private static final int NUM_ROUNDS = 100000;
     private static final int NUM_ROUNDS_DIV_100 = NUM_ROUNDS / 100;
@@ -152,7 +135,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
 
     public void run()
     {
-        Set<Integer> keys;
+        int currentStateHash, selectedAction;
         long fileSize;
 
         // Set colours
@@ -183,20 +166,21 @@ public class MettaBotLUT extends AdvancedRobot //Robot
             loadLut(mLutFile);
         }
 
-        //keys = mReinforcementLearningLUTHashMap.keySet();
-        //
-        //for(Integer i: keys)
-        //{
-        //    printDebug("0x%08x %f\n", i, mReinforcementLearningLUTHashMap.get(i));
-        //}
-        //
-        //printDebug("0x%08x %f\n", 5, mReinforcementLearningLUTHashMap.get(5));
-
         printDebug("Data available: %d bytes\n", getDataQuotaAvailable());
 
+        // If SARSA, we must take an action at start
+        // Choose an action hash that has the maximum Q for this state
+        if(mCurrentLearningPolicy == SARSA)
+        {
+            currentStateHash = generateStateHash();
+            selectedAction = getActionHash(ACTION_MODE_EPSILON_GREEDY, currentStateHash);
+            takeAction(currentStateHash, selectedAction);
+        }
+
+        // Robot's infinite loop
         for (;;)
         {
-            turnRadarRight(30);
+            turnRadarRight(360);
         }
     }
 
@@ -206,6 +190,8 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         switch (e.getKeyCode())
         {
             // Nothing here for now
+            default:
+                break;
         }
     }
 
@@ -214,23 +200,8 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     {
         switch (e.getKeyCode())
         {
-            case VK_G:
-                mCurrentLearningPolicy = Q_GREEDY;
-                printDebug("Current learning policy is greedy\n");
-                break;
-            case VK_E:
-                mCurrentLearningPolicy = Q_EXPLORATION;
-                printDebug("Current learning policy is exploration with epsilon of %f\n", EPSILON);
-                break;
-            case VK_D:
-                if (mDebug)
-                {
-                    mDebug = false;
-                }
-                else
-                {
-                    mDebug = true;
-                }
+            // Nothing here for now
+            default:
                 break;
         }
     }
@@ -273,13 +244,12 @@ public class MettaBotLUT extends AdvancedRobot //Robot
 
     private void learn(boolean terminalState)
     {
-        double qPrevNew, randomDouble;
-        int currentStateHash, randomActionHash;
-        StateActionHashObject maxQHashObject;
+        double qPrevNew;
+        int currentStateHash, actionHash;
 
         printDebug("==[LEARN]=========================================\n");
 
-        // Determine current state hash
+        // Determine current state hash at the time of learn()
         currentStateHash = generateStateHash();
 
         // Calculate the current reward
@@ -297,99 +267,96 @@ public class MettaBotLUT extends AdvancedRobot //Robot
 
         switch (mCurrentLearningPolicy)
         {
+            // No learning at all (baseline)
             case NO_LEARNING:
                 printDebug("No learning!\n");
                 // Take random action
-                randomActionHash = getRandomAction();
-                printDebug("Taking random action of 0x%02x\n", randomActionHash);
-                // Update current state/action hash
-                mCurrentStateActionHash = updateIntField(currentStateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, randomActionHash);
-                parseActionHash(randomActionHash);
+                actionHash = getRandomAction();
+                printDebug("Taking random action of 0x%02x\n", actionHash);
                 break;
-            case Q_GREEDY:
-            case Q_EXPLORATION:
-                printDebug("Q-learning!\n");
-                // We don't do this on the first learn
-                if (mCurrentStateActionHash != NULL_32)
-                {
-                    // Copy current state hash into previous
-                    mPreviousStateActionHash = mCurrentStateActionHash;
-                }
-
-                // Choose an action hash that has the maximum Q for this state
-                maxQHashObject = getMaxQActionHash(currentStateHash);
-
-                // We don't do this on the first learn
-                if (mCurrentStateActionHash != NULL_32)
-                {
-                    // Calculate new value for previous Q;
-                    qPrevNew = calculateQPrevNew(maxQHashObject.mQValue);
-                    // Update the hashmap with the new value for the previous Q
-                    mReinforcementLearningLUTHashMap.put(mPreviousStateActionHash, qPrevNew);
-                }
-
+            // On-policy (SARSA)
+            case SARSA:
+                printDebug("SARSA!\n");
+                // Update the previous action hash, we've performed an action so this should be OK
+                mPreviousStateActionHash = mCurrentStateActionHash;
+                // Choose an on-policy action
+                actionHash = getActionHash(ACTION_MODE_EPSILON_GREEDY, currentStateHash);
+                // Calculate new value for previous Q;
+                qPrevNew = calculateQPrevNew(combineStateActionHashes(currentStateHash, actionHash));
+                // Update the LUT with the new value for the previous Q
+                mReinforcementLearningLUTHashMap.put(mPreviousStateActionHash, qPrevNew);
                 // Reset reward until the next learn
                 mCurrentReward = 0.0;
-
                 // We're done! No more actions.
                 if (terminalState)
                 {
                     printDebug("Terminal state! No more actions available.\n");
                     return;
                 }
-
-                // Choose an action based on policy
-                if (mCurrentLearningPolicy == Q_GREEDY)
+                // Take the next action
+                takeAction(currentStateHash, actionHash);
+                break;
+            // Off-policy (Q-Learning)
+            case Q_LEARNING:
+                printDebug("Q-learning!\n");
+                // We're done! No more actions.
+                if (terminalState)
                 {
-                    printDebug("Greedy!\n");
-                    // Parse and run the action with the highest Q value (greedy action)
-                    // Update current state/action hash
-                    printDebug("Taking greedy action of 0x%02x\n", maxQHashObject.mActionHash);
-                    mCurrentStateActionHash = maxQHashObject.mCompleteHash;
-                    parseActionHash(maxQHashObject.mActionHash);
+                    printDebug("Terminal state! No more actions available.\n");
+                    // Learn from the terminal action
+                    // Calculate new value for previous Q, next Q is zero since we are terminal
+                    qPrevNew = calculateQPrevNew(0.0);
+                    // Update the LUT with the new value for the previous Q
+                    mReinforcementLearningLUTHashMap.put(mPreviousStateActionHash, qPrevNew);
+                    return;
                 }
-                else if (mCurrentLearningPolicy == Q_EXPLORATION)
+                else
                 {
-                    printDebug("Exploration!\n");
-                    // Roll the dice
-                    randomDouble = getRandomDouble(0.0, 1.0);
-                    printDebug("Got random number %f\n", randomDouble);
-                    if (randomDouble < EPSILON)
-                    {
-                        // Take random action
-                        randomActionHash = getRandomAction();
-                        printDebug("Taking random action of 0x%02x\n", randomActionHash);
-                        // Update current state/action hash
-                        mCurrentStateActionHash = updateIntField(currentStateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, randomActionHash);
-                        parseActionHash(randomActionHash);
-                    }
-                    else
-                    {
-                        // Take greedy action
-                        printDebug("Taking greedy action of 0x%02x\n", maxQHashObject.mActionHash);
-                        // Update current state/action hash
-                        mCurrentStateActionHash = maxQHashObject.mCompleteHash;
-                        parseActionHash(maxQHashObject.mActionHash);
-                    }
+                    // Choose an on-policy action
+                    actionHash = getActionHash(ACTION_MODE_EPSILON_GREEDY, currentStateHash);
+                    // Take the action
+                    takeAction(actionHash, currentStateHash);
+                    // Observe the new environment
+                    currentStateHash = generateStateHash();
+                    // Get the action hash that has the maximum Q for this state
+                    actionHash = getActionHash(ACTION_MODE_MAX_Q, currentStateHash);
+                    // Calculate new value for previous Q;
+                    qPrevNew = calculateQPrevNew(combineStateActionHashes(currentStateHash, actionHash));
+                    // Update the LUT with the new value for the previous Q
+                    mReinforcementLearningLUTHashMap.put(mPreviousStateActionHash, qPrevNew);
+                    // Reset reward until the next learn
+                    mCurrentReward = 0.0;
                 }
                 break;
+            default:
+                break;
         }
-
     }
 
-    private double calculateQPrevNew(double qValMax)
+    /**
+     * This function will either explore randomly or take an 1-EPSILON greedy action that is passed into it
+     * @param currentStateHash The current state hash
+     * @param actionHash The action to take
+     */
+    private void takeAction(int currentStateHash, int actionHash)
+    {
+        // Update current state/action hash
+        mCurrentStateActionHash = updateIntField(currentStateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, actionHash);
+        // Parse action hash
+        parseActionHash(actionHash);
+    }
+
+    /**
+     * Updates the previous Q value based on the passed in next Q value and the learning hyperparameters
+     * @param qNext The next Q value, could be max or could be chosen on-policy
+     * @return
+     */
+    private double calculateQPrevNew(double qNext)
     {
         double qPrevNew, qPrevOld;
 
-        if (!mReinforcementLearningLUTHashMap.containsKey(mPreviousStateActionHash))
-        {
-            qPrevOld = 0.0;
-        }
-        else
-        {
-            qPrevOld = mReinforcementLearningLUTHashMap.get(mPreviousStateActionHash);
-        }
-        qPrevNew = qPrevOld + (ALPHA * (mCurrentReward + (GAMMA * qValMax) - qPrevOld));
+        qPrevOld = getQValue(mPreviousStateActionHash);
+        qPrevNew = qPrevOld + (ALPHA * (mCurrentReward + (GAMMA * qNext) - qPrevOld));
 
         return qPrevNew;
     }
@@ -398,20 +365,20 @@ public class MettaBotLUT extends AdvancedRobot //Robot
      * Obtain the action hash with the largest Q value based on the provided action hash.
      * If multiple actions are tied for the largest Q value, pick one at random.
      *
-     * @param currentStateHash
-     * @return
+     * @param mode The action selection mode, either epsilon greedy or qmax
+     * @param currentStateHash Get the action with the maximum Q from the provided state hash
+     * @return The action with the highest Q for the current state hash
      */
-    private StateActionHashObject getMaxQActionHash(int currentStateHash)
+    private int getActionHash(int mode, int currentStateHash)
     {
-        int moveAction, fireAction, aimAction;
+        int moveAction, fireAction;//, aimAction;
         int randomPick, actionHash, completeHash, selectedActionHash, selectedCompleteHash;
         int[] qMaxActions;
         int currentQMaxActionNum = 0;
         double currentMax = -999.0;
-        StateActionHashObject selection;
+        double qVal, randomDouble;
 
         qMaxActions = new int[ACTION_DIMENSIONALITY];
-
         // Iterate through all possible actions
         printDebug("Current state hash: 0x%08x\n", currentStateHash);
         printDebug("Possible Q-values:\n");
@@ -424,20 +391,21 @@ public class MettaBotLUT extends AdvancedRobot //Robot
                 // Calculate the action hash and create the complete hash by adding it to the current state hash
                 actionHash = generateActionHash(moveAction, fireAction);//, aimAction);
                 completeHash = updateIntField(currentStateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, actionHash);
-                // Make the entry 0.0 if it doesn't exist
-                mReinforcementLearningLUTHashMap.putIfAbsent(completeHash, 0.0);
-                printDebug("0x%08x: %f\n", completeHash, mReinforcementLearningLUTHashMap.get(completeHash));
+                printDebug("0x%08x: %f\n", completeHash, getQValue(completeHash));
+
+                qVal = getQValue(completeHash);
+
                 // Update current max
-                if (mReinforcementLearningLUTHashMap.get(completeHash) > currentMax)
+                if (qVal > currentMax)
                 {
                     // New max, clear array
                     // We can have a maximum of the number of possible actions as the number of possible actions
                     qMaxActions = new int[ACTION_DIMENSIONALITY];
                     currentQMaxActionNum = 1;
                     qMaxActions[currentQMaxActionNum - 1] = completeHash;
-                    currentMax = mReinforcementLearningLUTHashMap.get(completeHash);
+                    currentMax = qVal;
                 }
-                else if (mReinforcementLearningLUTHashMap.get(completeHash) == currentMax)
+                else if (qVal == currentMax)
                 {
                     currentQMaxActionNum++;
                     qMaxActions[currentQMaxActionNum - 1] = completeHash;
@@ -447,28 +415,53 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         }
 
         printDebug("Max actions: %d\n", currentQMaxActionNum);
-
         if (currentQMaxActionNum == 1)
         {
             selectedCompleteHash = qMaxActions[0];
             selectedActionHash = getIntFieldVal(selectedCompleteHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET);
             printDebug("Found best possible action to take [0x%02x] with Q-value of %f\n",
-            selectedActionHash, mReinforcementLearningLUTHashMap.get(selectedCompleteHash));
+            selectedActionHash, getQValue(selectedActionHash));
         }
         else
         {
             randomPick = getRandomInt(0, currentQMaxActionNum - 1);
-            //printDebug("Random pick: %d\n", randomPick);
             selectedCompleteHash = qMaxActions[randomPick];
             selectedActionHash = getIntFieldVal(selectedCompleteHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET);
             printDebug("Found %d possible actions to take, randomly picking index %d [0x%02x] with Q-value of %f\n",
-            currentQMaxActionNum, randomPick, selectedActionHash, mReinforcementLearningLUTHashMap.get(selectedCompleteHash));
+            currentQMaxActionNum, randomPick, selectedActionHash, getQValue(selectedActionHash));
         }
 
-        // Combine the selected hash along with its Q value into the convenience object
-        selection = new StateActionHashObject(selectedActionHash, currentStateHash, selectedCompleteHash, mReinforcementLearningLUTHashMap.get(selectedCompleteHash));
 
-        return selection;
+        switch (mode)
+        {
+            // If we're choosing epsilon greedy, then we must choose between max Q or exploratory, so do that here
+            case ACTION_MODE_EPSILON_GREEDY:
+                // Roll the dice
+                printDebug("Greedy chance of %f, exploring chance of %f)\n", (1 - EPSILON), EPSILON);
+                randomDouble = getRandomDouble(0.0, 1.0);
+                if (randomDouble < EPSILON)
+                {
+                    printDebug("Got random number %f\n", randomDouble);
+                    // Take random action
+                    selectedActionHash = getRandomAction();
+                    printDebug("Picking random action of 0x%02x\n", selectedActionHash);
+                }
+                else
+                {
+                    // Take greedy action
+                    printDebug("Picking greedy action of 0x%02x\n", selectedActionHash);
+                }
+                break;
+            // We should already have max Q from above, so choose that
+            case ACTION_MODE_MAX_Q:
+                printDebug("Picking action of 0x%02x\n");
+                break;
+            default:
+                // We should never be here
+                break;
+        }
+
+        return selectedActionHash;
     }
 
     public void onBulletHit(BulletHitEvent event)
@@ -524,11 +517,30 @@ public class MettaBotLUT extends AdvancedRobot //Robot
     }
 
     /**
+     * Combine a state and action hash together to form a complete hash
+     * @param stateHash State hash
+     * @param actionHash Action hash
+     * @return The complete state/action hash
+     */
+    private int combineStateActionHashes(int stateHash, int actionHash)
+    {
+        return updateIntField(stateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, actionHash);
+    }
+
+    private double getQValue(int stateActionHash)
+    {
+        // Make the entry 0.0 if it doesn't exist
+        mReinforcementLearningLUTHashMap.putIfAbsent(stateActionHash, 0.0);
+
+        return mReinforcementLearningLUTHashMap.get(stateActionHash);
+    }
+
+    /**
      * This generates a hash for a given state. Everything is encoded in an int
      *
      * @return a hash representing the current state
      */
-    public int generateStateHash()
+    private int generateStateHash()
     {
         int stateHash = 0;
 
@@ -595,7 +607,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
      *
      * @return Returns a hash based on the selected action
      */
-    public int generateActionHash(int moveAction, int fireAction)//, int aimAction)
+    private int generateActionHash(int moveAction, int fireAction)//, int aimAction)
     {
         // Robot can do two things simultaneously:
         // Move up, down, left, or right                        (4)
@@ -621,7 +633,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
      */
     private void parseActionHash(int actionHash)
     {
-        int moveDirection, fireType, aimType, newHeading, estimatedEnemyBearingFromGun;
+        int moveDirection, fireType, newHeading, estimatedEnemyBearingFromGun;
         double angle;
 
         moveDirection = getIntFieldVal(actionHash, ACTION_MOVE_WIDTH, ACTION_MOVE_OFFSET);
@@ -648,21 +660,19 @@ public class MettaBotLUT extends AdvancedRobot //Robot
                 break;
         }
         setTurnRight(newHeading);
-        //turnRight(newHeading);
+
         // Execute the turn
         execute();
         waitFor(mTurnComplete);
         setAhead(ACTION_MOVE_DISTANCE);
-        //ahead(MOVE_DISTANCE);
         // Execute the ahead
         execute();
         waitFor(mMoveComplete);
 
         // Re-calculate the enemy's bearing based on its last know position
-        // calculate gun turn to predicted x,y location
-
+        // Calculate gun turn to predicted x,y location
         angle = absoluteBearing((int) getX(), (int) getY(), mEnemyX, mEnemyY);
-        // turn the gun to the predicted x,y location
+        // Turn the gun to the predicted x,y location
         estimatedEnemyBearingFromGun = normalizeAngle((int) (angle - getGunHeading()));
 
         // Perform the aim type action
@@ -673,18 +683,15 @@ public class MettaBotLUT extends AdvancedRobot //Robot
         //{
         //    case AIM_ST:
         //        // Aim directly for the enemy
-        //        //setTurnGunRight(estimatedEnemyBearingFromGun);
-        //        turnGunRight(estimatedEnemyBearingFromGun);
+        //        //setTurnGunRight(estimatedEnemyBearingFromGun);;
         //        break;
         //    case ACTION_AIM_LT:
         //        // Aim to the left of the enemy by a modifier
         //        //setTurnGunRight(estimatedEnemyBearingFromGun - ACTION_AIM_MOD);
-        //        turnGunRight(estimatedEnemyBearingFromGun - ACTION_AIM_MOD);
         //        break;
         //    case ACTION_AIM_RT:
         //        // Aim to the ri ght of the enemy by a modifier
         //        //setTurnGunRight(estimatedEnemyBearingFromGun + ACTION_AIM_MOD);
-        //        turnGunRight(estimatedEnemyBearingFromGun + ACTION_AIM_MOD);
         //        break;
         //    default:
         //        // We should never be in here, do nothing.
@@ -701,15 +708,9 @@ public class MettaBotLUT extends AdvancedRobot //Robot
             case ACTION_FIRE_0:
                 // We don't fire in this case
                 break;
-            //case FIRE_1:
-            //    // Fire a 1 power bullet
-            //    setFireBullet(1.0);
-            //    //fireBullet(1.0);
-            //    break;
             case ACTION_FIRE_3:
                 // Fire a 3 power bullet
                 setFireBullet(3.0);
-                //fireBullet(3.0);
                 break;
             default:
                 // We should never be in here, do nothing.
@@ -724,7 +725,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
      */
     private int getRandomAction()
     {
-        int actionHash, randomMove, randomFire, randomAim;
+        int actionHash, randomMove, randomFire;//, randomAim;
 
         randomMove = getRandomInt(0, ACTION_MOVE_NUM - 1);
         randomFire = getRandomInt(0, ACTION_FIRE_NUM - 1);
@@ -734,7 +735,6 @@ public class MettaBotLUT extends AdvancedRobot //Robot
 
         return actionHash;
     }
-
 
     /**
      * Returns an absolute bearing between two points
@@ -999,7 +999,7 @@ public class MettaBotLUT extends AdvancedRobot //Robot
             RobocodeFileOutputStream fileOut = new RobocodeFileOutputStream(statsFile);
             PrintStream out = new PrintStream(new BufferedOutputStream(fileOut));
             out.format("100 Rounds, Wins,\n");
-            for (i = 0; i < mNumWinArray.length; i++)
+            for (i = 0; i < getRoundNum()/100; i++)
             {
                 out.format("%d, %d,\n", i + 1, mNumWinArray[i]);
             }
