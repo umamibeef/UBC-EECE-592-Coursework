@@ -31,7 +31,7 @@ public class MettaLUT extends AdvancedRobot //Robot
     //private int mCurrentLearningPolicy = NO_LEARNING_GREEDY;
     private int mCurrentLearningPolicy = SARSA;
     //private int mCurrentLearningPolicy = Q_LEARNING;
-    private boolean mIntermediateRewards = false;
+    private boolean mIntermediateRewards = true;
     private boolean mTerminalRewards = true;
 
     // Debug
