@@ -27,9 +27,9 @@ public class MettaLUT extends AdvancedRobot //Robot
     private static final double ALPHA = 0.5;    // Fraction of difference used
     private static final double GAMMA = 0.8;    // Discount factor
     private static final double EPSILON = 0.1;  // Probability of exploration
-    //private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
+    private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
     //private int mCurrentLearningPolicy = NO_LEARNING_GREEDY;
-    private int mCurrentLearningPolicy = SARSA;
+    //private int mCurrentLearningPolicy = SARSA;
     //private int mCurrentLearningPolicy = Q_LEARNING;
     private boolean mIntermediateRewards = true;
     private boolean mTerminalRewards = true;
