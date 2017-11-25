@@ -420,11 +420,10 @@ class NeuralNet
                 // Sum all of the output neuron errors * hidden neuron weights
                 for(outputNeuron = 0; outputNeuron < mNumOutputs; outputNeuron++)
                 {
-
+                    summedWeightedErrors += mOutputNeuronErrors[outputNeuron] * mOutputNeuronWeights[outputNeuron][hiddenNeuron];
                 }
-                mHiddenNeuronErrors[hiddenNeuron] = mOutputNeuronErrors[outputNeuron] *
-                    mOutputNeuronWeights[outputNeuron][hiddenNeuron] *
-                    customSigmoidDerivative(mHiddenNeuronUnactivatedOutputs[hiddenNeuron]);
+                // Multiply weighted sum with derivative of activation
+                mHiddenNeuronErrors[hiddenNeuron] = summedWeightedErrors * customSigmoidDerivative(mHiddenNeuronUnactivatedOutputs[hiddenNeuron]);
             }
         }
     }
