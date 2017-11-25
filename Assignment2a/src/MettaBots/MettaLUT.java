@@ -27,15 +27,16 @@ public class MettaLUT extends AdvancedRobot //Robot
     private static final double ALPHA = 0.5;    // Fraction of difference used
     private static final double GAMMA = 0.8;    // Discount factor
     private static final double EPSILON = 0.1;  // Probability of exploration
-    private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
+    //private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
     //private int mCurrentLearningPolicy = NO_LEARNING_GREEDY;
     //private int mCurrentLearningPolicy = SARSA;
-    //private int mCurrentLearningPolicy = Q_LEARNING;
+    private int mCurrentLearningPolicy = Q_LEARNING;
     private boolean mIntermediateRewards = true;
     private boolean mTerminalRewards = true;
 
     // Debug
     private static boolean mDebug = true;
+    private static boolean mDumpHumanReadableLut = true;
 
     // Misc. constants used in the robot
     private static final int ARENA_SIZEX_PX = 800;
@@ -983,6 +984,54 @@ public class MettaLUT extends AdvancedRobot //Robot
             //ObjectOutputStream out = new ObjectOutputStream(fileOut);
             ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(fileOut));
             out.writeObject(mReinforcementLearningLUTHashMap);
+            out.close();
+            fileOut.close();
+        }
+        catch (IOException exception)
+        {
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * Save the lookup table in a human readable format
+     * @param humanLutFile
+     */
+    private void saveHumanLut(File humanLutFile)
+    {
+        int i;
+
+        try
+        {
+            printDebug("Saving human-readable LUT to file...\n");
+            RobocodeFileOutputStream fileOut = new RobocodeFileOutputStream(statsFile);
+            PrintStream out = new PrintStream(new BufferedOutputStream(fileOut));
+            out.format("Alpha, %f,\n", ALPHA);
+            out.format("Gamma, %f,\n", GAMMA);
+            out.format("Epsilon, %f,\n", EPSILON);
+            switch(mCurrentLearningPolicy)
+            {
+                case NO_LEARNING_RANDOM:
+                    out.format("Learning Policy, NO LEARNING RANDOM,\n");
+                    break;
+                case NO_LEARNING_GREEDY:
+                    out.format("Learning Policy, NO LEARNING GREEDY,\n");
+                    break;
+                case SARSA:
+                    out.format("Learning Policy, SARSA,\n");
+                    break;
+                case Q_LEARNING:
+                    out.format("Learning Policy, Q LEARNING,\n");
+                    break;
+            }
+            out.format("Intermediate Rewards, %b,\n", mIntermediateRewards);
+            out.format("Terminal Rewards, %b,\n", mTerminalRewards);
+            out.format("State, Action, Q-Value,\n");
+            for (i = 0; i < getRoundNum()/100; i++)
+            {
+                out.format("0x%x, 0x%d, $f,\n", i + 1, mNumWinArray[i]);
+            }
+
             out.close();
             fileOut.close();
         }

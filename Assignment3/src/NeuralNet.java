@@ -208,10 +208,11 @@ class NeuralNet
         double[][] newOutputNeuronWeights = new double[MAX_HIDDEN_NEURONS][MAX_OUTPUTS];
         double[][] newInputNeuronWeights = new double[MAX_HIDDEN_NEURONS][MAX_INPUTS];
 
-        // Update the weights to the output neurons
-        // Update the bias input to the output neuron weight
+        // Update the weights from hidden neurons to the output neurons
+        // Update the weight from bias input to the output neurons
         for(outputNeuron = 0; outputNeuron < mNumOutputs; outputNeuron++)
         {
+            // Bias input weight
             newOutputNeuronBiasWeights[outputNeuron] =
                 mOutputNeuronBiasWeights[outputNeuron] +
                 calculateWeightDelta(1.0,
@@ -219,14 +220,16 @@ class NeuralNet
                     mOutputNeuronBiasWeights[outputNeuron],
                     mPreviousOutputNeuronBiasWeights[outputNeuron]);
 
+            // Hidden neuron weights
             for(hiddenNeuron = 0; hiddenNeuron < mNumHiddenNeurons; hiddenNeuron++)
             {
-                newOutputNeuronWeights[hiddenNeuron] = mOutputNeuronWeights[hiddenNeuron] +
-                calculateWeightDelta(
-                mHiddenNeuronOutputs[hiddenNeuron],
-                mOutputNeuronErrors,
-                mOutputNeuronWeights[hiddenNeuron],
-                mPreviousOutputNeuronWeights[hiddenNeuron]);
+                newOutputNeuronWeights[outputNeuron][hiddenNeuron] =
+                    mOutputNeuronWeights[outputNeuron][hiddenNeuron] +
+                    calculateWeightDelta(
+                        mHiddenNeuronOutputs[hiddenNeuron],
+                        mOutputNeuronErrors[outputNeuron],
+                        mOutputNeuronWeights[outputNeuron][hiddenNeuron],
+                        mPreviousOutputNeuronWeights[outputNeuron][hiddenNeuron]);
             }
         }
 
@@ -259,12 +262,15 @@ class NeuralNet
 
         System.out.println("Current neuron outputs are as follows:");
         System.out.println("\tHidden neuron outputs");
-        for(i = 0; i < mNumHiddenNeurons; i++)
+        for (i = 0; i < mNumHiddenNeurons; i++)
         {
             System.out.format("%d, %5f\n", i, mHiddenNeuronOutputs[i]);
         }
-        System.out.println("\tOutput Neuron Output");
-        System.out.format("%5f\n", mOutputNeuronValues);
+        System.out.println("\tOutput neuron outputs");
+        for (i = 0; i < mNumOutputs; i++)
+        {
+            System.out.format("%d, %5f\n", i, mOutputNeuronValues[i]);
+        }
     }
 
     public void printNeuronErrors()
@@ -277,8 +283,11 @@ class NeuralNet
         {
             System.out.format("%d, %5f\n", i, mHiddenNeuronErrors[i]);
         }
-        System.out.println("\tOutput neuron error");
-        System.out.format("%5f\n", mOutputNeuronErrors);
+        System.out.println("\tOutput neuron errors");
+        for (i = 0; i < mNumOutputs; i++)
+        {
+            System.out.format("%d, %5f\n", i, mOutputNeuronErrors[i]);
+        }
     }
 
     public void printWeights()
@@ -291,14 +300,18 @@ class NeuralNet
         {
             for (j = 0; j < mNumInputs; j++)
             {
-                System.out.format("%d %d %5f\n", i, j, mInputWeights[i][j]);
+                System.out.format("%d, %d, %5f\n", i, j, mInputWeights[i][j]);
             }
         }
         System.out.println("\tOutput neuron weights");
-        System.out.format("b %5f\n", mOutputNeuronBiasWeights);
-        for(i = 0; i < mNumHiddenNeurons; i++)
+        for(i = 0; i < mNumOutputs; i++)
         {
-            System.out.format("%d %5f\n", i, mOutputNeuronWeights[i]);
+            System.out.format("\t\t%d", i);
+            System.out.format("b, %5f\n", mOutputNeuronBiasWeights[i]);
+            for (j = 0; j < mNumHiddenNeurons; i++)
+            {
+                System.out.format("%d, %5f\n", i, mOutputNeuronWeights[i][j]);
+            }
         }
     }
 
@@ -398,19 +411,21 @@ class NeuralNet
         {
             // Calculate the output error from the feed forward
             mOutputNeuronErrors[outputNeuron] = (expectedValues[outputNeuron] - mOutputNeuronValues[outputNeuron]) * customSigmoidDerivative(mOutputNeuronUnactivatedValues[outputNeuron]);
-        }
 
-        // Backpropagate the output error
-        for(hiddenNeuron = 0; hiddenNeuron < mNumHiddenNeurons; hiddenNeuron++)
-        {
-            summedWeightedErrors = 0.0;
-
-            // Sum all of the output neuron errors * hidden neuron weights
-            for(outputNeuron = 0; outputNeuron < mNumOutputs; outputNeuron++)
+            // Backpropagate the output error
+            for(hiddenNeuron = 0; hiddenNeuron < mNumHiddenNeurons; hiddenNeuron++)
             {
+                summedWeightedErrors = 0.0;
 
+                // Sum all of the output neuron errors * hidden neuron weights
+                for(outputNeuron = 0; outputNeuron < mNumOutputs; outputNeuron++)
+                {
+
+                }
+                mHiddenNeuronErrors[hiddenNeuron] = mOutputNeuronErrors[outputNeuron] *
+                    mOutputNeuronWeights[outputNeuron][hiddenNeuron] *
+                    customSigmoidDerivative(mHiddenNeuronUnactivatedOutputs[hiddenNeuron]);
             }
-            mHiddenNeuronErrors[hiddenNeuron] = mOutputNeuronErrors[hiddenNeuron] * mOutputNeuronWeights[hiddenNeuron] * customSigmoidDerivative(mHiddenNeuronUnactivatedOutputs[hiddenNeuron]);
         }
     }
 
@@ -422,8 +437,11 @@ class NeuralNet
      * @param argValue The new value to learn
      * @return The error in the output for that input vector
      */
-    public double train(double[] x, double argValue)
+    public double[] train(double[] x, double[] argValue)
     {
+        int i;
+        double[] errors = new double[mNumOutputs];
+
         // Feed forward stage: calculate the output value
         // this will update the neuron outputs
         outputFor(x);
@@ -434,8 +452,13 @@ class NeuralNet
         // perform weight update
         updateWeights();
 
-        // Return the error in the output from what we expected
-        return (argValue - mOutputNeuronValues);
+        for(i = 0; i < mNumOutputs; i++)
+        {
+            errors[i] = argValue[i] - mOutputNeuronValues[i];
+        }
+
+        // Return the errors in the outputs from what we expected
+        return errors;
     }
 
     public void save(File argFile)
