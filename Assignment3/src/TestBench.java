@@ -58,6 +58,31 @@ class TestBench
     private static final int ACTION_FIRE_3 = 1;
     private static final int ACTION_FIRE_NUM = 2;
 
+    // Misc. constants used in the robot
+    private static final int ARENA_SIZEX_PX = 800;
+    private static final int ARENA_SIZEY_PX = 600;
+
+    // State hash field and offsets
+    // Current position X                       [800]   -> 16   -> 4
+    // Current position Y                       [600]   -> 16   -> 4
+    // Distance between robot and opponent      [1000]  -> 16   -> 4
+    // Robot heading                            [360]   -> 16   -> 4
+    private static final int STATE_POS_X_WIDTH = 4;
+    private static final int STATE_POS_X_OFFSET = 0;
+    private static final int STATE_POS_X_MAX = ARENA_SIZEX_PX;
+
+    private static final int STATE_POS_Y_WIDTH = 4;
+    private static final int STATE_POS_Y_OFFSET = 4;
+    private static final int STATE_POS_Y_MAX = ARENA_SIZEY_PX;
+
+    private static final int STATE_DISTANCE_WIDTH = 4;
+    private static final int STATE_DISTANCE_OFFSET = 8;
+    private static final int STATE_DISTANCE_MAX = 1000;
+
+    private static final int STATE_ROBOT_HEADING_WIDTH = 4;
+    private static final int STATE_ROBOT_HEADING_OFFSET = 12;
+    private static final int STATE_ROBOT_HEADING_MAX = 360;
+
     public static void main(String[] args) throws IOException
     {
         NeuralNet neuralNetObj;
@@ -65,6 +90,21 @@ class TestBench
         ArrayList<Integer> visitedStates = new ArrayList<>();
         int state, action, maxQAction, moveAction, fireAction, completeHash;
         double epochAverage, maxQVal;
+
+        // Quantized values
+        int quantRobotX;
+        int quantRobotY;
+        int quantDistance;
+        int quantRobotHeading;
+
+        // Intermediate values
+        double robotHeadingInDegrees;
+
+        // Bipolar values
+        double bipolarRobotX;
+        double bipolarRobotY;
+        double bipolarDistance;
+        double bipolarRobotHeading;
 
         mLutFile = new File(LUT_FILE_NAME);
 
@@ -78,12 +118,7 @@ class TestBench
             // Get the state
             state = getIntFieldVal(fullHash, STATE_FIELD_WIDTH, STATE_FIELD_OFFSET);
             // Check if the state has already been parsed
-            if (mStateToBestActionMap.containsKey(state))
-            {
-                // No need to do anything
-                continue;
-            }
-            else
+            if (!mStateToBestActionMap.containsKey(state))
             {
                 maxQVal = -999;
                 maxQAction = 0xFF; // bad value
@@ -112,6 +147,28 @@ class TestBench
         }
 
         printDebug("Training set has %d entries\n", mStateToBestActionMap.size());
+
+        // Raw training set is now obtained, need to convert values into NN friendly I/Os
+        for (Integer trainingState : mStateToBestActionMap.keySet())
+        {
+            printDebug("State: 0x%08x Action: %x\n", trainingState, mStateToBestActionMap.get(trainingState));
+            // get our quantized values
+            quantRobotX = getIntFieldVal(trainingState, STATE_POS_X_WIDTH, STATE_POS_X_OFFSET);
+            quantRobotY = getIntFieldVal(trainingState, STATE_POS_Y_WIDTH, STATE_POS_Y_OFFSET);
+            quantDistance = getIntFieldVal(trainingState, STATE_DISTANCE_WIDTH, STATE_DISTANCE_OFFSET);
+            quantRobotHeading = getIntFieldVal(trainingState, STATE_ROBOT_HEADING_WIDTH, STATE_ROBOT_HEADING_OFFSET);
+
+            // Scale the quantizations to bipolar binary representations
+            bipolarRobotX = (quantRobotX * 2.0 / 16.0) - 1.0;
+            bipolarRobotY = (quantRobotY * 2.0 / 16.0) - 1.0;
+            bipolarDistance = (quantDistance * 2.0 / 16.0) - 1.0;
+            robotHeadingInDegrees = (quantRobotHeading * 360 / 16.0);
+            bipolarRobotHeading = Math.cos(Math.toRadians(robotHeadingInDegrees));
+
+            printDebug("%1.3f %1.3f %1.3f %1.3f\n", bipolarRobotX, bipolarRobotY, bipolarDistance, bipolarRobotHeading);
+
+
+        }
 
         //try
         //{
