@@ -13,7 +13,7 @@ import java.util.Random;
  * was set in robocode.properties in order to allow large files to be loaded and saved.
  */
 
-public class MettaLUT extends AdvancedRobot //Robot
+public class MettaNN extends AdvancedRobot //Robot
 {
     // Learning constants
     private static final int NO_LEARNING_RANDOM = 0; // No learning, completely random, baselines behaviour
@@ -166,12 +166,6 @@ public class MettaLUT extends AdvancedRobot //Robot
         if (fileSize == 0)
         {
             newLutFile(mLutFile);
-        }
-
-        // If the current hashmap is empty, we need to load from the file
-        if (mReinforcementLearningLUTHashMap.isEmpty())
-        {
-            loadLut(mLutFile);
         }
 
         printDebug("Data available: %d bytes\n", getDataQuotaAvailable());
@@ -988,81 +982,6 @@ public class MettaLUT extends AdvancedRobot //Robot
             fileOut.close();
         }
         catch (IOException exception)
-        {
-            exception.printStackTrace();
-        }
-    }
-
-    /**
-     * Save the lookup table in a human readable format
-     * @param humanLutFile
-     */
-    private void saveHumanLut(File humanLutFile)
-    {
-        int i;
-
-        try
-        {
-            printDebug("Saving human-readable LUT to file...\n");
-            RobocodeFileOutputStream fileOut = new RobocodeFileOutputStream(statsFile);
-            PrintStream out = new PrintStream(new BufferedOutputStream(fileOut));
-            out.format("Alpha, %f,\n", ALPHA);
-            out.format("Gamma, %f,\n", GAMMA);
-            out.format("Epsilon, %f,\n", EPSILON);
-            switch(mCurrentLearningPolicy)
-            {
-                case NO_LEARNING_RANDOM:
-                    out.format("Learning Policy, NO LEARNING RANDOM,\n");
-                    break;
-                case NO_LEARNING_GREEDY:
-                    out.format("Learning Policy, NO LEARNING GREEDY,\n");
-                    break;
-                case SARSA:
-                    out.format("Learning Policy, SARSA,\n");
-                    break;
-                case Q_LEARNING:
-                    out.format("Learning Policy, Q LEARNING,\n");
-                    break;
-            }
-            out.format("Intermediate Rewards, %b,\n", mIntermediateRewards);
-            out.format("Terminal Rewards, %b,\n", mTerminalRewards);
-            out.format("State, Action, Q-Value,\n");
-            for (i = 0; i < getRoundNum()/100; i++)
-            {
-                out.format("0x%x, 0x%d, $f,\n", i + 1, mNumWinArray[i]);
-            }
-
-            out.close();
-            fileOut.close();
-        }
-        catch (IOException exception)
-        {
-            exception.printStackTrace();
-        }
-    }
-
-    /**
-     * Load the lookup table hashmap
-     *
-     * @param lutFile The filename to use for the lookup table hashmap
-     */
-    private void loadLut(File lutFile)
-    {
-        try
-        {
-            printDebug("Loading LUT from file...\n");
-            FileInputStream fileIn = new FileInputStream(lutFile);
-            //ObjectInputStream in = new ObjectInputStream(fileIn);
-            ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(fileIn));
-            mReinforcementLearningLUTHashMap = (HashMap<Integer, Double>) in.readObject();
-            in.close();
-            fileIn.close();
-        }
-        catch (IOException exception)
-        {
-            exception.printStackTrace();
-        }
-        catch (ClassNotFoundException exception)
         {
             exception.printStackTrace();
         }

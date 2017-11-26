@@ -1,112 +1,132 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class TestBench
 {
-    // Training sets, binary and bipolar
-    private static final double[][] BIN_XOR_TRAINING_SET_IN = new double[][]
-        {{ 1.0, 0.0, 0.0},
-         { 1.0, 0.0, 1.0},
-         { 1.0, 1.0, 0.0},
-         { 1.0, 1.0, 1.0}};
-    private static final double[] BIN_XOR_TRAINING_SET_OUT = new double[]
-        {  0.0,
-           1.0,
-           1.0,
-           0.0};
-    private static final double[][] BIP_XOR_TRAINING_SET_IN = new double[][]
-        {{ 1.0,-1.0,-1.0},
-         { 1.0,-1.0, 1.0},
-         { 1.0, 1.0,-1.0},
-         { 1.0, 1.0, 1.0}};
-    private static final double[] BIP_XOR_TRAINING_SET_OUT = new double[]
-        { -1.0,
-           1.0,
-           1.0,
-          -1.0};
-
     // Constants for assignment questions
     // Trials to run to obtain convergence average
     private static final int CONVERGENCE_AVERAGE_TRIALS = 500;
     // Number of epochs to test to before bailing
     private static final int MAXIMUM_EPOCHS = 10000;
     // Number of NN inputs
-    private static final int NUM_INPUTS = 2;
+    private static final int NUM_INPUTS = 4;
     // Number of NN hidden neurons
-    private static final int NUM_HIDDEN_NEURONS = 4;
+    private static final int NUM_HIDDEN_NEURONS = 10;
+    // Number of NN outputs
+    private static final int NUM_OUTPUTS = 5;
     // Squared error to b
     private static final double CONVERGENCE_ERROR = 0.05;
-    // 1a
-    private static final int MIN_VAL_1A = 0;
-    private static final int MAX_VAL_1A = 1;
-    private static final double MOMENTUM_1A = 0.0;
-    private static final double LEARNING_RATE_1A = 0.2;
-    private static final double WEIGHT_INIT_MIN_1A = -0.5;
-    private static final double WEIGHT_INIT_MAX_1A = 0.5;
-    // 1b
-    private static final int MIN_VAL_1B = -1;
-    private static final int MAX_VAL_1B = 1;
-    private static final double MOMENTUM_1B = 0.0;
-    private static final double LEARNING_RATE_1B = 0.2;
-    private static final double WEIGHT_INIT_MIN_1B = -1.5;
-    private static final double WEIGHT_INIT_MAX_1B = 1.5;
-    // 1c
-    private static final int MIN_VAL_1C = -1;
-    private static final int MAX_VAL_1C = 1;
-    private static final double MOMENTUM_1C = 0.9;
-    private static final double LEARNING_RATE_1C = 0.2;
-    private static final double WEIGHT_INIT_MIN_1C = -1.5;
-    private static final double WEIGHT_INIT_MAX_1C = 1.5;
+
+    // NN parameters
+    private static final int MIN_VAL = -1;
+    private static final int MAX_VAL = 1;
+    private static final double MOMENTUM = 0.9;
+    private static final double LEARNING_RATE = 0.2;
+    private static final double WEIGHT_INIT_MIN = -1.5;
+    private static final double WEIGHT_INIT_MAX = 1.5;
+
+    // LUT file and properties
+    private static final String LUT_FILE_NAME = "1MSARSA.dat";
+    private static File mLutFile;
+
+    // LUT Hashmap to store state/action probabilities
+    private static HashMap<Integer, Double> mReinforcementLearningLUTHashMap = new HashMap<>();
+    private static HashMap<Integer, Integer> mStateToBestActionMap = new HashMap<>();
+    private static boolean mDebug = true;
+
+    // LUT hash encodings
+    private static final int ACTION_FIELD_WIDTH = 3;
+    private static final int ACTION_FIELD_OFFSET = 16;
+    // Action hash field and offsets
+    private static final int ACTION_MOVE_OFFSET = 0;
+    private static final int ACTION_MOVE_WIDTH = 2;
+    private static final int ACTION_FIRE_OFFSET = 2;
+    private static final int ACTION_FIRE_WIDTH = 1;
+    private static final int STATE_FIELD_WIDTH = 16;
+    private static final int STATE_FIELD_OFFSET = 0;
+
+    // Move actions
+    private static final int ACTION_MOVE_UP = 0;
+    private static final int ACTION_MOVE_DN = 1;
+    private static final int ACTION_MOVE_LT = 2;
+    private static final int ACTION_MOVE_RT = 3;
+    private static final int ACTION_MOVE_NUM = 4;
+    private static final int ACTION_MOVE_DISTANCE = 50;
+    // Fire actions
+    private static final int ACTION_FIRE_0 = 0;
+    private static final int ACTION_FIRE_3 = 1;
+    private static final int ACTION_FIRE_NUM = 2;
 
     public static void main(String[] args) throws IOException
     {
-        double epochAverage;
         NeuralNet neuralNetObj;
-        ArrayList<Double> results = new ArrayList();
+        ArrayList<Double> results = new ArrayList<>();
+        ArrayList<Integer> visitedStates = new ArrayList<>();
+        int state, action, maxQAction, moveAction, fireAction, completeHash;
+        double epochAverage, maxQVal;
 
-        try
+        mLutFile = new File(LUT_FILE_NAME);
+
+        // Load LUT file
+        loadLut(mLutFile);
+
+        printDebug("LUT file has %d entries\n", mReinforcementLearningLUTHashMap.size());
+
+        for (Integer fullHash : mReinforcementLearningLUTHashMap.keySet())
         {
-            // Print out a CSV to validate the sigmoid function implementations
-            neuralNetObj = new NeuralNet(
-                NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE_1A, MOMENTUM_1A, MIN_VAL_1A, MAX_VAL_1A, WEIGHT_INIT_MIN_1A, WEIGHT_INIT_MAX_1A);
-            printCustomSigmoidFunctions(neuralNetObj, "sigmoids.csv");
-
-            // Part 1a
-            // Define your XOR problem using a binary representation. Draw a graph of total error against number of
-            // epochs. On average, how many epochs does it take to reach a total error of less than 0.05? You should
-            // perform many trials to get your results, although you don’t need to plot them all.
-            // Find out average number of epochs it takes to converge on binary XOR
-            System.out.println("Starting 1a...");
-            neuralNetObj = new NeuralNet(
-                NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE_1A, MOMENTUM_1A, MIN_VAL_1A, MAX_VAL_1A, WEIGHT_INIT_MIN_1A, WEIGHT_INIT_MAX_1A);
-            epochAverage = runTrials(neuralNetObj, BIN_XOR_TRAINING_SET_IN, BIN_XOR_TRAINING_SET_OUT, CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, MAXIMUM_EPOCHS, results);
-            System.out.format("1a: %d successful trials to %1.2f total squared error convergence was average %1.3f\n", CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, epochAverage);
-            printTrialResults(results, "1a.csv");
-
-            // Part 1b
-            // This time use a bipolar representation. Again, graph your results to show the total error varying
-            // against number of epochs. On average, how many epochs to reach a total error of less than 0.05?
-            System.out.println("Starting 1b...");
-            neuralNetObj = new NeuralNet(
-                NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE_1B, MOMENTUM_1B, MIN_VAL_1B, MAX_VAL_1B, WEIGHT_INIT_MIN_1B, WEIGHT_INIT_MAX_1B);
-            epochAverage = runTrials(neuralNetObj, BIP_XOR_TRAINING_SET_IN, BIP_XOR_TRAINING_SET_OUT, CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, MAXIMUM_EPOCHS, results);
-            System.out.format("1b: %d successful trials to %1.2f total squared error convergence was average %1.3f\n", CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, epochAverage);
-            printTrialResults(results, "1b.csv");
-
-            // Part 1c
-            // Now set the momentum to 0.9. What does the graph look like now and how fast can 0.05 be reached?
-            System.out.println("Starting 1c...");
-            neuralNetObj = new NeuralNet(
-                NUM_INPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE_1C, MOMENTUM_1C, MIN_VAL_1C, MAX_VAL_1C, WEIGHT_INIT_MIN_1C, WEIGHT_INIT_MAX_1C);
-            epochAverage = runTrials(neuralNetObj, BIP_XOR_TRAINING_SET_IN, BIP_XOR_TRAINING_SET_OUT, CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, MAXIMUM_EPOCHS, results);
-            System.out.format("1c: %d successful trials to %1.2f total squared error convergence was average %1.3f\n", CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, epochAverage);
-            printTrialResults(results, "1c.csv");
-
+            // Get the state
+            state = getIntFieldVal(fullHash, STATE_FIELD_WIDTH, STATE_FIELD_OFFSET);
+            // Check if the state has already been parsed
+            if (mStateToBestActionMap.containsKey(state))
+            {
+                // No need to do anything
+                continue;
+            }
+            else
+            {
+                maxQVal = -999;
+                maxQAction = 0xFF; // bad value
+                // Key must be parsed, get associated state/action pairs and their Qs
+                for (moveAction = 0; moveAction < ACTION_MOVE_NUM; moveAction++)
+                {
+                    for (fireAction = 0; fireAction < ACTION_FIRE_NUM; fireAction++)
+                    {
+                        // Calculate the action hash and create the complete hash by adding it to the current state hash
+                        action = generateActionHash(moveAction, fireAction);
+                        // Generate complete hash from action and state
+                        completeHash = combineStateActionHashes(state, action);
+                        // Check if the Q is higher than the current highest
+                        // LUT will always have a value for the current hash
+                        if (mReinforcementLearningLUTHashMap.get(completeHash) > maxQVal)
+                        {
+                            maxQVal = mReinforcementLearningLUTHashMap.get(completeHash);
+                            maxQAction = action;
+                        }
+                    }
+                }
+                // We should now have the action with the highest Q value, construct our training pair
+                mStateToBestActionMap.put(state, maxQAction);
+                //printDebug("Found best action 0x%1x for state 0x%08x with Q value of %3.5f\n", maxQAction, state, maxQVal);
+            }
         }
-        catch (IOException e)
-        {
-            System.out.println(e);
-        }
+
+        printDebug("Training set has %d entries\n", mStateToBestActionMap.size());
+
+        //try
+        //{
+        //    System.out.println("Starting...");
+        //    neuralNetObj = new NeuralNet(
+        //        NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE, MOMENTUM, MIN_VAL, MAX_VAL, WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
+        //    epochAverage = runTrials(neuralNetObj, BIN_XOR_TRAINING_SET_IN, BIN_XOR_TRAINING_SET_OUT, CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, MAXIMUM_EPOCHS, results);
+        //    System.out.format("%d successful trials to %1.2f total squared error convergence was average %1.3f\n", CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, epochAverage);
+        //    printTrialResults(results, "convergence.csv");
+        //
+        //}
+        //catch (IOException e)
+        //{
+        //    System.out.println(e);
+        //}
     }
 
     private static void printTrialResults(ArrayList<Double> results, String fileName) throws IOException
@@ -122,23 +142,7 @@ class TestBench
         printWriter.close();
     }
 
-    private static void printCustomSigmoidFunctions(NeuralNet neuralNetObj, String fileName) throws IOException
-    {
-        double x, y, yPrime;
-
-        PrintWriter printWriter = new PrintWriter(new FileWriter(fileName));
-
-        printWriter.printf("x, Y(x), Y'(x),\n");
-        for(x = -5.0; x <= 5.0; x += 0.1)
-        {
-            y = neuralNetObj.customSigmoid(x);
-            yPrime = neuralNetObj.customSigmoidDerivative(x);
-            printWriter.printf("%f, %f, %f\n", x, y, yPrime);
-        }
-        printWriter.close();
-    }
-
-    private static double runTrials(NeuralNet neuralNetObj, double[][] inVecs, double[] outVec, int numTrials, double convergenceError, int maxEpochs, ArrayList<Double> results)
+    private static double runTrials(NeuralNet neuralNetObj, double[][] inVecs, double[][] outVec, int numTrials, double convergenceError, int maxEpochs, ArrayList<Double> results)
     {
         int epochs, failedConvergences;
         int successfulTrials;
@@ -177,7 +181,7 @@ class TestBench
         return epochAverage;
     }
 
-    private static int attemptConvergence(NeuralNet NeuralNetObj, double[][] inVecs, double[] outVec, double convergenceError, int maxEpochs, ArrayList<Double> results)
+    private static int attemptConvergence(NeuralNet NeuralNetObj, double[][] inVecs, double[][] outVec, double convergenceError, int maxEpochs, ArrayList<Double> results)
     {
         double cummError;
         int index, epoch;
@@ -187,7 +191,7 @@ class TestBench
             cummError = 0.0;
             for (index = 0; index < 4; index++)
             {
-                cummError += Math.pow(NeuralNetObj.train(inVecs[index], outVec[index]), 2.0);
+                //cummError += Math.pow(NeuralNetObj.train(inVecs[index], outVec[index]), 2.0);
             }
 
             // Append the result to our list
@@ -200,5 +204,129 @@ class TestBench
         }
 
         return epoch;
+    }
+
+    /**
+     * Load the lookup table hashmap
+     *
+     * @param lutFile The filename to use for the lookup table hashmap
+     */
+    private static void loadLut(File lutFile)
+    {
+        try
+        {
+            printDebug("Loading LUT from file...\n");
+            FileInputStream fileIn = new FileInputStream(lutFile);
+            //ObjectInputStream in = new ObjectInputStream(fileIn);
+            ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(fileIn));
+            mReinforcementLearningLUTHashMap = (HashMap<Integer, Double>) in.readObject();
+            in.close();
+            fileIn.close();
+        }
+        catch (IOException exception)
+        {
+            exception.printStackTrace();
+        }
+        catch (ClassNotFoundException exception)
+        {
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * Conditionally prints a message if the debug flag is on
+     *
+     * @param format    The string to format
+     * @param arguments The string format's variables
+     */
+    private static void printDebug(String format, Object... arguments)
+    {
+        if (mDebug)
+        {
+            System.out.format(format, arguments);
+        }
+    }
+
+    /**
+     * Combine a state and action hash together to form a complete hash
+     * @param stateHash State hash
+     * @param actionHash Action hash
+     * @return The complete state/action hash
+     */
+    private static int combineStateActionHashes(int stateHash, int actionHash)
+    {
+        return updateIntField(stateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, actionHash);
+    }
+
+    /**
+     * Returns the value of a field in an int
+     *
+     * @param inputInteger The input integer to extract the value from
+     * @param fieldWidth   The width of the field to extract
+     * @param fieldOffset  The offset of the field to extract
+     * @return Returns the value in the selected field
+     */
+    private static int getIntFieldVal(int inputInteger, int fieldWidth, int fieldOffset)
+    {
+        int returnValue;
+        int mask;
+
+        returnValue = inputInteger;
+
+        // Create mask
+        mask = ((1 << fieldWidth) - 1) << fieldOffset;
+        // Mask out the field from the input
+        returnValue &= mask;
+        // Shift down to grab it
+        returnValue >>>= fieldOffset;
+
+        return returnValue;
+    }
+
+    /**
+     * Updates a field in an int
+     *
+     * @param inputInteger The input integer to modify
+     * @param fieldWidth   The width of the field to modify
+     * @param fieldOffset  The field's offset
+     * @param value        The value to update into the field
+     * @return The updated input integer
+     */
+    private static int updateIntField(int inputInteger, int fieldWidth, int fieldOffset, int value)
+    {
+        int returnValue;
+        int mask;
+
+        returnValue = inputInteger;
+
+        // Create mask
+        mask = ~(((1 << fieldWidth) - 1) << fieldOffset);
+        // Mask out field from input
+        returnValue &= mask;
+        // OR in the new value into the field
+        returnValue |= value << fieldOffset;
+
+        return returnValue;
+    }
+
+    /**
+     * This generates a hash for a given action. Everything is encoded in an int
+     *
+     * @return Returns a hash based on the selected action
+     */
+    private static int generateActionHash(int moveAction, int fireAction)//, int aimAction)
+    {
+        // Robot can do two things simultaneously:
+        // Move up, down, left, or right                        (4)
+        // Don't fire or fire 3                                 (2)
+        // 4 * 2 = 8 action possibilities, need at least 3 bits
+        int actionHash = 0;
+
+        actionHash = updateIntField(actionHash, ACTION_MOVE_WIDTH, ACTION_MOVE_OFFSET, moveAction);
+        actionHash = updateIntField(actionHash, ACTION_FIRE_WIDTH, ACTION_FIRE_OFFSET, fireAction);
+
+        //printDebug("Action hash: 0x%08x\n", actionHash);
+
+        return actionHash;
     }
 }
