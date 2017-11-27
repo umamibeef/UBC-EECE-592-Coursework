@@ -233,12 +233,15 @@ class TestBench
     private static void printTrialResults(ArrayList<Double> results, String fileName) throws IOException
     {
         int epoch;
+
         PrintWriter printWriter = new PrintWriter(new FileWriter(fileName));
         printWriter.printf("Epoch, Total Squared Error,\n");
+
         for(epoch = 0; epoch < results.size(); epoch++)
         {
             printWriter.printf("%d, %f,\n", epoch, results.get(epoch));
         }
+
         printWriter.flush();
         printWriter.close();
     }
@@ -275,7 +278,8 @@ class TestBench
                     break;
                 }
             }
-        }while(successfulTrials < numTrials);
+        }
+        while(successfulTrials < numTrials);
         // Average out trials
         epochAverage /= successfulTrials;
 
@@ -285,14 +289,19 @@ class TestBench
     private static int attemptConvergence(NeuralNet NeuralNetObj, ArrayList<ArrayList<ArrayList<Double>>> trainingSet, double convergenceError, int maxEpochs, ArrayList<Double> results)
     {
         double cummError;
-        int index, epoch;
+        double [] errors;
+        int index, epoch, output;
 
         for (epoch = 0; epoch < maxEpochs; epoch++)
         {
             cummError = 0.0;
             for (index = 0; index < trainingSet.size(); index++)
             {
-                cummError += Math.pow(NeuralNetObj.train(trainingSet.get(index)), 2.0);
+                errors = NeuralNetObj.train(trainingSet.get(index));
+                for (output = 0; output < errors.length; output++)
+                {
+                    cummError += errors[output] * errors[output];
+                }
             }
 
             // Append the result to our list
