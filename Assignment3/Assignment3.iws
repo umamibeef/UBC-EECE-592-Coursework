@@ -15,18 +15,8 @@
       <file leaf-file-name="TestBench.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/TestBench.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="563">
-              <caret line="140" column="21" lean-forward="true" selection-start-line="140" selection-start-column="21" selection-end-line="140" selection-end-column="21" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MettaNN.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="77">
-              <caret line="580" column="19" lean-forward="false" selection-start-line="580" selection-start-column="14" selection-end-line="580" selection-end-column="19" />
+            <state relative-caret-position="304">
+              <caret line="298" column="35" lean-forward="true" selection-start-line="298" selection-start-column="35" selection-end-line="298" selection-end-column="35" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -37,9 +27,21 @@
       <file leaf-file-name="NeuralNet.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/NeuralNet.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18">
-              <caret line="170" column="68" lean-forward="false" selection-start-line="170" selection-start-column="54" selection-end-line="170" selection-end-column="68" />
+            <state relative-caret-position="279">
+              <caret line="21" column="31" lean-forward="true" selection-start-line="21" selection-start-column="31" selection-end-line="21" selection-end-column="31" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MettaNN.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="196">
+              <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -48,17 +50,8 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>calculateWeightDelta</find>
-      <find>mHiddenNeuronErrors</find>
-      <find>print</find>
-      <find>calculateErrors</find>
-      <find>updateWeights</find>
-      <find>mWeightInitMin</find>
-      <find>printdebug</find>
-      <find>mlutfile</find>
       <find>loadlut</find>
       <find>mReinforcementLearningLUTHashMap</find>
-      <find>runTrials</find>
       <find>loadLut</find>
       <find>getIn</find>
       <find>ACTION_FIELD_WIDTH</find>
@@ -78,6 +71,15 @@
       <find>Math.co</find>
       <find>combineStateActionHashes</find>
       <find>quant</find>
+      <find>load lut</find>
+      <find>visitedStates</find>
+      <find>train(</find>
+      <find>ACTION_MOVE_UP</find>
+      <find>runTrials</find>
+      <find>mInputValues</find>
+      <find>calculateErrors</find>
+      <find>outputFor</find>
+      <find>train</find>
     </findStrings>
   </component>
   <component name="GradleLocalSettings">
@@ -88,8 +90,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/NeuralNet.java" />
         <option value="$PROJECT_DIR$/src/MettaBots/MettaNN.java" />
+        <option value="$PROJECT_DIR$/src/NeuralNet.java" />
         <option value="$PROJECT_DIR$/src/TestBench.java" />
       </list>
     </option>
@@ -285,15 +287,15 @@
       <workItem from="1511582680138" duration="7645000" />
       <workItem from="1511661551318" duration="2059000" />
       <workItem from="1511667756694" duration="641000" />
-      <workItem from="1511668482775" duration="8006000" />
+      <workItem from="1511668482775" duration="15593000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="30874000" />
+    <option name="totallyTimeSpent" value="38461000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="2576" height="1056" extended-state="6" />
+    <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -304,12 +306,12 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32979852" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.29773462" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13046876" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17395833" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -341,7 +343,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3096">
           <caret line="172" column="44" lean-forward="true" selection-start-line="172" selection-start-column="44" selection-end-line="172" selection-end-column="44" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -367,7 +371,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -393,7 +399,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2574">
           <caret line="144" column="28" lean-forward="false" selection-start-line="144" selection-start-column="28" selection-end-line="144" selection-end-column="28" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -419,7 +427,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="36">
           <caret line="3" column="6" lean-forward="false" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="6" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -435,7 +445,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="46">
           <caret line="3" column="6" lean-forward="false" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="6" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -447,29 +459,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/NeuralNet.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="170" column="68" lean-forward="false" selection-start-line="170" selection-start-column="54" selection-end-line="170" selection-end-column="68" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="77">
-          <caret line="580" column="19" lean-forward="false" selection-start-line="580" selection-start-column="14" selection-end-line="580" selection-end-column="19" />
+        <state relative-caret-position="196">
+          <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/NeuralNet.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="279">
+          <caret line="21" column="31" lean-forward="true" selection-start-line="21" selection-start-column="31" selection-end-line="21" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="563">
-          <caret line="140" column="21" lean-forward="true" selection-start-line="140" selection-start-column="21" selection-end-line="140" selection-end-column="21" />
-          <folding />
+        <state relative-caret-position="304">
+          <caret line="298" column="35" lean-forward="true" selection-start-line="298" selection-start-column="35" selection-end-line="298" selection-end-column="35" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

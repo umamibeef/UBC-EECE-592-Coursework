@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 import java.lang.Math;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -14,6 +15,9 @@ class NeuralNet
     private static final int MAX_HIDDEN_NEURONS = 16;
     private static final int MAX_INPUTS =         16;
     private static final int MAX_OUTPUTS =        16;
+
+    private static final int TRAINING_SET_STATE_INDEX = 0;
+    private static final int TRAINING_SET_ACTION_INDEX = 1;
 
     // Private member variables
     // Limits for custom sigmoid activation function used by the output neuron
@@ -432,28 +436,39 @@ class NeuralNet
      * This method will tell the NN the output
      * value that should be mapped to the given input vector. I.e.
      * the desired correct output value for an input.
-     * @param x The input vector
-     * @param argValue The new value to learn
+     * @param trainingSet The training set
      * @return The error in the output for that input vector
      */
-    public double[] train(double[] x, double[] argValue)
+    public double[] train(ArrayList<ArrayList<Double>> trainingSet)
     {
         int i;
         double[] errors = new double[mNumOutputs];
+        double[] inputArray = new double[trainingSet.get(TRAINING_SET_STATE_INDEX).size()];
+        double[] outputArray = new double[trainingSet.get(TRAINING_SET_ACTION_INDEX).size()];
+
+        // Convert ArrayLists into static arrays
+        for(i = 0; i < inputArray.length; i++)
+        {
+            inputArray[i] = trainingSet.get(TRAINING_SET_STATE_INDEX).get(i);
+        }
+        for(i = 0; i < outputArray.length; i++)
+        {
+            outputArray[i] = trainingSet.get(TRAINING_SET_ACTION_INDEX).get(i);
+        }
 
         // Feed forward stage: calculate the output value
         // this will update the neuron outputs
-        outputFor(x);
+        outputFor(inputArray);
 
         // Calculate errors
-        calculateErrors(argValue);
+        calculateErrors(outputArray);
 
         // perform weight update
         updateWeights();
 
         for(i = 0; i < mNumOutputs; i++)
         {
-            errors[i] = argValue[i] - mOutputNeuronValues[i];
+            errors[i] = outputArray[i] - mOutputNeuronValues[i];
         }
 
         // Return the errors in the outputs from what we expected

@@ -86,8 +86,8 @@ class TestBench
     public static void main(String[] args) throws IOException
     {
         NeuralNet neuralNetObj;
+        ArrayList<ArrayList<ArrayList<Double>>> bipolarTrainingSet = new ArrayList<>();
         ArrayList<Double> results = new ArrayList<>();
-        ArrayList<Integer> visitedStates = new ArrayList<>();
         int state, action, maxQAction, moveAction, fireAction, completeHash;
         double epochAverage, maxQVal;
 
@@ -96,6 +96,9 @@ class TestBench
         int quantRobotY;
         int quantDistance;
         int quantRobotHeading;
+
+        int actionMove;
+        int actionFire;
 
         // Intermediate values
         double robotHeadingInDegrees;
@@ -106,11 +109,22 @@ class TestBench
         double bipolarDistance;
         double bipolarRobotHeading;
 
+        double[][] bipolarOutputs = new double[][]
+            {
+                { 1.0,-1.0,-1.0,-1.0,-1.0}, // up no fire
+                {-1.0, 1.0,-1.0,-1.0,-1.0}, // down no fire
+                {-1.0,-1.0, 1.0,-1.0,-1.0}, // left no fire
+                {-1.0,-1.0,-1.0, 1.0,-1.0}, // right not fire
+                { 1.0,-1.0,-1.0,-1.0, 1.0}, // up fire
+                {-1.0, 1.0,-1.0,-1.0, 1.0}, // down fire
+                {-1.0,-1.0, 1.0,-1.0, 1.0}, // left fire
+                {-1.0,-1.0,-1.0, 1.0, 1.0}, // right fire
+            };
+
         mLutFile = new File(LUT_FILE_NAME);
 
         // Load LUT file
         loadLut(mLutFile);
-
         printDebug("LUT file has %d entries\n", mReinforcementLearningLUTHashMap.size());
 
         for (Integer fullHash : mReinforcementLearningLUTHashMap.keySet())
@@ -151,12 +165,16 @@ class TestBench
         // Raw training set is now obtained, need to convert values into NN friendly I/Os
         for (Integer trainingState : mStateToBestActionMap.keySet())
         {
-            printDebug("State: 0x%08x Action: %x\n", trainingState, mStateToBestActionMap.get(trainingState));
-            // get our quantized values
+            printDebug("\nState: 0x%08x Action: %x\n", trainingState, mStateToBestActionMap.get(trainingState));
+            // Get our quantized values
             quantRobotX = getIntFieldVal(trainingState, STATE_POS_X_WIDTH, STATE_POS_X_OFFSET);
             quantRobotY = getIntFieldVal(trainingState, STATE_POS_Y_WIDTH, STATE_POS_Y_OFFSET);
             quantDistance = getIntFieldVal(trainingState, STATE_DISTANCE_WIDTH, STATE_DISTANCE_OFFSET);
             quantRobotHeading = getIntFieldVal(trainingState, STATE_ROBOT_HEADING_WIDTH, STATE_ROBOT_HEADING_OFFSET);
+
+            // Get the individual actions
+            actionMove = getIntFieldVal(mStateToBestActionMap.get(trainingState), ACTION_MOVE_WIDTH, ACTION_MOVE_OFFSET);
+            actionFire = getIntFieldVal(mStateToBestActionMap.get(trainingState), ACTION_FIRE_WIDTH, ACTION_FIRE_OFFSET);
 
             // Scale the quantizations to bipolar binary representations
             bipolarRobotX = (quantRobotX * 2.0 / 16.0) - 1.0;
@@ -165,25 +183,51 @@ class TestBench
             robotHeadingInDegrees = (quantRobotHeading * 360 / 16.0);
             bipolarRobotHeading = Math.cos(Math.toRadians(robotHeadingInDegrees));
 
-            printDebug("%1.3f %1.3f %1.3f %1.3f\n", bipolarRobotX, bipolarRobotY, bipolarDistance, bipolarRobotHeading);
+            printDebug("Final training set:\n");
+            printDebug("Input:  %1.3f %1.3f %1.3f %1.3f\n", bipolarRobotX, bipolarRobotY, bipolarDistance, bipolarRobotHeading);
+            printDebug("Output: %1.3f %1.3f %1.3f %1.3f %1.3f\n",
+                bipolarOutputs[actionMove + 4*actionFire][0],
+                bipolarOutputs[actionMove + 4*actionFire][1],
+                bipolarOutputs[actionMove + 4*actionFire][2],
+                bipolarOutputs[actionMove + 4*actionFire][3],
+                bipolarOutputs[actionMove + 4*actionFire][4]);
 
+            ArrayList<ArrayList<Double>> stateAndActionPair = new ArrayList<>();
+            ArrayList<Double> bipolarState = new ArrayList<>();
+            ArrayList<Double> bipolarAction = new ArrayList<>();
 
+            bipolarState.add(0, bipolarRobotX);
+            bipolarState.add(1, bipolarRobotY);
+            bipolarState.add(2, bipolarDistance);
+            bipolarState.add(3, bipolarRobotHeading);
+
+            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][0]);
+            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][1]);
+            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][2]);
+            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][3]);
+            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][4]);
+
+            stateAndActionPair.add(bipolarState);
+            stateAndActionPair.add(bipolarAction);
+
+            // Finally add the state and action pair
+            bipolarTrainingSet.add(stateAndActionPair);
         }
 
-        //try
-        //{
-        //    System.out.println("Starting...");
-        //    neuralNetObj = new NeuralNet(
-        //        NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE, MOMENTUM, MIN_VAL, MAX_VAL, WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
-        //    epochAverage = runTrials(neuralNetObj, BIN_XOR_TRAINING_SET_IN, BIN_XOR_TRAINING_SET_OUT, CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, MAXIMUM_EPOCHS, results);
-        //    System.out.format("%d successful trials to %1.2f total squared error convergence was average %1.3f\n", CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, epochAverage);
-        //    printTrialResults(results, "convergence.csv");
-        //
-        //}
-        //catch (IOException e)
-        //{
-        //    System.out.println(e);
-        //}
+        try
+        {
+            System.out.println("Starting...");
+            neuralNetObj = new NeuralNet(
+                NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE, MOMENTUM, MIN_VAL, MAX_VAL, WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
+            epochAverage = runTrials(neuralNetObj, bipolarTrainingSet, CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, MAXIMUM_EPOCHS, results);
+            System.out.format("%d successful trials to %1.2f total squared error convergence was average %1.3f\n", CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, epochAverage);
+            printTrialResults(results, "convergence.csv");
+
+        }
+        catch (IOException e)
+        {
+            System.out.println(e);
+        }
     }
 
     private static void printTrialResults(ArrayList<Double> results, String fileName) throws IOException
@@ -199,7 +243,7 @@ class TestBench
         printWriter.close();
     }
 
-    private static double runTrials(NeuralNet neuralNetObj, double[][] inVecs, double[][] outVec, int numTrials, double convergenceError, int maxEpochs, ArrayList<Double> results)
+    private static double runTrials(NeuralNet neuralNetObj, ArrayList<ArrayList<ArrayList<Double>>> trainingSet, int numTrials, double convergenceError, int maxEpochs, ArrayList<Double> results)
     {
         int epochs, failedConvergences;
         int successfulTrials;
@@ -216,7 +260,7 @@ class TestBench
             neuralNetObj.initializeWeights();
             // Attempt convergence
             epochs = attemptConvergence(
-                neuralNetObj, inVecs, outVec, convergenceError, maxEpochs, results);
+                neuralNetObj, trainingSet, convergenceError, maxEpochs, results);
             // Check if we're under max epochs
             if(epochs < maxEpochs)
             {
@@ -238,7 +282,7 @@ class TestBench
         return epochAverage;
     }
 
-    private static int attemptConvergence(NeuralNet NeuralNetObj, double[][] inVecs, double[][] outVec, double convergenceError, int maxEpochs, ArrayList<Double> results)
+    private static int attemptConvergence(NeuralNet NeuralNetObj, ArrayList<ArrayList<ArrayList<Double>>> trainingSet, double convergenceError, int maxEpochs, ArrayList<Double> results)
     {
         double cummError;
         int index, epoch;
@@ -246,9 +290,9 @@ class TestBench
         for (epoch = 0; epoch < maxEpochs; epoch++)
         {
             cummError = 0.0;
-            for (index = 0; index < 4; index++)
+            for (index = 0; index < trainingSet.size(); index++)
             {
-                //cummError += Math.pow(NeuralNetObj.train(inVecs[index], outVec[index]), 2.0);
+                cummError += Math.pow(NeuralNetObj.train(trainingSet.get(index)), 2.0);
             }
 
             // Append the result to our list
