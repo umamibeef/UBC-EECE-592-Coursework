@@ -1,5 +1,7 @@
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 class TestBench
@@ -8,11 +10,11 @@ class TestBench
     // Trials to run to obtain convergence average
     private static final int CONVERGENCE_AVERAGE_TRIALS = 500;
     // Number of epochs to test to before bailing
-    private static final int MAXIMUM_EPOCHS = 10000;
+    private static final int MAXIMUM_EPOCHS = 500;
     // Number of NN inputs
     private static final int NUM_INPUTS = 4;
     // Number of NN hidden neurons
-    private static final int NUM_HIDDEN_NEURONS = 15;
+    private static final int NUM_HIDDEN_NEURONS = 2;
     // Number of NN outputs
     private static final int NUM_OUTPUTS = 5;
     // Squared error to b
@@ -21,10 +23,10 @@ class TestBench
     // NN parameters
     private static final int MIN_VAL = -1;
     private static final int MAX_VAL = 1;
-    private static final double MOMENTUM = 0.6;
+    private static final double MOMENTUM = 0.9;
     private static final double LEARNING_RATE = 0.2;
-    private static final double WEIGHT_INIT_MIN = -1.0;
-    private static final double WEIGHT_INIT_MAX = 1.0;
+    private static final double WEIGHT_INIT_MIN = -1.1;
+    private static final double WEIGHT_INIT_MAX = 1.1;
 
     // LUT file and properties
     private static final String LUT_FILE_NAME = "1MSARSA.dat";
@@ -62,6 +64,9 @@ class TestBench
     private static final int ARENA_SIZEX_PX = 800;
     private static final int ARENA_SIZEY_PX = 600;
 
+    private static final int TRAINING_SET_STATE_INDEX = 0;
+    private static final int TRAINING_SET_ACTION_INDEX = 1;
+
     // State hash field and offsets
     // Current position X                       [800]   -> 16   -> 4
     // Current position Y                       [600]   -> 16   -> 4
@@ -85,7 +90,7 @@ class TestBench
 
     public static void main(String[] args) throws IOException
     {
-        NeuralNet neuralNetObj;
+        NeuralNetMulti neuralNetObj;
         ArrayList<ArrayList<ArrayList<Double>>> bipolarTrainingSet = new ArrayList<>();
         ArrayList<Double> results = new ArrayList<>();
         int state, action, maxQAction, moveAction, fireAction, completeHash;
@@ -236,10 +241,9 @@ class TestBench
         try
         {
             System.out.println("Starting...");
-            neuralNetObj = new NeuralNet(
+            neuralNetObj = new NeuralNetMulti(
                 NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE, MOMENTUM, MIN_VAL, MAX_VAL, WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
-            epochAverage = runTrials(neuralNetObj, bipolarTrainingSet, CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, MAXIMUM_EPOCHS, results);
-            System.out.format("%d successful trials to %1.2f total squared error convergence was average %1.3f\n", CONVERGENCE_AVERAGE_TRIALS, CONVERGENCE_ERROR, epochAverage);
+            runTrials(neuralNetObj, bipolarTrainingSet, CONVERGENCE_ERROR, MAXIMUM_EPOCHS, results);
             printTrialResults(results, "convergence.csv");
             //printCsvTraining(bipolarTrainingSet, "training.csv");
         }
@@ -284,51 +288,30 @@ class TestBench
         printWriter.close();
     }
 
-    private static double runTrials(NeuralNet neuralNetObj, ArrayList<ArrayList<ArrayList<Double>>> trainingSet, int numTrials, double convergenceError, int maxEpochs, ArrayList<Double> results)
+    private static void runTrials(NeuralNetMulti neuralNetObj, ArrayList<ArrayList<ArrayList<Double>>> trainingSet, double convergenceError, int maxEpochs, ArrayList<Double> results)
     {
-        int epochs, failedConvergences;
-        int successfulTrials;
         double epochAverage;
 
         epochAverage = 0.0;
-        successfulTrials = 0;
-        failedConvergences = 0;
-        do
-        {
-            // Clear our results
-            results.clear();
-            // Initialize weights for a new training session
-            neuralNetObj.initializeWeights();
-            // Attempt convergence
-            epochs = attemptConvergence(
-                neuralNetObj, trainingSet, convergenceError, maxEpochs, results);
-            // Check if we're under max epochs
-            if(epochs < maxEpochs)
-            {
-                epochAverage += (double)epochs;
-                successfulTrials++;
-            }
-            else
-            {
-                failedConvergences++;
-                if(failedConvergences > 100000)
-                {
-                    break;
-                }
-            }
-        }
-        while(successfulTrials < numTrials);
-        // Average out trials
-        epochAverage /= successfulTrials;
 
-        return epochAverage;
+        // Clear our results
+        results.clear();
+        // Initialize weights for a new training session
+        neuralNetObj.initializeWeights();
+        // Attempt convergence
+        attemptConvergence(
+            neuralNetObj, trainingSet, convergenceError, maxEpochs, results);
     }
 
-    private static int attemptConvergence(NeuralNet NeuralNetObj, ArrayList<ArrayList<ArrayList<Double>>> trainingSet, double convergenceError, int maxEpochs, ArrayList<Double> results)
+    private static void attemptConvergence(NeuralNetMulti NeuralNetObj, ArrayList<ArrayList<ArrayList<Double>>> trainingSet, double convergenceError, int maxEpochs, ArrayList<Double> results)
     {
         double cummError;
-        double [] errors;
         int index, epoch, output;
+
+        double[] errors;
+
+        // Shuffle the training set
+        Collections.shuffle(trainingSet);
 
         for (epoch = 0; epoch < maxEpochs; epoch++)
         {
@@ -342,11 +325,11 @@ class TestBench
                 }
             }
 
-            // Average error for each set
-            cummError /= trainingSet.size();
-            cummError = Math.sqrt(cummError);
+            // RMS error
+            //cummError /= trainingSet.size();
+            //cummError = Math.sqrt(cummError);
 
-            printDebug("Epoch: %09d Cummulative error: %f\n", epoch, cummError);
+            printDebug("Epoch: %09d Cummulative squared error: %f\n", epoch, cummError);
 
             // Append the result to our list
             results.add(cummError);
@@ -357,7 +340,7 @@ class TestBench
             }
         }
 
-        return epoch;
+        //NeuralNetObj.printWeights();
     }
 
     /**
