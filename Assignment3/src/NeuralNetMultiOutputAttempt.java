@@ -312,7 +312,7 @@ class NeuralNet
         {
             System.out.format("\t\t%d", i);
             System.out.format("b, %5f\n", mOutputNeuronBiasWeights[i]);
-            for (j = 0; j < mNumHiddenNeurons; i++)
+            for (j = 0; j < mNumHiddenNeurons; j++)
             {
                 System.out.format("%d, %5f\n", i, mOutputNeuronWeights[i][j]);
             }
@@ -366,9 +366,14 @@ class NeuralNet
      */
     private double[] outputFor(double[] x)
     {
-        int hiddenNeuron, outputNeuron, input;
+        int hiddenNeuron, outputNeuron, input, index;
 
-        mInputValues = x;
+        mInputValues[0] = 1.0;
+
+        for (index = 0; index < x.length; index++)
+        {
+            mInputValues[index+1] = x[index];
+        }
 
         // Calculate hidden neuron outputs
         // Bias is included in input vector as the first index
@@ -463,8 +468,12 @@ class NeuralNet
         // Calculate errors
         calculateErrors(outputArray);
 
+        //printWeights();
+
         // perform weight update
         updateWeights();
+
+        //printWeights();
 
         for(i = 0; i < mNumOutputs; i++)
         {

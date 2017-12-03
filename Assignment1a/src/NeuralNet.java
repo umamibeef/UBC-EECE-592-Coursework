@@ -394,6 +394,8 @@ public class NeuralNet implements NeuralNetInterface
         // perform weight update
         updateWeights();
 
+        printWeights(); 
+
         // Return the error in the output from what we expected
         return (argValue - mOutputNeuronValue);
     }
