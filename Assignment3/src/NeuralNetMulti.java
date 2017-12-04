@@ -251,11 +251,11 @@ class NeuralNetMulti
             }
         }
 
-        mPreviousOutputNeuronBiasWeights = mOutputNeuronBiasWeights;
+        mPreviousOutputNeuronBiasWeights = mOutputNeuronBiasWeights.clone();
         mPreviousOutputNeuronWeights = mOutputNeuronWeights.clone();
         mPreviousInputWeights = mInputWeights.clone();
 
-        mOutputNeuronBiasWeights = newOutputNeuronBiasWeights;
+        mOutputNeuronBiasWeights = newOutputNeuronBiasWeights.clone();
         mOutputNeuronWeights = newOutputNeuronWeights.clone();
         mInputWeights = newInputNeuronWeights.clone();
     }
@@ -413,7 +413,7 @@ class NeuralNetMulti
      */
     private void calculateErrors(double[] expectedValues)
     {
-        int hiddenNeuron, outputNeuron;
+        int hiddenNeuron, outputNeuron, outputNeuronIndex;
         double summedWeightedErrors;
 
         for(outputNeuron = 0; outputNeuron < mNumOutputs; outputNeuron++)
@@ -427,9 +427,9 @@ class NeuralNetMulti
                 summedWeightedErrors = 0.0;
 
                 // Sum all of the output neuron errors * hidden neuron weights
-                for(outputNeuron = 0; outputNeuron < mNumOutputs; outputNeuron++)
+                for(outputNeuronIndex = 0; outputNeuronIndex < mNumOutputs; outputNeuronIndex++)
                 {
-                    summedWeightedErrors += mOutputNeuronErrors[outputNeuron] * mOutputNeuronWeights[outputNeuron][hiddenNeuron];
+                    summedWeightedErrors += mOutputNeuronErrors[outputNeuronIndex] * mOutputNeuronWeights[outputNeuronIndex][hiddenNeuron];
                 }
                 // Multiply weighted sum with derivative of activation
                 mHiddenNeuronErrors[hiddenNeuron] = summedWeightedErrors * customSigmoidDerivative(mHiddenNeuronUnactivatedOutputs[hiddenNeuron]);
@@ -469,10 +469,8 @@ class NeuralNetMulti
         calculateErrors(outputArray);
 
         //printWeights();
-
         // perform weight update
         updateWeights();
-
         //printWeights();
 
         for(i = 0; i < mNumOutputs; i++)

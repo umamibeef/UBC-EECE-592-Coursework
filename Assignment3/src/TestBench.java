@@ -10,23 +10,23 @@ class TestBench
     // Trials to run to obtain convergence average
     private static final int CONVERGENCE_AVERAGE_TRIALS = 500;
     // Number of epochs to test to before bailing
-    private static final int MAXIMUM_EPOCHS = 500;
+    private static final int MAXIMUM_EPOCHS = 2000;
     // Number of NN inputs
     private static final int NUM_INPUTS = 4;
     // Number of NN hidden neurons
-    private static final int NUM_HIDDEN_NEURONS = 2;
+    private static final int NUM_HIDDEN_NEURONS = 10;
     // Number of NN outputs
-    private static final int NUM_OUTPUTS = 5;
+    private static final int NUM_OUTPUTS = 8;
     // Squared error to b
     private static final double CONVERGENCE_ERROR = 0.05;
 
     // NN parameters
     private static final int MIN_VAL = -1;
     private static final int MAX_VAL = 1;
-    private static final double MOMENTUM = 0.9;
-    private static final double LEARNING_RATE = 0.2;
-    private static final double WEIGHT_INIT_MIN = -1.1;
-    private static final double WEIGHT_INIT_MAX = 1.1;
+    private static final double MOMENTUM = 0.2;
+    private static final double LEARNING_RATE = 0.1;
+    private static final double WEIGHT_INIT_MIN = -2.0;
+    private static final double WEIGHT_INIT_MAX = 1.0;
 
     // LUT file and properties
     private static final String LUT_FILE_NAME = "1MSARSA.dat";
@@ -34,7 +34,8 @@ class TestBench
 
     // LUT Hashmap to store state/action probabilities
     private static HashMap<Integer, Double> mReinforcementLearningLUTHashMap = new HashMap<>();
-    private static HashMap<Integer, Integer> mStateToBestActionMap = new HashMap<>();
+    private static HashMap<Integer, HashMap<Integer, Double>> mStateToQ = new HashMap<>();
+    private static HashMap<Integer, Double> mStateToQInner = new HashMap<>();
     private static boolean mDebug = true;
 
     // LUT hash encodings
@@ -93,8 +94,8 @@ class TestBench
         NeuralNetMulti neuralNetObj;
         ArrayList<ArrayList<ArrayList<Double>>> bipolarTrainingSet = new ArrayList<>();
         ArrayList<Double> results = new ArrayList<>();
-        int state, action, maxQAction, moveAction, fireAction, completeHash;
-        double epochAverage, maxQVal;
+        int state, action, moveAction, fireAction, completeHash, actionIndex, index;
+        double qVal, qMin, qMax;
 
         // Quantized values
         int quantRobotX;
@@ -142,15 +143,18 @@ class TestBench
         loadLut(mLutFile);
         printDebug("LUT file has %d entries\n", mReinforcementLearningLUTHashMap.size());
 
+        // Set min & max values accordingly
+        qMin = 999.0;
+        qMax = -999.0;
+
         for (Integer fullHash : mReinforcementLearningLUTHashMap.keySet())
         {
             // Get the state
             state = getIntFieldVal(fullHash, STATE_FIELD_WIDTH, STATE_FIELD_OFFSET);
             // Check if the state has already been parsed
-            if (!mStateToBestActionMap.containsKey(state))
+            if (!mStateToQ.containsKey(state))
             {
-                maxQVal = -999;
-                maxQAction = 0xFF; // bad value
+                actionIndex = 0;
                 // Key must be parsed, get associated state/action pairs and their Qs
                 for (moveAction = 0; moveAction < ACTION_MOVE_NUM; moveAction++)
                 {
@@ -160,25 +164,33 @@ class TestBench
                         action = generateActionHash(moveAction, fireAction);
                         // Generate complete hash from action and state
                         completeHash = combineStateActionHashes(state, action);
-                        // Check if the Q is higher than the current highest
-                        // LUT will always have a value for the current hash
-                        if (mReinforcementLearningLUTHashMap.get(completeHash) > maxQVal)
+                        // Get the Q value for the given state & action
+                        qVal = mReinforcementLearningLUTHashMap.get(completeHash);
+                        if (qVal < qMin)
                         {
-                            maxQVal = mReinforcementLearningLUTHashMap.get(completeHash);
-                            maxQAction = action;
+                            qMin = qVal;
                         }
+                        if (qVal > qMax)
+                        {
+                            qMax = qVal;
+                        }
+                        // We should now have the action with the highest Q value, construct our training pair
+                        mStateToQInner.put(actionIndex, qVal);
+                        actionIndex++;
+                        //printDebug("Adding action 0x%1x for state 0x%08x with Q value of %3.5f\n", action, state, qVal);
                     }
                 }
-                // We should now have the action with the highest Q value, construct our training pair
-                mStateToBestActionMap.put(state, maxQAction);
-                //printDebug("Found best action 0x%1x for state 0x%08x with Q value of %3.5f\n", maxQAction, state, maxQVal);
+                mStateToQ.put(state, mStateToQInner);
+                mStateToQInner = new HashMap<>();
             }
         }
 
-        printDebug("Training set has %d entries\n", mStateToBestActionMap.size());
+        printDebug("Training set has %d entries\n", mStateToQ.size());
+        printDebug("Max Q was %f\n", qMax);
+        printDebug("Min Q was %f\n", qMin);
 
         // Raw training set is now obtained, need to convert values into NN friendly I/Os
-        for (Integer trainingState : mStateToBestActionMap.keySet())
+        for (Integer trainingState : mStateToQ.keySet())
         {
             //printDebug("\nState: 0x%08x Action: %x\n", trainingState, mStateToBestActionMap.get(trainingState));
             // Get our quantized values
@@ -188,8 +200,8 @@ class TestBench
             quantRobotHeading = getIntFieldVal(trainingState, STATE_ROBOT_HEADING_WIDTH, STATE_ROBOT_HEADING_OFFSET);
 
             // Get the individual actions
-            actionMove = getIntFieldVal(mStateToBestActionMap.get(trainingState), ACTION_MOVE_WIDTH, ACTION_MOVE_OFFSET);
-            actionFire = getIntFieldVal(mStateToBestActionMap.get(trainingState), ACTION_FIRE_WIDTH, ACTION_FIRE_OFFSET);
+            //actionMove = getIntFieldVal(mStateToBestActionMap.get(trainingState), ACTION_MOVE_WIDTH, ACTION_MOVE_OFFSET);
+            //actionFire = getIntFieldVal(mStateToBestActionMap.get(trainingState), ACTION_FIRE_WIDTH, ACTION_FIRE_OFFSET);
 
             // Scale the quantizations to bipolar binary representations
             bipolarRobotX = (quantRobotX * 2.0 / 16.0) - 1.0;
@@ -222,14 +234,19 @@ class TestBench
             bipolarState.add(2, bipolarDistance);
             bipolarState.add(3, bipolarRobotHeading);
 
-            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][0]);
-            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][1]);
-            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][2]);
-            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][3]);
-            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][4]);
-            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][5]);
-            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][6]);
-            bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][7]);
+            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][0]);
+            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][1]);
+            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][2]);
+            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][3]);
+            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][4]);
+            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][5]);
+            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][6]);
+            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][7]);
+
+            for (index = 0; index < 8; index++)
+            {
+                bipolarAction.add((mStateToQ.get(trainingState).get(index))/(-qMin));
+            }
 
             stateAndActionPair.add(bipolarState);
             stateAndActionPair.add(bipolarAction);
@@ -256,6 +273,8 @@ class TestBench
     private static void printCsvTraining(ArrayList<ArrayList<ArrayList<Double>>> r, String fileName) throws IOException
     {
         int index;
+
+        printDebug("Outputting CSV of training set...\n");
 
         PrintWriter printWriter = new PrintWriter(new FileWriter(fileName));
         printWriter.printf("Input0, Input1, Input2, Input3, Output0, Output1, Output2, Output3, Output4, Output5, Output6, Output7\n");
@@ -308,13 +327,13 @@ class TestBench
         double cummError;
         int index, epoch, output;
 
-        double[] errors;
-
-        // Shuffle the training set
-        Collections.shuffle(trainingSet);
+        double[] errors = new double[]{};
 
         for (epoch = 0; epoch < maxEpochs; epoch++)
         {
+            // Shuffle the training set
+            Collections.shuffle(trainingSet);
+
             cummError = 0.0;
             for (index = 0; index < trainingSet.size(); index++)
             {
@@ -326,9 +345,10 @@ class TestBench
             }
 
             // RMS error
-            //cummError /= trainingSet.size();
-            //cummError = Math.sqrt(cummError);
-
+            cummError /= trainingSet.size();
+            cummError = Math.sqrt(cummError);
+            //printDebug("%f %f %f %f %f %f %f %f\n",
+            //errors[0], errors[1], errors[2], errors[3], errors[4], errors[5], errors[6], errors[7]);
             printDebug("Epoch: %09d Cummulative squared error: %f\n", epoch, cummError);
 
             // Append the result to our list
