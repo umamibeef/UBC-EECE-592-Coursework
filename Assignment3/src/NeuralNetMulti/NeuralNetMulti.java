@@ -1,3 +1,5 @@
+package NeuralNetMulti;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.Math;
@@ -10,7 +12,7 @@ import java.util.Random;
  * a selectable number of hidden neurons (up to MAX_HIDDEN_NEURONS) and a selectable number of
  * inputs (up to MAX_INPUTS)
  */
-class NeuralNetMulti
+public class NeuralNetMulti
 {
     // Constants
     private static final int MAX_HIDDEN_NEURONS = 1000;
@@ -368,7 +370,7 @@ class NeuralNetMulti
      * @param x The input vector. An array of doubles.
      * @return The value returned by the NN for this input vector
      */
-    private double[] outputFor(double[] x)
+    public double[] outputFor(double[] x)
     {
         int hiddenNeuron, outputNeuron, input, index;
 

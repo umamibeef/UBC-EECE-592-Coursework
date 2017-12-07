@@ -1,11 +1,13 @@
 package MettaBots;
 
+import NeuralNetMulti.*;
+
 import robocode.*;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -13,6 +15,7 @@ import java.util.Random;
  * was set in robocode.properties in order to allow large files to be loaded and saved.
  */
 
+@SuppressWarnings("Duplicates")
 public class MettaNN extends AdvancedRobot //Robot
 {
     // Learning constants
@@ -23,14 +26,25 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final boolean NON_TERMINAL_STATE = false;
     private static final boolean TERMINAL_STATE = true;
 
-    // Learning parameters
+    // Neural network parameters
+    private static final int NUM_INPUTS = 4;            // Number of NN inputs
+    private static final int NUM_HIDDEN_NEURONS = 200;  // Number of NN hidden neurons
+    private static final int NUM_OUTPUTS = 8;           // Number of NN outputs
+    private static final int MIN_VAL = -1;              // Minimum value for activation function (sigmoid)
+    private static final int MAX_VAL = 1;               // Maximum value for activation function (sigmoid)
+    private static final double MOMENTUM = 0.2;         // Momentum parameter for backpropagation
+    private static final double LEARNING_RATE = 0.005;  // Learning rate parameter for backpropagation
+    private static final double WEIGHT_INIT_MIN = -2.0; // Random weight init low limit
+    private static final double WEIGHT_INIT_MAX = 1.0;  // Random weight init high limit
+
+    // Reinforcement learning parameters
     private static final double ALPHA = 0.5;    // Fraction of difference used
     private static final double GAMMA = 0.8;    // Discount factor
     private static final double EPSILON = 0.1;  // Probability of exploration
     //private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
     //private int mCurrentLearningPolicy = NO_LEARNING_GREEDY;
-    //private int mCurrentLearningPolicy = SARSA;
-    private int mCurrentLearningPolicy = Q_LEARNING;
+    private int mCurrentLearningPolicy = SARSA;
+    //private int mCurrentLearningPolicy = Q_LEARNING;
     private boolean mIntermediateRewards = true;
     private boolean mTerminalRewards = true;
 
@@ -51,12 +65,6 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final int ACTION_MOVE_RT = 3;
     private static final int ACTION_MOVE_NUM = 4;
     private static final int ACTION_MOVE_DISTANCE = 50;
-    // Aim actions
-    private static final int ACTION_AIM_ST  = 0;
-    private static final int ACTION_AIM_LT = 1;
-    private static final int ACTION_AIM_RT = 2;
-    private static final int ACTION_AIM_NUM = 3;
-    private static final int ACTION_AIM_MOD = 10;          // Adds a degree offset to the aim
     // Fire actions
     private static final int ACTION_FIRE_0 = 0;
     private static final int ACTION_FIRE_3 = 1;
@@ -92,18 +100,14 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final int ACTION_MOVE_WIDTH = 2;
     private static final int ACTION_FIRE_OFFSET = 2;
     private static final int ACTION_FIRE_WIDTH = 1;
-    // DEPRECATED
-    //private static final int ACTION_AIM_OFFSET      = 2;
-    //private static final int ACTION_AIM_WIDTH       = 2;
-
     private static final int ACTION_FIELD_WIDTH = 3;
     private static final int ACTION_FIELD_OFFSET = 16;
 
-    // LUT file and properties
-    private static final String LUT_FILE_NAME = "./ass2lut.dat";
-    private File mLutFile;
+    // Neural network file and properties
+    private static final String NN_WEIGHTS_FILE_NAME = "./Ass3NeuralNetWeights.dat";
+    private File mNeuralNetWeightsFile;
     // Stat file and properties
-    private static final String STATS_FILE_NAME = "./ass2stats.csv";
+    private static final String STATS_FILE_NAME = "./Ass3Stats.csv";
     private File mStatsFile;
 
     // Variables to track the state of the arena
@@ -128,8 +132,9 @@ public class MettaNN extends AdvancedRobot //Robot
     private int mCurrentEnergyDifference;
     private double mCurrentReward;
 
-    // Hashmap to store state/action probabilities
-    private static HashMap<Integer, Double> mReinforcementLearningLUTHashMap = new HashMap<>();
+    // Neural network to approximate Q(s,a) function
+    private static NeuralNetMulti mNeuralNet;
+    private static ArrayList<ArrayList<ArrayList<Double>>> mNeuralNetWeights;
 
     // Completion conditions
     private final TurnCompleteCondition mTurnComplete = new TurnCompleteCondition(this);
@@ -145,27 +150,33 @@ public class MettaNN extends AdvancedRobot //Robot
     {
         int currentStateHash, selectedAction;
         long fileSize;
+        ArrayList<ArrayList<ArrayList<Double>>> neuralNetworkWeights;
 
-        // Set colours
+        // Instantiate a new neural network for the robot to learn
+        mNeuralNet = new NeuralNetMulti(
+            NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN_NEURONS, LEARNING_RATE, MOMENTUM, MIN_VAL, MAX_VAL, WEIGHT_INIT_MIN, WEIGHT_INIT_MAX);
+        // Initialize weights for a new training session
+        mNeuralNet.initializeWeights();
+
+        // Set robot colours
         setColors(Color.PINK, Color.PINK, Color.PINK, Color.PINK, Color.PINK);
         // Set robot properties
         setAdjustGunForRobotTurn(true);
         setAdjustRadarForGunTurn(true);
         setAdjustRadarForRobotTurn(true);
 
-        // Ask robocode for the LUT file
-        mLutFile = getDataFile(LUT_FILE_NAME);
+        // Ask robocode for the neural network weights file
+        mNeuralNetWeightsFile = getDataFile(NN_WEIGHTS_FILE_NAME);
         // Ask robocode for the stats file
         mStatsFile = getDataFile(STATS_FILE_NAME);
 
-        // Get the LUT filesize...
-        fileSize = mLutFile.length();
-        printDebug("LUT file size is %d\n", fileSize);
-
+        // Get the neural network weights file size
+        fileSize = mNeuralNetWeightsFile.length();
+        printDebug("Current neural network file size ");
         // If the current file is empty, put in an empty hashmap
         if (fileSize == 0)
         {
-            newLutFile(mLutFile);
+            newWeightFile(mNeuralNetWeightsFile);
         }
 
         printDebug("Data available: %d bytes\n", getDataQuotaAvailable());
@@ -174,7 +185,7 @@ public class MettaNN extends AdvancedRobot //Robot
         // Choose an action hash that has the maximum Q for this state
         if(mCurrentLearningPolicy == SARSA)
         {
-            currentStateHash = generateStateHash();
+            currentStateHash = generateStateArray();
             selectedAction = getActionHash(ACTION_MODE_EPSILON_GREEDY, currentStateHash);
             takeAction(currentStateHash, selectedAction);
         }
@@ -235,7 +246,6 @@ public class MettaNN extends AdvancedRobot //Robot
         mEnemyX = (int) (getX() + Math.sin(angle) * event.getDistance());
         mEnemyY = (int) (getY() + Math.cos(angle) * event.getDistance());
 
-
         printDebug("Robot: X %d Y %d Heading %d GunHeading %d Energy %d\n",
         mRobotX, mRobotY, mRobotHeading, mRobotGunHeading, mRobotEnergy);
         printDebug("Enemy: Distance %d Heading %d Bearing %d BearingFromGun %d Energy %d\n",
@@ -247,20 +257,16 @@ public class MettaNN extends AdvancedRobot //Robot
     private void learn(boolean terminalState)
     {
         double qPrevNew;
-        int currentStateHash, actionHash;
+        int actionHash;
+        double [] stateArray;
 
         printDebug("==[LEARN]=========================================\n");
 
-        // Determine current state hash at the time of learn()
-        currentStateHash = generateStateHash();
+        // Determine current state input at the time of learn()
+        stateArray = generateStateArray();
 
         // Calculate the current reward
         // Reward can be obtained asynchronously through events such as bullet hitting
-        // DEPRECATED:
-        // We will add the delta between robots here for the final reward
-        // Negative means the opponent has more life than the player, and vice versa
-        //mCurrentReward += (mRobotEnergy - mEnemyEnergy);
-        // NEW:
         // Add to the current reward the CHANGE in difference between previous and current
         if (mIntermediateRewards)
         {
@@ -278,27 +284,29 @@ public class MettaNN extends AdvancedRobot //Robot
                 // Take random action
                 actionHash = getRandomAction();
                 printDebug("Taking random action of 0x%02x\n", actionHash);
-                takeAction(currentStateHash, actionHash);
+                takeAction(stateArray, actionHash);
                 break;
             case NO_LEARNING_GREEDY:
                 printDebug("No learning and totally greedy!\n");
                 // Observe the new environment
-                currentStateHash = generateStateHash();
+                stateArray = generateStateArray();
                 // Get the action hash that has the maximum Q for this state
                 printDebug("Find the maximum Q action for this new state");
-                actionHash = getActionHash(ACTION_MODE_MAX_Q, currentStateHash);
+                actionHash = getActionHash(ACTION_MODE_MAX_Q, stateArray);
                 // Take the action
-                takeAction(currentStateHash, actionHash);
+                takeAction(stateArray, actionHash);
                 break;
             // On-policy (SARSA)
             case SARSA:
                 printDebug("SARSA!\n");
                 // Choose an on-policy action
-                actionHash = getActionHash(ACTION_MODE_EPSILON_GREEDY, currentStateHash);
+                actionHash = getActionHash(ACTION_MODE_EPSILON_GREEDY, stateArray);
                 // Calculate new value for previous Q;
-                qPrevNew = calculateQPrevNew(getQValue(combineStateActionHashes(currentStateHash, actionHash)));
+                qPrevNew = calculateQPrevNew(getQValue(combineStateActionHashes(stateArray, actionHash)));
+
                 // Update the LUT with the new value for the previous Q
                 mReinforcementLearningLUTHashMap.put(mPreviousStateActionHash, qPrevNew);
+
                 // Reset reward until the next learn
                 mCurrentReward = 0.0;
                 // We're done! No more actions.
@@ -308,7 +316,7 @@ public class MettaNN extends AdvancedRobot //Robot
                     return;
                 }
                 // Take the next action
-                takeAction(currentStateHash, actionHash);
+                takeAction(stateArray, actionHash);
                 break;
             // Off-policy (Q-Learning)
             case Q_LEARNING:
@@ -320,26 +328,30 @@ public class MettaNN extends AdvancedRobot //Robot
                     // Learn from the terminal action
                     // Calculate new value for previous Q, next Q is zero since we are terminal
                     qPrevNew = calculateQPrevNew(0.0);
+
                     // Update the LUT with the new value for the previous Q
                     mReinforcementLearningLUTHashMap.put(mPreviousStateActionHash, qPrevNew);
+
                     return;
                 }
                 else
                 {
                     // Choose an on-policy action
                     printDebug("Choosing on-policy action to take");
-                    actionHash = getActionHash(ACTION_MODE_EPSILON_GREEDY, currentStateHash);
+                    actionHash = getActionHash(ACTION_MODE_EPSILON_GREEDY, stateArray);
                     // Take the action
-                    takeAction(currentStateHash, actionHash);
+                    takeAction(stateArray, actionHash);
                     // Observe the new environment
-                    currentStateHash = generateStateHash();
+                    stateArray = generateStateArray();
                     // Get the action hash that has the maximum Q for this state
                     printDebug("Find the maximum Q action for this new state");
-                    actionHash = getActionHash(ACTION_MODE_MAX_Q, currentStateHash);
+                    actionHash = getActionHash(ACTION_MODE_MAX_Q, stateArray);
                     // Calculate new value for previous Q;
-                    qPrevNew = calculateQPrevNew(getQValue(combineStateActionHashes(currentStateHash, actionHash)));
+                    qPrevNew = calculateQPrevNew(getQValue(combineStateActionHashes(stateArray, actionHash)));
+
                     // Update the LUT with the new value for the previous Q
                     mReinforcementLearningLUTHashMap.put(mPreviousStateActionHash, qPrevNew);
+
                     // Reset reward until the next learn
                     mCurrentReward = 0.0;
                 }
@@ -389,7 +401,7 @@ public class MettaNN extends AdvancedRobot //Robot
      */
     private int getActionHash(int mode, int currentStateHash)
     {
-        int moveAction, fireAction;//, aimAction;
+        int moveAction, fireAction;
         int randomPick, actionHash, completeHash, selectedActionHash, selectedCompleteHash;
         int[] qMaxActions;
         int currentQMaxActionNum = 0;
@@ -404,10 +416,8 @@ public class MettaNN extends AdvancedRobot //Robot
         {
             for (fireAction = 0; fireAction < ACTION_FIRE_NUM; fireAction++)
             {
-                //for(aimAction = 0; aimAction < ACTION_AIM_NUM; aimAction++)
-                //{
                 // Calculate the action hash and create the complete hash by adding it to the current state hash
-                actionHash = generateActionHash(moveAction, fireAction);//, aimAction);
+                actionHash = generateActionHash(moveAction, fireAction);
                 completeHash = combineStateActionHashes(currentStateHash, actionHash);
                 printDebug("0x%08x: %f\n", completeHash, getQValue(completeHash));
 
@@ -428,7 +438,6 @@ public class MettaNN extends AdvancedRobot //Robot
                     currentQMaxActionNum++;
                     qMaxActions[currentQMaxActionNum - 1] = completeHash;
                 }
-                //}
             }
         }
 
@@ -546,23 +555,19 @@ public class MettaNN extends AdvancedRobot //Robot
         return result;
     }
 
-    /**
-     * Combine a state and action hash together to form a complete hash
-     * @param stateHash State hash
-     * @param actionHash Action hash
-     * @return The complete state/action hash
-     */
-    private int combineStateActionHashes(int stateHash, int actionHash)
+    private double[] getQValue(ArrayList<Double> preprocessedState)
     {
-        return updateIntField(stateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, actionHash);
-    }
+        int i;
+        double[] state = new double[preprocessedState.size()];
+        double[] qValues;
 
-    private double getQValue(int stateActionHash)
-    {
-        // Make the entry 0.0 if it doesn't exist
-        mReinforcementLearningLUTHashMap.putIfAbsent(stateActionHash, 0.0);
+        // Neural network takes in an array, so we have to convert the ArrayList
+        for (i = 0; i < preprocessedState.size(); i++)
+        {
+            state[i] = preprocessedState.get(i);
+        }
 
-        return mReinforcementLearningLUTHashMap.get(stateActionHash);
+        return mNeuralNet.outputFor(state);
     }
 
     /**
@@ -570,26 +575,8 @@ public class MettaNN extends AdvancedRobot //Robot
      *
      * @return a hash representing the current state
      */
-    private int generateStateHash()
+    private double [] generateStateArray()
     {
-        int stateHash = 0;
-
-        int quantRobotX;
-        int quantRobotY;
-        int quantDistance;
-        int quantRobotHeading;
-        //int quantEnemyBearingFromGun;
-        //int quantEnemyEnergy;
-
-        // Legend: [max] -> quantization -> field width
-        // Current position X                       [800]   -> 16   -> 4
-        // Current position Y                       [600]   -> 16   -> 4
-        // Robot heading                            [360]   -> 16   -> 4
-        // Distance between robot and opponent      [1000]  -> 16   -> 4
-        // Total space                                                16
-        // Deprecated:
-        // Enemy bearing                            [360]   -> 16   -> 4
-        // Energy of enemy                          [N/A]   -> 2    -> 1
 
         // Quantization
         quantRobotX = quantizeInt(mRobotX, STATE_POS_X_MAX, 1<<STATE_POS_X_WIDTH);
@@ -597,23 +584,11 @@ public class MettaNN extends AdvancedRobot //Robot
         quantDistance = quantizeInt(mEnemyDistance, STATE_DISTANCE_MAX, 1<<STATE_DISTANCE_WIDTH);
         quantRobotHeading = quantizeInt(mRobotHeading, STATE_ROBOT_HEADING_MAX, 1<<STATE_ROBOT_HEADING_WIDTH);
 
-        //quantEnemyBearingFromGun = quantizeInt(mEnemyBearingFromGun + 180, 360, 16);
-        // For enemy energy, we will only care if it's above a threshold
-        //if(mEnemyEnergy > ENEMY_ENERGY_THRESHOLD)
-        //{
-        //    quantEnemyEnergy = 0;
-        //}
-        //else
-        //{
-        //    quantEnemyEnergy = 1;
-        //}
-
         // Assemble the hash
         stateHash = updateIntField(stateHash, STATE_POS_X_WIDTH, STATE_POS_X_OFFSET, quantRobotX);
         stateHash = updateIntField(stateHash, STATE_POS_Y_WIDTH, STATE_POS_Y_OFFSET, quantRobotY);
         stateHash = updateIntField(stateHash, STATE_DISTANCE_WIDTH, STATE_DISTANCE_OFFSET, quantDistance);
         stateHash = updateIntField(stateHash, STATE_ROBOT_HEADING_WIDTH, STATE_ROBOT_HEADING_OFFSET, quantRobotHeading);
-        //stateHash = updateIntField(stateHash, 1, 19, quantEnemyEnergy);
 
         //printDebug("Quantized values: %d %d %d %d %d %d\n",
         //    quantRobotX, quantRobotY, quantDistance, quantRobotHeading, quantEnemyBearingFromGun, quantEnemyEnergy);
@@ -622,9 +597,7 @@ public class MettaNN extends AdvancedRobot //Robot
         printDebug("State hash: 0x%08x\n", stateHash);
 
         // Check if any values are negative, something went wrong
-        if ((quantRobotX < 0) || (quantRobotY < 0) ||
-        (quantDistance < 0) || (quantRobotHeading < 0))// ||
-        //(quantEnemyBearingFromGun) < 0 || (quantEnemyEnergy < 0))
+        if ((quantRobotX < 0) || (quantRobotY < 0) || (quantDistance < 0) || (quantRobotHeading < 0))
         {
             throw new ArithmeticException("Quantized value cannot be negative!!!");
         }
@@ -637,19 +610,16 @@ public class MettaNN extends AdvancedRobot //Robot
      *
      * @return Returns a hash based on the selected action
      */
-    private int generateActionHash(int moveAction, int fireAction)//, int aimAction)
+    private int generateActionHash(int moveAction, int fireAction)
     {
         // Robot can do two things simultaneously:
         // Move up, down, left, or right                        (4)
         // Don't fire or fire 3                                 (2)
         // 4 * 2 = 8 action possibilities, need at least 3 bits
-        // DEPRECATED:
-        // Aim directly, or at some offset in either direction  (3)
         int actionHash = 0;
 
         actionHash = updateIntField(actionHash, ACTION_MOVE_WIDTH, ACTION_MOVE_OFFSET, moveAction);
         actionHash = updateIntField(actionHash, ACTION_FIRE_WIDTH, ACTION_FIRE_OFFSET, fireAction);
-        //actionHash = updateIntField(actionHash, ACTION_AIM_WIDTH, ACTION_AIM_OFFSET, aimAction);
 
         //printDebug("Action hash: 0x%08x\n", actionHash);
 
@@ -668,7 +638,6 @@ public class MettaNN extends AdvancedRobot //Robot
 
         moveDirection = getIntFieldVal(actionHash, ACTION_MOVE_WIDTH, ACTION_MOVE_OFFSET);
         fireType = getIntFieldVal(actionHash, ACTION_FIRE_WIDTH, ACTION_FIRE_OFFSET);
-        //aimType = getIntFieldVal(actionHash, ACTION_AIM_WIDTH, ACTION_AIM_OFFSET);
 
         // Perform the move action
         newHeading = -1 * normalizeAngle((int) getHeading());
@@ -708,25 +677,6 @@ public class MettaNN extends AdvancedRobot //Robot
         // Perform the aim type action
         // Aim straight now
         turnGunRight(estimatedEnemyBearingFromGun);
-        // DEPRECATED:
-        //switch(aimType)
-        //{
-        //    case AIM_ST:
-        //        // Aim directly for the enemy
-        //        //setTurnGunRight(estimatedEnemyBearingFromGun);;
-        //        break;
-        //    case ACTION_AIM_LT:
-        //        // Aim to the left of the enemy by a modifier
-        //        //setTurnGunRight(estimatedEnemyBearingFromGun - ACTION_AIM_MOD);
-        //        break;
-        //    case ACTION_AIM_RT:
-        //        // Aim to the ri ght of the enemy by a modifier
-        //        //setTurnGunRight(estimatedEnemyBearingFromGun + ACTION_AIM_MOD);
-        //        break;
-        //    default:
-        //        // We should never be in here, do nothing.
-        //        break;
-        //}
 
         // Execute the aim right away
         execute();
@@ -759,9 +709,8 @@ public class MettaNN extends AdvancedRobot //Robot
 
         randomMove = getRandomInt(0, ACTION_MOVE_NUM - 1);
         randomFire = getRandomInt(0, ACTION_FIRE_NUM - 1);
-        //randomAim = getRandomInt(0, ACTION_AIM_NUM);
 
-        actionHash = generateActionHash(randomMove, randomFire);//, randomAim);
+        actionHash = generateActionHash(randomMove, randomFire);
 
         return actionHash;
     }
@@ -929,6 +878,18 @@ public class MettaNN extends AdvancedRobot //Robot
     }
 
     /**
+     * Scaled a value into a double with a specified min and max value
+     */
+    private double scaleValue(double value, double valMin, double valMax, double targetMin, double targetMax)
+    {
+        double scaledVal, range;
+
+        range = targetMax 
+
+        return scaledVal;
+    }
+
+    /**
      * Conditionally prints a message if the debug flag is on
      *
      * @param format    The string to format
@@ -943,18 +904,18 @@ public class MettaNN extends AdvancedRobot //Robot
     }
 
     /**
-     * Create a new lookup table hashmap file
+     * Create a new neural network weight file
      *
-     * @param lutFile The filename to use for the lookup table hashmap
+     * @param weightFile The filename to use for the neural network weights
      */
-    private void newLutFile(File lutFile)
+    private void newWeightFile(File weightFile)
     {
         try
         {
-            printDebug("Creating LUT file...\n");
-            RobocodeFileOutputStream fileOut = new RobocodeFileOutputStream(lutFile);
+            printDebug("Creating neural network weights file...\n");
+            RobocodeFileOutputStream fileOut = new RobocodeFileOutputStream(weightFile);
             ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(fileOut));
-            out.writeObject(new HashMap<Integer, Double>());
+            out.writeObject(new ArrayList<ArrayList<ArrayList<Double>>>());
             out.close();
             fileOut.close();
         }
@@ -965,23 +926,44 @@ public class MettaNN extends AdvancedRobot //Robot
     }
 
     /**
-     * Save the lookup table hashmap
+     * Save the neural network weights
      *
-     * @param lutFile The filename to use for the lookup table hashmap
+     * @param weightFile The filename to use for the neural network weights
      */
-    private void saveLut(File lutFile)
+    private void saveWeights(File weightFile)
     {
         try
         {
-            printDebug("Saving LUT to file...\n");
-            RobocodeFileOutputStream fileOut = new RobocodeFileOutputStream(lutFile);
-            //ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            printDebug("Saving neural network weights to file...\n");
+            RobocodeFileOutputStream fileOut = new RobocodeFileOutputStream(weightFile);
             ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(fileOut));
-            out.writeObject(mReinforcementLearningLUTHashMap);
+            out.writeObject(mNeuralNetWeights);
             out.close();
             fileOut.close();
         }
         catch (IOException exception)
+        {
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * Load neural network weights
+     *
+     * @param weightFile The filename to use for the neural network weights
+     */
+    private void loadWeights(File weightFile)
+    {
+        try
+        {
+            printDebug("Loading neural network weights from file...\n");
+            FileInputStream fileIn = new FileInputStream(weightFile);
+            ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(fileIn));
+            mNeuralNetWeights = (ArrayList<ArrayList<ArrayList<Double>>>) in.readObject();
+            in.close();
+            fileIn.close();
+        }
+        catch (IOException | ClassNotFoundException exception)
         {
             exception.printStackTrace();
         }

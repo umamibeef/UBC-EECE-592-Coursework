@@ -15,36 +15,49 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="TestBench.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+      <file leaf-file-name="NeuralNetMulti.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="288">
-              <caret line="16" column="51" lean-forward="false" selection-start-line="16" selection-start-column="51" selection-end-line="16" selection-end-column="51" />
+            <state relative-caret-position="491">
+              <caret line="364" column="13" lean-forward="true" selection-start-line="364" selection-start-column="13" selection-end-line="364" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="NeuralNetMulti.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti.java">
+      <file leaf-file-name="MettaNN.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="561" column="9" lean-forward="true" selection-start-line="561" selection-start-column="9" selection-end-line="561" selection-end-column="9" />
+            <state relative-caret-position="383">
+              <caret line="886" column="26" lean-forward="false" selection-start-line="886" selection-start-column="26" selection-end-line="886" selection-end-column="26" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#381#412#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="convergence100hidden_0p2_0p005.csv" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/convergence100hidden_0p2_0p005.csv">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MettaNN.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
+      <file leaf-file-name="TestBench.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1782">
-              <caret line="99" column="54" lean-forward="true" selection-start-line="99" selection-start-column="54" selection-end-line="99" selection-end-column="54" />
+            <state relative-caret-position="297">
+              <caret line="319" column="24" lean-forward="true" selection-start-line="319" selection-start-column="24" selection-end-line="321" selection-end-column="41" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
               </folding>
             </state>
           </provider>
@@ -54,19 +67,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>runTrials</find>
-      <find>attemptConvergence</find>
-      <find>printTrialResults</find>
-      <find>learningrate</find>
-      <find>step</find>
-      <find>mStateToBestActionMap</find>
-      <find>printCsvTraining</find>
-      <find>mStateToQInner</find>
-      <find>training</find>
-      <find>1.343102</find>
-      <find>1b</find>
-      <find>2b</find>
-      <find>3b</find>
       <find>4b</find>
       <find>calculateWeightDelta</find>
       <find>mOutputNeuronErrors</find>
@@ -80,10 +80,23 @@
       <find>shuffl</find>
       <find>quantize</find>
       <find>mLearningRate</find>
-      <find>ACTION_MOVE_OFFSET</find>
       <find>mNumInputs</find>
       <find>getWeight</find>
       <find>weights</find>
+      <find>neuralnetwork</find>
+      <find>ACTION_MOVE_OFFSET</find>
+      <find>newLutFile</find>
+      <find>runTrials</find>
+      <find>takeAction</find>
+      <find>Object</find>
+      <find>ObjectOutputStream</find>
+      <find>outputfor</find>
+      <find>neuralnet</find>
+      <find>getQ</find>
+      <find>outputFor</find>
+      <find>getQValue</find>
+      <find>generateStateArray</find>
+      <find>quantizeInt</find>
     </findStrings>
     <replaceStrings>
       <replace>0.0</replace>
@@ -98,12 +111,13 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/MettaBots/MettaNN.java" />
         <option value="$PROJECT_DIR$/src/training.csv" />
         <option value="$PROJECT_DIR$/src/NeuralNetMultiOutputAttempt.java" />
         <option value="$PROJECT_DIR$/src/NeuralNet.java" />
-        <option value="$PROJECT_DIR$/src/TestBench.java" />
         <option value="$PROJECT_DIR$/src/NeuralNetMulti.java" />
+        <option value="$PROJECT_DIR$/src/TestBench.java" />
+        <option value="$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java" />
+        <option value="$PROJECT_DIR$/src/MettaBots/MettaNN.java" />
       </list>
     </option>
   </component>
@@ -114,9 +128,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-8" />
-    <option name="width" value="1618" />
-    <option name="height" value="1047" />
+    <option name="x" value="436" />
+    <option name="y" value="-13" />
+    <option name="width" value="1659" />
+    <option name="height" value="989" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -152,6 +167,12 @@
               <item name="Assignment3" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="MettaBots" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Assignment3" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Assignment3" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="NeuralNetMulti" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Assignment3" type="b2602c69:ProjectViewProjectNode" />
@@ -310,12 +331,12 @@
       <workItem from="1512008004607" duration="3169000" />
       <workItem from="1512012153407" duration="5960000" />
       <workItem from="1512328743315" duration="16408000" />
-      <workItem from="1512366310146" duration="25577000" />
+      <workItem from="1512366310146" duration="34128000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="99830000" />
+    <option name="totallyTimeSpent" value="108381000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
@@ -329,13 +350,14 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.34623894" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.34021738" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32997763" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32934782" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18017058" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18017058" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3228261" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -349,7 +371,6 @@
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289183" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32343584" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -391,14 +412,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/NeuralNet.java</url>
-          <line>337</line>
-          <properties />
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-      </breakpoints>
       <option name="time" value="19" />
     </breakpoint-manager>
     <watches-manager>
@@ -410,17 +423,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/training.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -440,9 +442,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="9108">
           <caret line="396" column="22" lean-forward="false" selection-start-line="396" selection-start-column="10" selection-end-line="396" selection-end-column="22" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -452,17 +452,18 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
@@ -486,9 +487,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="11086">
           <caret line="486" column="34" lean-forward="false" selection-start-line="486" selection-start-column="34" selection-end-line="486" selection-end-column="34" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -498,17 +497,18 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
@@ -532,9 +532,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="11178">
           <caret line="486" column="34" lean-forward="true" selection-start-line="486" selection-start-column="34" selection-end-line="486" selection-end-column="34" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -544,17 +542,18 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="506">
           <caret line="24" column="51" lean-forward="false" selection-start-line="24" selection-start-column="51" selection-end-line="24" selection-end-column="51" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
@@ -565,6 +564,7 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -573,19 +573,17 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="7268">
           <caret line="316" column="48" lean-forward="false" selection-start-line="316" selection-start-column="48" selection-end-line="316" selection-end-column="48" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="594">
           <caret line="35" column="41" lean-forward="false" selection-start-line="35" selection-start-column="41" selection-end-line="35" selection-end-column="41" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
@@ -596,6 +594,7 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -604,19 +603,17 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="8280">
           <caret line="460" column="0" lean-forward="false" selection-start-line="460" selection-start-column="0" selection-end-line="460" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
@@ -625,9 +622,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="391">
           <caret line="21" column="31" lean-forward="false" selection-start-line="21" selection-start-column="31" selection-end-line="21" selection-end-column="31" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -637,17 +632,18 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
@@ -656,9 +652,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="483">
           <caret line="21" column="31" lean-forward="false" selection-start-line="21" selection-start-column="31" selection-end-line="21" selection-end-column="31" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -668,17 +662,18 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
@@ -687,9 +682,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
           <caret line="21" column="31" lean-forward="true" selection-start-line="21" selection-start-column="31" selection-end-line="21" selection-end-column="31" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -699,17 +692,18 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3096">
           <caret line="172" column="44" lean-forward="true" selection-start-line="172" selection-start-column="44" selection-end-line="172" selection-end-column="44" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
@@ -718,9 +712,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3060">
           <caret line="170" column="68" lean-forward="false" selection-start-line="170" selection-start-column="54" selection-end-line="170" selection-end-column="68" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -730,17 +722,18 @@
           <caret line="168" column="9" lean-forward="false" selection-start-line="168" selection-start-column="9" selection-end-line="168" selection-end-column="9" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
@@ -751,6 +744,7 @@
           <caret line="936" column="0" lean-forward="false" selection-start-line="936" selection-start-column="0" selection-end-line="948" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -759,19 +753,17 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3006">
           <caret line="170" column="68" lean-forward="false" selection-start-line="170" selection-start-column="54" selection-end-line="170" selection-end-column="68" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2574">
           <caret line="144" column="28" lean-forward="false" selection-start-line="144" selection-start-column="28" selection-end-line="144" selection-end-column="28" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
@@ -780,9 +772,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="8208">
           <caret line="459" column="22" lean-forward="false" selection-start-line="459" selection-start-column="22" selection-end-line="459" selection-end-column="22" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -792,17 +782,18 @@
           <caret line="29" column="62" lean-forward="true" selection-start-line="29" selection-start-column="62" selection-end-line="29" selection-end-column="62" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="36">
           <caret line="3" column="6" lean-forward="false" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="6" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
@@ -811,19 +802,17 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5760">
           <caret line="323" column="0" lean-forward="false" selection-start-line="323" selection-start-column="0" selection-end-line="323" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="46">
           <caret line="3" column="6" lean-forward="false" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="6" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
@@ -832,9 +821,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="7360">
           <caret line="323" column="0" lean-forward="true" selection-start-line="323" selection-start-column="0" selection-end-line="323" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -865,38 +852,47 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="491">
           <caret line="396" column="22" lean-forward="false" selection-start-line="396" selection-start-column="10" selection-end-line="396" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/convergence100hidden_0p2_0p005.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="297">
+          <caret line="319" column="24" lean-forward="true" selection-start-line="319" selection-start-column="24" selection-end-line="321" selection-end-column="41" />
           <folding>
             <element signature="imports" expanded="true" />
+            <marker date="1512613700767" expanded="true" signature="4711:5297" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/TestBench.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="16" column="51" lean-forward="false" selection-start-line="16" selection-start-column="51" selection-end-line="16" selection-end-column="51" />
+        <state relative-caret-position="491">
+          <caret line="364" column="13" lean-forward="true" selection-start-line="364" selection-start-column="13" selection-end-line="364" selection-end-column="13" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512608220480" expanded="true" signature="4686:5272" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1782">
-          <caret line="99" column="54" lean-forward="true" selection-start-line="99" selection-start-column="54" selection-end-line="99" selection-end-column="54" />
+        <state relative-caret-position="383">
+          <caret line="886" column="26" lean-forward="false" selection-start-line="886" selection-start-column="26" selection-end-line="886" selection-end-column="26" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="561" column="9" lean-forward="true" selection-start-line="561" selection-start-column="9" selection-end-line="561" selection-end-column="9" />
-          <folding />
         </state>
       </provider>
     </entry>
