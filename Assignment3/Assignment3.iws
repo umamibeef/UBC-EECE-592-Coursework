@@ -15,10 +15,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="NeuralNetMulti.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="NeuralNetMulti.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="491">
+            <state relative-caret-position="-445">
               <caret line="364" column="13" lean-forward="true" selection-start-line="364" selection-start-column="13" selection-end-line="364" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -27,14 +27,15 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MettaNN.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="MettaNN.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="383">
-              <caret line="886" column="26" lean-forward="false" selection-start-line="886" selection-start-column="26" selection-end-line="886" selection-end-column="26" />
+            <state relative-caret-position="-103">
+              <caret line="396" column="47" lean-forward="true" selection-start-line="396" selection-start-column="47" selection-end-line="396" selection-end-column="47" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#381#412#0" expanded="true" />
+                <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -67,13 +68,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>4b</find>
-      <find>calculateWeightDelta</find>
-      <find>mOutputNeuronErrors</find>
-      <find>updateWeights</find>
-      <find>0b</find>
-      <find>NUM_OUTPUTS</find>
-      <find>calculate</find>
       <find>LEARNING_RATE</find>
       <find>neuralNetObj</find>
       <find>shuffle</find>
@@ -87,7 +81,6 @@
       <find>ACTION_MOVE_OFFSET</find>
       <find>newLutFile</find>
       <find>runTrials</find>
-      <find>takeAction</find>
       <find>Object</find>
       <find>ObjectOutputStream</find>
       <find>outputfor</find>
@@ -97,6 +90,14 @@
       <find>getQValue</find>
       <find>generateStateArray</find>
       <find>quantizeInt</find>
+      <find>scale</find>
+      <find>generateState</find>
+      <find>generate</find>
+      <find>mRobotX</find>
+      <find>normalizeAngle</find>
+      <find>ACTION_MODE_EPSILON_GREEDY</find>
+      <find>takeAction</find>
+      <find>getActionHash</find>
     </findStrings>
     <replaceStrings>
       <replace>0.0</replace>
@@ -331,12 +332,12 @@
       <workItem from="1512008004607" duration="3169000" />
       <workItem from="1512012153407" duration="5960000" />
       <workItem from="1512328743315" duration="16408000" />
-      <workItem from="1512366310146" duration="34128000" />
+      <workItem from="1512366310146" duration="36973000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="108381000" />
+    <option name="totallyTimeSpent" value="111226000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
@@ -453,6 +454,7 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />
+            <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -498,6 +500,7 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />
+            <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -543,6 +546,7 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />
+            <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -565,6 +569,7 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />
+            <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -595,6 +600,7 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />
+            <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -633,6 +639,7 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />
+            <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -663,6 +670,7 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />
+            <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -693,6 +701,7 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />
+            <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -723,6 +732,7 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />
+            <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -745,6 +755,7 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />
+            <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -783,6 +794,7 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />
+            <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -875,23 +887,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java">
+    <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="491">
-          <caret line="364" column="13" lean-forward="true" selection-start-line="364" selection-start-column="13" selection-end-line="364" selection-end-column="13" />
+        <state relative-caret-position="-103">
+          <caret line="396" column="47" lean-forward="true" selection-start-line="396" selection-start-column="47" selection-end-line="396" selection-end-column="47" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#381#412#0" expanded="true" />
+            <marker date="1512690228804" expanded="true" signature="16234:20234" ph="{...}" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="383">
-          <caret line="886" column="26" lean-forward="false" selection-start-line="886" selection-start-column="26" selection-end-line="886" selection-end-column="26" />
+        <state relative-caret-position="-445">
+          <caret line="364" column="13" lean-forward="true" selection-start-line="364" selection-start-column="13" selection-end-line="364" selection-end-column="13" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -50,7 +50,6 @@ public class MettaNN extends AdvancedRobot //Robot
 
     // Debug
     private static boolean mDebug = true;
-    private static boolean mDumpHumanReadableLut = true;
 
     // Misc. constants used in the robot
     private static final int ARENA_SIZEX_PX = 800;
@@ -70,38 +69,20 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final int ACTION_FIRE_3 = 1;
     private static final int ACTION_FIRE_NUM = 2;
     // Action constants
-    private static final int ACTION_DIMENSIONALITY = ACTION_MOVE_NUM * ACTION_FIRE_NUM; //* ACTION_AIM_NUM;
+    private static final int ACTION_DIMENSIONALITY = ACTION_MOVE_NUM * ACTION_FIRE_NUM;
     private static final int ACTION_MODE_MAX_Q = 0;
     private static final int ACTION_MODE_EPSILON_GREEDY = 1;
 
-    // State hash field and offsets
-    // Current position X                       [800]   -> 16   -> 4
-    // Current position Y                       [600]   -> 16   -> 4
-    // Distance between robot and opponent      [1000]  -> 16   -> 4
-    // Robot heading                            [360]   -> 16   -> 4
-    private static final int STATE_POS_X_WIDTH = 4;
-    private static final int STATE_POS_X_OFFSET = 0;
+    // State constants
     private static final int STATE_POS_X_MAX = ARENA_SIZEX_PX;
-
-    private static final int STATE_POS_Y_WIDTH = 4;
-    private static final int STATE_POS_Y_OFFSET = 4;
     private static final int STATE_POS_Y_MAX = ARENA_SIZEY_PX;
-
-    private static final int STATE_DISTANCE_WIDTH = 4;
-    private static final int STATE_DISTANCE_OFFSET = 8;
     private static final int STATE_DISTANCE_MAX = 1000;
-
-    private static final int STATE_ROBOT_HEADING_WIDTH = 4;
-    private static final int STATE_ROBOT_HEADING_OFFSET = 12;
     private static final int STATE_ROBOT_HEADING_MAX = 360;
-
-    // Action hash field and offsets
-    private static final int ACTION_MOVE_OFFSET = 0;
-    private static final int ACTION_MOVE_WIDTH = 2;
-    private static final int ACTION_FIRE_OFFSET = 2;
-    private static final int ACTION_FIRE_WIDTH = 1;
-    private static final int ACTION_FIELD_WIDTH = 3;
-    private static final int ACTION_FIELD_OFFSET = 16;
+    private static final int STATE_DIMENSIONALITY = 4; // Total number of state dimensions
+    private static final int STATE_POS_X_INDEX = 0;
+    private static final int STATE_POS_Y_INDEX = 1;
+    private static final int STATE_DISTANCE_INDEX = 2;
+    private static final int STATE_HEADING_INDEX = 3;
 
     // Neural network file and properties
     private static final String NN_WEIGHTS_FILE_NAME = "./Ass3NeuralNetWeights.dat";
@@ -111,23 +92,26 @@ public class MettaNN extends AdvancedRobot //Robot
     private File mStatsFile;
 
     // Variables to track the state of the arena
-    private int mRobotX;
-    private int mRobotY;
-    private int mRobotHeading;
-    private int mRobotGunHeading;
-    private int mRobotGunBearing;
-    private int mRobotEnergy;
-    private int mEnemyDistance;
-    private int mEnemyHeading;
-    private int mEnemyBearing;
-    private int mEnemyBearingFromGun;
-    private int mEnemyEnergy;
-    private int mEnemyX;
-    private int mEnemyY;
+    private double mRobotX;
+    private double mRobotY;
+    private double mRobotHeading;
+    private double mRobotGunHeading;
+    private double mRobotGunBearing;
+    private double mRobotEnergy;
+    private double mEnemyDistance;
+    private double mEnemyHeading;
+    private double mEnemyBearing;
+    private double mEnemyBearingFromGun;
+    private double mEnemyEnergy;
+    private double mEnemyX;
+    private double mEnemyY;
+    private double [] mCurrrentStateSnapshot = new double[STATE_DIMENSIONALITY];
+    private double [] mPreviousStateSnapshot = new double[STATE_DIMENSIONALITY];
 
     // Variables for learning
     private int mPreviousStateActionHash;
     private int mCurrentStateActionHash = NULL_32;
+
     private int mPreviousEnergyDifference;
     private int mCurrentEnergyDifference;
     private double mCurrentReward;
@@ -144,7 +128,7 @@ public class MettaNN extends AdvancedRobot //Robot
     // Winrate tracking for every 100 rounds
     private static final int NUM_ROUNDS = 100000;
     private static final int NUM_ROUNDS_DIV_100 = NUM_ROUNDS / 100;
-    private static int[] mNumWinArray = new int[NUM_ROUNDS_DIV_100];
+    private static int [] mNumWinArray = new int[NUM_ROUNDS_DIV_100];
 
     public void run()
     {
@@ -185,9 +169,10 @@ public class MettaNN extends AdvancedRobot //Robot
         // Choose an action hash that has the maximum Q for this state
         if(mCurrentLearningPolicy == SARSA)
         {
-            currentStateHash = generateStateArray();
-            selectedAction = getActionHash(ACTION_MODE_EPSILON_GREEDY, currentStateHash);
-            takeAction(currentStateHash, selectedAction);
+            // Take a snapshot of the current state
+            mCurrrentStateSnapshot = takeStateSnapshot();
+            // Take an action based on the current state
+            takeAction(ACTION_MODE_EPSILON_GREEDY, mCurrrentStateSnapshot);
         }
 
         // Robot's infinite loop
@@ -226,25 +211,25 @@ public class MettaNN extends AdvancedRobot //Robot
         printDebug("==[SCAN]==========================================\n");
         // Obtain state information
         // Robot's info
-        mRobotX = (int) getX();
-        mRobotY = (int) getY();
-        mRobotHeading = (int) getHeading();
-        mRobotGunHeading = (int) getGunHeading();
+        mRobotX = getX();
+        mRobotY = getY();
+        mRobotHeading = getHeading();
+        mRobotGunHeading = getGunHeading();
         mRobotGunBearing = normalizeAngle(mRobotHeading - mRobotGunHeading);
-        mRobotEnergy = (int) getEnergy();
+        mRobotEnergy = getEnergy();
 
         // Enemy's info
-        mEnemyDistance = (int) event.getDistance();
-        mEnemyHeading = (int) event.getHeading();
-        mEnemyBearing = (int) event.getBearing();
+        mEnemyDistance = event.getDistance();
+        mEnemyHeading = event.getHeading();
+        mEnemyBearing = event.getBearing();
         mEnemyBearingFromGun = normalizeAngle(mRobotGunBearing + mEnemyBearing);
-        mEnemyEnergy = (int) event.getEnergy();
+        mEnemyEnergy = event.getEnergy();
         // Calculate the enemy's last know position
         // Calculate the angle to the scanned robot
         angle = Math.toRadians(getHeading() + event.getBearing() % 360);
         // Calculate the coordinates of the robot
-        mEnemyX = (int) (getX() + Math.sin(angle) * event.getDistance());
-        mEnemyY = (int) (getY() + Math.cos(angle) * event.getDistance());
+        mEnemyX = (getX() + Math.sin(angle) * event.getDistance());
+        mEnemyY = (getY() + Math.cos(angle) * event.getDistance());
 
         printDebug("Robot: X %d Y %d Heading %d GunHeading %d Energy %d\n",
         mRobotX, mRobotY, mRobotHeading, mRobotGunHeading, mRobotEnergy);
@@ -366,7 +351,7 @@ public class MettaNN extends AdvancedRobot //Robot
      * @param currentStateHash The current state hash
      * @param actionHash The action to take
      */
-    private void takeAction(int currentStateHash, int actionHash)
+    private void takeAction(int currentStateHash, double [] stateSnapshot)
     {
         // Update current state/action hash
         mCurrentStateActionHash = updateIntField(currentStateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, actionHash);
@@ -545,9 +530,9 @@ public class MettaNN extends AdvancedRobot //Robot
      * @param angle The angle to normalize
      * @return The normalized angle
      */
-    private int normalizeAngle(int angle)
+    private double normalizeAngle(double angle)
     {
-        int result = angle;
+        double result = angle;
 
         while (result > 180) result -= 360;
         while (result < -180) result += 360;
@@ -571,11 +556,10 @@ public class MettaNN extends AdvancedRobot //Robot
     }
 
     /**
-     * This generates a hash for a given state. Everything is encoded in an int
-     *
-     * @return a hash representing the current state
+     * Generate a preprocessed state snapshot and save it in the related variables
+     * @return The state snapshot array that can be take
      */
-    private double [] generateStateArray()
+    private double [] takeStateSnapshot()
     {
 
         // Quantization
@@ -640,7 +624,7 @@ public class MettaNN extends AdvancedRobot //Robot
         fireType = getIntFieldVal(actionHash, ACTION_FIRE_WIDTH, ACTION_FIRE_OFFSET);
 
         // Perform the move action
-        newHeading = -1 * normalizeAngle((int) getHeading());
+        newHeading = -1 * normalizeAngle(getHeading());
         switch (moveDirection)
         {
             case ACTION_MOVE_UP:
@@ -861,30 +845,15 @@ public class MettaNN extends AdvancedRobot //Robot
     }
 
     /**
-     * Quantizes an integer based on its current max and the desired quantization max
-     *
-     * @param value        The value to be quantized
-     * @param realMax      The actual maximum of the value
-     * @param quantizedMax The desired quantized maximum for the value
-     * @return The quantized version of the value
+     * Scale a value 0-max into a double with a specified min and max value
      */
-    private int quantizeInt(int value, int realMax, int quantizedMax)
-    {
-        int quantizedVal;
-
-        quantizedVal = (int) ((double) value * (double) quantizedMax / (double) realMax);
-
-        return quantizedVal;
-    }
-
-    /**
-     * Scaled a value into a double with a specified min and max value
-     */
-    private double scaleValue(double value, double valMin, double valMax, double targetMin, double targetMax)
+    private double scaleValue(double value, double valMax, double targetMin, double targetMax)
     {
         double scaledVal, range;
 
-        range = targetMax 
+        range = targetMax - targetMin;
+
+        scaledVal = value * range / valMax;
 
         return scaledVal;
     }
