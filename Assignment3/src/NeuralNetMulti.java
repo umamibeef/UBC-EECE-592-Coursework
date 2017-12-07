@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 import java.lang.Math;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -12,12 +13,15 @@ import java.util.Random;
 class NeuralNetMulti
 {
     // Constants
-    private static final int MAX_HIDDEN_NEURONS = 64;
+    private static final int MAX_HIDDEN_NEURONS = 1000;
     private static final int MAX_INPUTS =         16;
     private static final int MAX_OUTPUTS =        16;
 
     private static final int TRAINING_SET_STATE_INDEX = 0;
     private static final int TRAINING_SET_ACTION_INDEX = 1;
+
+    private static final int WEIGHTS_INPUT_INDEX = 0;
+    private static final int WEIGHTS_OUTPUT_INDEX = 0;
 
     // Private member variables
     // Limits for custom sigmoid activation function used by the output neuron
@@ -482,13 +486,84 @@ class NeuralNetMulti
         return errors;
     }
 
-    public void save(File argFile)
+    /**
+     * Turns the neural network's weight into a multidimensional ArrayList
+     * @return A multidimensional ArrayList object containing the network's weights
+     */
+    public ArrayList<ArrayList<ArrayList<Double>>> getWeights()
     {
+        int i, j;
+        ArrayList<ArrayList<ArrayList<Double>>> networkWeights = new ArrayList<>();
+        ArrayList<ArrayList<Double>> inputWeights = new ArrayList<>();
+        ArrayList<ArrayList<Double>> outputWeights = new ArrayList<>();
+        ArrayList<Double> weightSubSet;
 
+        // set input neuron weights
+        for(i = 0; i < mNumHiddenNeurons; i++)
+        {
+            weightSubSet = new ArrayList<>();
+
+            for(j = 0; j < mNumInputs; j++)
+            {
+                weightSubSet.add(mInputWeights[i][j]);
+            }
+
+            inputWeights.add(weightSubSet);
+        }
+
+        networkWeights.add(inputWeights);
+
+        // set output neuron weights
+        for(i = 0; i < mNumOutputs; i++)
+        {
+            weightSubSet = new ArrayList<>();
+
+            weightSubSet.add(mOutputNeuronBiasWeights[i]);
+            for(j = 0; j < mNumHiddenNeurons; j++)
+            {
+                weightSubSet.add(mOutputNeuronWeights[i][j]);
+            }
+
+            outputWeights.add(weightSubSet);
+        }
+
+        networkWeights.add(outputWeights);
+
+        return networkWeights;
     }
 
-    public void load(String argFileName) throws IOException
+    /**
+     * Applies an inputted multidimensional ArrayList to the Neural Network's weights
+     * @param weights A multidimensional ArrayList (usually produced by getWeights)
+     */
+    public void setWeights(ArrayList<ArrayList<ArrayList<Double>>> weights)
     {
+        int i, j;
 
+        // set input neuron weights
+        for(i = 0; i < mNumHiddenNeurons; i++)
+        {
+            for(j = 0; j < mNumInputs; j++)
+            {
+                mInputWeights[i][j] = weights.get(WEIGHTS_INPUT_INDEX).get(i).get(j);
+            }
+        }
+
+        // set output neuron weights
+        for(i = 0; i < mNumOutputs; i++)
+        {
+            mOutputNeuronBiasWeights[i] = weights.get(WEIGHTS_OUTPUT_INDEX).get(i).get(0);
+
+            for(j = 0; j < mNumHiddenNeurons; j++)
+            {
+                // initialize the output neuron weights
+                mOutputNeuronWeights[i][j] = weights.get(WEIGHTS_OUTPUT_INDEX).get(i).get(j+1);
+            }
+        }
+
+        // Copy the initial weights into the delta tracking variables
+        mPreviousInputWeights = mInputWeights.clone();
+        mPreviousOutputNeuronWeights = mOutputNeuronWeights.clone();
+        mPreviousOutputNeuronBiasWeights = mOutputNeuronBiasWeights.clone();
     }
 }

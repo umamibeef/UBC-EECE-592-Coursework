@@ -14,7 +14,7 @@ class TestBench
     // Number of NN inputs
     private static final int NUM_INPUTS = 4;
     // Number of NN hidden neurons
-    private static final int NUM_HIDDEN_NEURONS = 10;
+    private static final int NUM_HIDDEN_NEURONS = 200;
     // Number of NN outputs
     private static final int NUM_OUTPUTS = 8;
     // Squared error to b
@@ -24,9 +24,10 @@ class TestBench
     private static final int MIN_VAL = -1;
     private static final int MAX_VAL = 1;
     private static final double MOMENTUM = 0.2;
-    private static final double LEARNING_RATE = 0.1;
+    private static final double LEARNING_RATE = 0.005;
     private static final double WEIGHT_INIT_MIN = -2.0;
     private static final double WEIGHT_INIT_MAX = 1.0;
+    private static boolean mShuffleTrainingSet = false;
 
     // LUT file and properties
     private static final String LUT_FILE_NAME = "1MSARSA.dat";
@@ -332,7 +333,10 @@ class TestBench
         for (epoch = 0; epoch < maxEpochs; epoch++)
         {
             // Shuffle the training set
-            Collections.shuffle(trainingSet);
+            if (mShuffleTrainingSet)
+            {
+                Collections.shuffle(trainingSet);
+            }
 
             cummError = 0.0;
             for (index = 0; index < trainingSet.size(); index++)
