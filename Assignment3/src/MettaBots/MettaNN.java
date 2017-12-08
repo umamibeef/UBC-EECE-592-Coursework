@@ -91,8 +91,8 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final int STATE_POS_X_INDEX = 0;
     private static final int STATE_POS_Y_INDEX = 1;
     private static final int STATE_DISTANCE_INDEX = 2;
-    private static final int STATE_HEADING_SIN_INDEX = 3;
-    private static final int STATE_HEADING_COS_INDEX = 4;
+    private static final int STATE_HEADING_0_INDEX = 3;
+    private static final int STATE_HEADING_1_INDEX = 4;
 
     // Neural network file and properties
     private static final String NN_WEIGHTS_FILE_NAME = "./Ass3NeuralNetWeights.dat";
@@ -596,7 +596,7 @@ public class MettaNN extends AdvancedRobot //Robot
         printDebug("Possible Q-values:\n");
         for (index = 0; index < ACTION_DIMENSIONALITY; index++)
         {
-            printDebug("[%d]: %f\n", index, actionQs[index]);
+            printDebug("[%d]: %1.10f\n", index, actionQs[index]);
         }
 
         printDebug("Max actions: %d\n", qMaxActions.size());
@@ -737,15 +737,34 @@ public class MettaNN extends AdvancedRobot //Robot
         stateSnapshot[STATE_POS_X_INDEX] = scaleValue(mRobotX, 0, STATE_POS_X_MAX, MIN_VAL, MAX_VAL);
         stateSnapshot[STATE_POS_Y_INDEX] = scaleValue(mRobotY, 0, STATE_POS_Y_MAX, MIN_VAL, MAX_VAL);
         stateSnapshot[STATE_DISTANCE_INDEX] = scaleValue(mEnemyDistance, 0, STATE_DISTANCE_MAX, MIN_VAL, MAX_VAL);
-        stateSnapshot[STATE_HEADING_SIN_INDEX] = Math.sin(Math.toRadians(mRobotHeading));
-        stateSnapshot[STATE_HEADING_COS_INDEX] = Math.cos(Math.toRadians(mRobotHeading));
+
+        if (mRobotHeading >= 0 && mRobotHeading < 90)
+        {
+            stateSnapshot[STATE_HEADING_0_INDEX] = -1.0;
+            stateSnapshot[STATE_HEADING_1_INDEX] = -1.0;
+        }
+        else if (mRobotHeading >= 90 && mRobotHeading < 180)
+        {
+            stateSnapshot[STATE_HEADING_0_INDEX] = 1.0;
+            stateSnapshot[STATE_HEADING_1_INDEX] = -1.0;
+        }
+        else if (mRobotHeading >= 180 && mRobotHeading < 270)
+        {
+            stateSnapshot[STATE_HEADING_0_INDEX] = -1.0;
+            stateSnapshot[STATE_HEADING_1_INDEX] = 1.0;
+        }
+        else if (mRobotHeading >= 270 && mRobotHeading < 360)
+        {
+            stateSnapshot[STATE_HEADING_0_INDEX] = 1.0;
+            stateSnapshot[STATE_HEADING_1_INDEX] = 1.0;
+        }
 
         printDebug("Preprocessed state values: %1.3f %1.3f %1.3f %1.3f %1.3f\n",
                 stateSnapshot[STATE_POS_X_INDEX],
                 stateSnapshot[STATE_POS_Y_INDEX],
                 stateSnapshot[STATE_DISTANCE_INDEX],
-                stateSnapshot[STATE_HEADING_SIN_INDEX],
-                stateSnapshot[STATE_HEADING_COS_INDEX]);
+                stateSnapshot[STATE_HEADING_0_INDEX],
+                stateSnapshot[STATE_HEADING_1_INDEX]);
 
         return stateSnapshot;
     }
