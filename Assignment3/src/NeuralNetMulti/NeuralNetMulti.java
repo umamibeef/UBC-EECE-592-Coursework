@@ -23,7 +23,7 @@ public class NeuralNetMulti
     private static final int TRAINING_SET_ACTION_INDEX = 1;
 
     private static final int WEIGHTS_INPUT_INDEX = 0;
-    private static final int WEIGHTS_OUTPUT_INDEX = 0;
+    private static final int WEIGHTS_OUTPUT_INDEX = 1;
 
     // Private member variables
     // Limits for custom sigmoid activation function used by the output neuron
@@ -498,7 +498,7 @@ public class NeuralNetMulti
         ArrayList<ArrayList<Double>> outputWeights = new ArrayList<>();
         ArrayList<Double> weightSubSet;
 
-        // set input neuron weights
+        // get input neuron weights
         for(i = 0; i < mNumHiddenNeurons; i++)
         {
             weightSubSet = new ArrayList<>();
@@ -513,7 +513,7 @@ public class NeuralNetMulti
 
         networkWeights.add(inputWeights);
 
-        // set output neuron weights
+        // get output neuron weights
         for(i = 0; i < mNumOutputs; i++)
         {
             weightSubSet = new ArrayList<>();
@@ -523,7 +523,6 @@ public class NeuralNetMulti
             {
                 weightSubSet.add(mOutputNeuronWeights[i][j]);
             }
-
             outputWeights.add(weightSubSet);
         }
 

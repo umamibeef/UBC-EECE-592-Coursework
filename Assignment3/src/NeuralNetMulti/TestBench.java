@@ -16,7 +16,7 @@ class TestBench
     // Number of NN inputs
     private static final int NUM_INPUTS = 4;
     // Number of NN hidden neurons
-    private static final int NUM_HIDDEN_NEURONS = 200;
+    private static final int NUM_HIDDEN_NEURONS = 2;
     // Number of NN outputs
     private static final int NUM_OUTPUTS = 8;
     // Squared error to b
@@ -320,6 +320,8 @@ class TestBench
         results.clear();
         // Initialize weights for a new training session
         neuralNetObj.initializeWeights();
+        ArrayList<ArrayList<ArrayList<Double>>> weights = neuralNetObj.getWeights();
+        neuralNetObj.setWeights(weights);
         // Attempt convergence
         attemptConvergence(
             neuralNetObj, trainingSet, convergenceError, maxEpochs, results);
