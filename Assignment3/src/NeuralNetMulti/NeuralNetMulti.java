@@ -474,10 +474,8 @@ public class NeuralNetMulti
         // Calculate errors
         calculateErrors(outputArray);
 
-        //printWeights();
         // perform weight update
         updateWeights();
-        //printWeights();
 
         for(i = 0; i < mNumOutputs; i++)
         {

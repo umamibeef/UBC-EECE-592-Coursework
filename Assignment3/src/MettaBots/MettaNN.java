@@ -47,6 +47,7 @@ public class MettaNN extends AdvancedRobot //Robot
     //private int mCurrentLearningPolicy = Q_LEARNING;
     private boolean mIntermediateRewards = true;
     private boolean mTerminalRewards = true;
+    private static final int REWARD_SCALER = 275; // How much to scale the rewards by for the neural network calculation
 
     // Debug
     private static boolean mDebug = true;
@@ -68,6 +69,15 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final int ACTION_FIRE_0 = 0;
     private static final int ACTION_FIRE_3 = 1;
     private static final int ACTION_FIRE_NUM = 2;
+    // Action indices
+    private static final int ACTION_INDEX_UP_NO_FIRE = ACTION_MOVE_UP;
+    private static final int ACTION_INDEX_DN_NO_FIRE = ACTION_MOVE_DN;
+    private static final int ACTION_INDEX_LT_NO_FIRE = ACTION_MOVE_LT;
+    private static final int ACTION_INDEX_RT_NO_FIRE = ACTION_MOVE_RT;
+    private static final int ACTION_INDEX_UP_FIRE = ACTION_MOVE_UP + ACTION_MOVE_NUM;
+    private static final int ACTION_INDEX_DN_FIRE = ACTION_MOVE_DN + ACTION_MOVE_NUM;
+    private static final int ACTION_INDEX_LT_FIRE = ACTION_MOVE_LT + ACTION_MOVE_NUM;
+    private static final int ACTION_INDEX_RT_FIRE = ACTION_MOVE_RT + ACTION_MOVE_NUM;
     // Action constants
     private static final int ACTION_DIMENSIONALITY = ACTION_MOVE_NUM * ACTION_FIRE_NUM;
     private static final int ACTION_MODE_MAX_Q = 0;
@@ -105,15 +115,14 @@ public class MettaNN extends AdvancedRobot //Robot
     private double mEnemyEnergy;
     private double mEnemyX;
     private double mEnemyY;
-    private double [] mCurrrentStateSnapshot = new double[STATE_DIMENSIONALITY];
+
+    private int mCurrentAction;
+    private int mPreviousAction;
+    private double [] mCurrentStateSnapshot = new double[STATE_DIMENSIONALITY];
     private double [] mPreviousStateSnapshot = new double[STATE_DIMENSIONALITY];
 
-    // Variables for learning
-    private int mPreviousStateActionHash;
-    private int mCurrentStateActionHash = NULL_32;
-
-    private int mPreviousEnergyDifference;
-    private int mCurrentEnergyDifference;
+    private double mPreviousEnergyDifference;
+    private double mCurrentEnergyDifference;
     private double mCurrentReward;
 
     // Neural network to approximate Q(s,a) function
@@ -132,7 +141,7 @@ public class MettaNN extends AdvancedRobot //Robot
 
     public void run()
     {
-        int currentStateHash, selectedAction;
+        int actionIndex;
         long fileSize;
         ArrayList<ArrayList<ArrayList<Double>>> neuralNetworkWeights;
 
@@ -170,9 +179,12 @@ public class MettaNN extends AdvancedRobot //Robot
         if(mCurrentLearningPolicy == SARSA)
         {
             // Take a snapshot of the current state
-            mCurrrentStateSnapshot = takeStateSnapshot();
+            mCurrentStateSnapshot = takeStateSnapshot();
+            actionIndex = getAction(ACTION_MODE_EPSILON_GREEDY, mCurrentStateSnapshot);
             // Take an action based on the current state
-            takeAction(ACTION_MODE_EPSILON_GREEDY, mCurrrentStateSnapshot);
+            takeAction(actionIndex);
+            // Record our previous state snapshot
+            mPreviousStateSnapshot = mCurrentStateSnapshot;
         }
 
         // Robot's infinite loop
@@ -241,14 +253,20 @@ public class MettaNN extends AdvancedRobot //Robot
 
     private void learn(boolean terminalState)
     {
-        double qPrevNew;
-        int actionHash;
-        double [] stateArray;
+        double qPrevNew, qPrevOld, qNext;
+
+        double [] currentActionQs;
+        double [] previousActionQs;
+        int actionIndex;
 
         printDebug("==[LEARN]=========================================\n");
 
-        // Determine current state input at the time of learn()
-        stateArray = generateStateArray();
+        // Take a snapshot of the current state
+        mCurrentStateSnapshot = takeStateSnapshot();
+        // Feed forward the current state to the neural network
+        currentActionQs = mNeuralNet.outputFor(mCurrentStateSnapshot);
+        // Feed forward the previous atate to the neural network
+        previousActionQs = mNeuralNet.outputFor(mPreviousStateSnapshot);
 
         // Calculate the current reward
         // Reward can be obtained asynchronously through events such as bullet hitting
@@ -258,6 +276,7 @@ public class MettaNN extends AdvancedRobot //Robot
             mPreviousEnergyDifference = mCurrentEnergyDifference;
             mCurrentEnergyDifference = mRobotEnergy - mEnemyEnergy;
             mCurrentReward += mCurrentEnergyDifference - mPreviousEnergyDifference;
+            mCurrentReward /= REWARD_SCALER;
         }
         printDebug("Current reward: %f\n", mCurrentReward);
 
@@ -267,30 +286,31 @@ public class MettaNN extends AdvancedRobot //Robot
             case NO_LEARNING_RANDOM:
                 printDebug("No learning and random!\n");
                 // Take random action
-                actionHash = getRandomAction();
-                printDebug("Taking random action of 0x%02x\n", actionHash);
-                takeAction(stateArray, actionHash);
+                actionIndex = getRandomAction();
+                printDebug("Taking random action of 0x%02x\n", actionIndex);
+                takeAction(actionIndex);
                 break;
             case NO_LEARNING_GREEDY:
                 printDebug("No learning and totally greedy!\n");
-                // Observe the new environment
-                stateArray = generateStateArray();
                 // Get the action hash that has the maximum Q for this state
                 printDebug("Find the maximum Q action for this new state");
-                actionHash = getActionHash(ACTION_MODE_MAX_Q, stateArray);
+                actionIndex = getAction(ACTION_MODE_MAX_Q, mCurrentStateSnapshot);
                 // Take the action
-                takeAction(stateArray, actionHash);
+                takeAction(actionIndex);
                 break;
             // On-policy (SARSA)
             case SARSA:
                 printDebug("SARSA!\n");
                 // Choose an on-policy action
-                actionHash = getActionHash(ACTION_MODE_EPSILON_GREEDY, stateArray);
-                // Calculate new value for previous Q;
-                qPrevNew = calculateQPrevNew(getQValue(combineStateActionHashes(stateArray, actionHash)));
+                actionIndex = getAction(ACTION_MODE_EPSILON_GREEDY, mCurrentStateSnapshot);
 
-                // Update the LUT with the new value for the previous Q
-                mReinforcementLearningLUTHashMap.put(mPreviousStateActionHash, qPrevNew);
+                // Calculate new value for previous Q;
+                qNext = currentActionQs[actionIndex];
+                qPrevOld = previousActionQs[mPreviousAction];
+                qPrevNew = calculateQPrevNew(qNext, qPrevOld);
+                // Backpropagate the action through the neural network
+                actionQs[actionIndex] = qPrevNew;
+                mNeuralNet.train(createTrainingSet(mPreviousStateSnapshot, actionQs));
 
                 // Reset reward until the next learn
                 mCurrentReward = 0.0;
@@ -301,7 +321,7 @@ public class MettaNN extends AdvancedRobot //Robot
                     return;
                 }
                 // Take the next action
-                takeAction(stateArray, actionHash);
+                takeAction(actionIndex);
                 break;
             // Off-policy (Q-Learning)
             case Q_LEARNING:
@@ -310,12 +330,19 @@ public class MettaNN extends AdvancedRobot //Robot
                 if (terminalState)
                 {
                     printDebug("Terminal state! No more actions available.\n");
+
                     // Learn from the terminal action
                     // Calculate new value for previous Q, next Q is zero since we are terminal
                     qPrevNew = calculateQPrevNew(0.0);
-
                     // Update the LUT with the new value for the previous Q
                     mReinforcementLearningLUTHashMap.put(mPreviousStateActionHash, qPrevNew);
+
+                    // Calculate new value for previous Q, next Q is zero since we are terminal;
+                    qNext = 0.0;
+                    qPrevNew = calculateQPrevNew(qNext);
+                    // Backpropagate the action through the neural network
+                    actionQs[actionIndex] = qPrevNew;
+                    mNeuralNet.train(createTrainingSet(mPreviousStateSnapshot, actionQs));
 
                     return;
                 }
@@ -323,17 +350,17 @@ public class MettaNN extends AdvancedRobot //Robot
                 {
                     // Choose an on-policy action
                     printDebug("Choosing on-policy action to take");
-                    actionHash = getActionHash(ACTION_MODE_EPSILON_GREEDY, stateArray);
+                    actionIndex = getAction(ACTION_MODE_EPSILON_GREEDY, mCurrentStateSnapshot);
                     // Take the action
-                    takeAction(stateArray, actionHash);
+                    takeAction(stateArray, actionIndex);
                     // Observe the new environment
                     stateArray = generateStateArray();
                     // Get the action hash that has the maximum Q for this state
                     printDebug("Find the maximum Q action for this new state");
-                    actionHash = getActionHash(ACTION_MODE_MAX_Q, stateArray);
-                    // Calculate new value for previous Q;
-                    qPrevNew = calculateQPrevNew(getQValue(combineStateActionHashes(stateArray, actionHash)));
+                    actionIndex = getAction(ACTION_MODE_MAX_Q, mCurrentStateSnapshot);
 
+                    // Calculate new value for previous Q;
+                    qPrevNew = calculateQPrevNew(getQValue(combineStateActionHashes(stateArray, actionIndex)));
                     // Update the LUT with the new value for the previous Q
                     mReinforcementLearningLUTHashMap.put(mPreviousStateActionHash, qPrevNew);
 
@@ -348,18 +375,148 @@ public class MettaNN extends AdvancedRobot //Robot
 
     /**
      * This function will either explore randomly or take an 1-EPSILON greedy action that is passed into it
-     * @param currentStateHash The current state hash
-     * @param actionHash The action to take
+     * @param actionIndex The action to take
      */
-    private void takeAction(int currentStateHash, double [] stateSnapshot)
+    private void takeAction(int actionIndex)
     {
-        // Update current state/action hash
-        mCurrentStateActionHash = updateIntField(currentStateHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET, actionHash);
-        // Parse action hash
-        parseActionHash(actionHash);
-        // Update the previous action hash
-        mPreviousStateActionHash = mCurrentStateActionHash;
+        int moveDirection = ACTION_MOVE_UP;
+        int fireType = ACTION_FIRE_3;
+        double angle, newHeading, estimatedEnemyBearingFromGun;
+
+        // Record our current action
+        mCurrentAction = actionIndex;
+
+        switch (actionIndex)
+        {
+            case ACTION_INDEX_UP_NO_FIRE:
+                moveDirection = ACTION_MOVE_UP;
+                fireType = ACTION_FIRE_0;
+                break;
+            case ACTION_INDEX_DN_NO_FIRE:
+                moveDirection = ACTION_MOVE_DN;
+                fireType = ACTION_FIRE_0;
+                break;
+            case ACTION_INDEX_LT_NO_FIRE:
+                moveDirection = ACTION_MOVE_LT;
+                fireType = ACTION_FIRE_0;
+                break;
+            case ACTION_INDEX_RT_NO_FIRE:
+                moveDirection = ACTION_MOVE_RT;
+                fireType = ACTION_FIRE_0;
+                break;
+            case ACTION_INDEX_UP_FIRE:
+                moveDirection = ACTION_MOVE_UP;
+                fireType = ACTION_FIRE_3;
+                break;
+            case ACTION_INDEX_DN_FIRE:
+                moveDirection = ACTION_MOVE_DN;
+                fireType = ACTION_FIRE_3;
+                break;
+            case ACTION_INDEX_LT_FIRE:
+                moveDirection = ACTION_MOVE_LT;
+                fireType = ACTION_FIRE_3;
+                break;
+            case ACTION_INDEX_RT_FIRE:
+                moveDirection = ACTION_MOVE_RT;
+                fireType = ACTION_FIRE_0;
+                break;
+            default:
+                break;
+        }
+
+        // Perform the move action
+        newHeading = -1 * normalizeAngle(getHeading());
+        switch (moveDirection)
+        {
+            case ACTION_MOVE_UP:
+                break;
+            case ACTION_MOVE_DN:
+                newHeading = normalizeAngle(newHeading + 180);
+                break;
+            case ACTION_MOVE_LT:
+                newHeading = normalizeAngle(newHeading + 270);
+                break;
+            case ACTION_MOVE_RT:
+                newHeading = normalizeAngle(newHeading + 90);
+                break;
+            default:
+                // We should never be in here, do nothing.
+                break;
+        }
+        setTurnRight(newHeading);
+
+        // Execute the turn
+        execute();
+        waitFor(mTurnComplete);
+        setAhead(ACTION_MOVE_DISTANCE);
+        // Execute the ahead
+        execute();
+        waitFor(mMoveComplete);
+
+        // Re-calculate the enemy's bearing based on its last know position
+        // Calculate gun turn to predicted x,y location
+        angle = absoluteBearing(getX(), getY(), mEnemyX, mEnemyY);
+        // Turn the gun to the predicted x,y location
+        estimatedEnemyBearingFromGun = normalizeAngle((int) (angle - getGunHeading()));
+
+        // Perform the aim type action
+        // Aim straight now
+        turnGunRight(estimatedEnemyBearingFromGun);
+
+        // Execute the aim right away
+        execute();
+        waitFor(mGunMoveComplete);
+
+        // Perform the firing type action
+        switch (fireType)
+        {
+            case ACTION_FIRE_0:
+                // We don't fire in this case
+                break;
+            case ACTION_FIRE_3:
+                // Fire a 3 power bullet
+                setFireBullet(3.0);
+                break;
+            default:
+                // We should never be in here, do nothing.
+                break;
+        }
+        // Execute the fire action
+        execute();
+
+        // Update the previous action index
+        mPreviousAction = mCurrentAction;
     }
+
+    /**
+     * Creates an ArrayList training set suitable for training the neural network
+     * @param inputVectorArray
+     * @param outputVectorArray
+     * @return
+     */
+    private ArrayList<ArrayList<Double>> createTrainingSet(double [] inputVectorArray, double [] outputVectorArray)
+    {
+        int i;
+        ArrayList<ArrayList<Double>> trainingSet = new ArrayList<>();
+        ArrayList<Double> inputVector = new ArrayList<>();
+        ArrayList<Double> outputVector = new ArrayList<>();
+
+        // Convert ArrayLists into static arrays
+        for(i = 0; i < inputVectorArray.length; i++)
+        {
+            inputVector.add(inputVectorArray[i]);
+        }
+        for(i = 0; i < outputVectorArray.length; i++)
+        {
+            outputVector.add(outputVectorArray[i]);
+        }
+
+        trainingSet.add(inputVector);
+        trainingSet.add(outputVector);
+
+        return trainingSet;
+    }
+
 
     /**
      * Updates the previous Q value based on the passed in next Q value and the learning hyperparameters
@@ -377,70 +534,65 @@ public class MettaNN extends AdvancedRobot //Robot
     }
 
     /**
-     * Obtain the action hash with the largest Q value based on the provided action hash.
-     * If multiple actions are tied for the largest Q value, pick one at random.
+     * Obtain an action based on the mode passed in
      *
      * @param mode The action selection mode, either epsilon greedy or qmax
-     * @param currentStateHash Get the action with the maximum Q from the provided state hash
-     * @return The action with the highest Q for the current state hash
+     * @param currentStateSnapshot Get the action with the maximum Q from the provided state hash
+     * @return An action based on the mode passed in
      */
-    private int getActionHash(int mode, int currentStateHash)
+    private int getAction(int mode, double [] currentStateSnapshot)
     {
-        int moveAction, fireAction;
-        int randomPick, actionHash, completeHash, selectedActionHash, selectedCompleteHash;
-        int[] qMaxActions;
-        int currentQMaxActionNum = 0;
-        double currentMax = -999.0;
+        int index, selectedAction;
+        ArrayList<Integer> qMaxActions = new ArrayList<>();
+        double [] actionQs;
         double qVal, randomDouble;
+        double qMax = -999.0;
 
-        qMaxActions = new int[ACTION_DIMENSIONALITY];
-        // Iterate through all possible actions
-        printDebug("Current state hash: 0x%08x\n", currentStateHash);
-        printDebug("Possible Q-values:\n");
-        for (moveAction = 0; moveAction < ACTION_MOVE_NUM; moveAction++)
+        // Feed forward current state snapshot into neural network and obtain a set of action Q values
+        actionQs = mNeuralNet.outputFor(currentStateSnapshot);
+
+        // Get the maximum action
+        for (index = 0; index < ACTION_DIMENSIONALITY; index++)
         {
-            for (fireAction = 0; fireAction < ACTION_FIRE_NUM; fireAction++)
+            qVal = actionQs[index];
+
+            // Update current max
+            if (qVal > qMax)
             {
-                // Calculate the action hash and create the complete hash by adding it to the current state hash
-                actionHash = generateActionHash(moveAction, fireAction);
-                completeHash = combineStateActionHashes(currentStateHash, actionHash);
-                printDebug("0x%08x: %f\n", completeHash, getQValue(completeHash));
-
-                qVal = getQValue(completeHash);
-
-                // Update current max
-                if (qVal > currentMax)
-                {
-                    // New max, clear array
-                    // We can have a maximum of the number of possible actions as the number of possible actions
-                    qMaxActions = new int[ACTION_DIMENSIONALITY];
-                    currentQMaxActionNum = 1;
-                    qMaxActions[currentQMaxActionNum - 1] = completeHash;
-                    currentMax = qVal;
-                }
-                else if (qVal == currentMax)
-                {
-                    currentQMaxActionNum++;
-                    qMaxActions[currentQMaxActionNum - 1] = completeHash;
-                }
+                // New max, clear array
+                // We can have a maximum of the number of possible actions as the number of possible actions
+                qMaxActions = new ArrayList<>();
+                qMaxActions.add(index);
+                qMax = qVal;
+            }
+            else if (qVal == qMax)
+            {
+                // We found a q value equal to the max, add it to the possible actions
+                qMaxActions.add(index);
             }
         }
 
-        printDebug("Max actions: %d\n", currentQMaxActionNum);
-        if (currentQMaxActionNum == 1)
+        // Iterate through all possible actions
+        printDebug("State Input: [%1.3f, %1.3f, %1.3f, %1.3f]\n",
+            currentStateSnapshot[0], currentStateSnapshot[1], currentStateSnapshot[2], currentStateSnapshot[3]);
+        printDebug("Possible Q-values:\n");
+        for (index = 0; index < ACTION_DIMENSIONALITY; index++)
         {
-            selectedCompleteHash = qMaxActions[0];
-            selectedActionHash = getIntFieldVal(selectedCompleteHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET);
-            printDebug("Found best possible action to take [0x%02x] with Q-value of %f\n",
-            selectedActionHash, getQValue(selectedCompleteHash));
+            printDebug("[%d]: %1.3f\n", index, actionQs[index]);
+        }
+
+        printDebug("Max actions: %d\n", qMaxActions.size());
+        if (qMaxActions.size() == 1)
+        {
+            selectedAction = qMaxActions.get(0);
+            printDebug("Found best possible action to take [%d:%1.3f]\n",
+            selectedAction, actionQs[selectedAction];
         }
         else
         {
-            randomPick = getRandomInt(0, currentQMaxActionNum - 1);
-            selectedCompleteHash = qMaxActions[randomPick];
-            selectedActionHash = getIntFieldVal(selectedCompleteHash, ACTION_FIELD_WIDTH, ACTION_FIELD_OFFSET);
-            printDebug("Found %d possible actions to take, randomly picking index %d [0x%02x] with Q-value of %f\n",
-            currentQMaxActionNum, randomPick, selectedActionHash, getQValue(selectedCompleteHash));
+            selectedAction = getRandomInt(0, qMaxActions.size());
+            printDebug("Found %d possible actions to take, randomly picking action [%d:%1.3f]\n",
+            actionQs.length, selectedAction, actionQs[selectedAction];
         }
 
 
@@ -453,34 +605,34 @@ public class MettaNN extends AdvancedRobot //Robot
                 randomDouble = getRandomDouble(0.0, 1.0);
                 if (randomDouble < EPSILON)
                 {
-                    printDebug("Got random number %f\n", randomDouble);
+                    printDebug("Got random number %1.3f\n", randomDouble);
                     // Take random action
-                    selectedActionHash = getRandomAction();
-                    printDebug("Picking random action of 0x%02x\n", selectedActionHash);
+                    selectedAction = getRandomInt(0, ACTION_DIMENSIONALITY - 1);
+                    printDebug("Picking random action of [%d:%1.3f]\n", selectedAction);
                 }
                 else
                 {
                     // Take greedy action
-                    printDebug("Picking greedy action of 0x%02x\n", selectedActionHash);
+                    printDebug("Picking greedy action of [%d:%1.3f]\n", selectedAction);
                 }
                 break;
             // We should already have max Q from above, so choose that
             case ACTION_MODE_MAX_Q:
-                printDebug("Picking action of 0x%02x\n", selectedActionHash);
+                printDebug("Picking max Q action of [%d:%1.3f]\n", selectedAction);
                 break;
             default:
                 // We should never be here
                 break;
         }
 
-        return selectedActionHash;
+        return selectedAction;
     }
 
     public void onBulletHit(BulletHitEvent event)
     {
         if (mIntermediateRewards)
         {
-            mCurrentReward += 30;
+            mCurrentReward += 30.0;
         }
     }
 
@@ -488,14 +640,14 @@ public class MettaNN extends AdvancedRobot //Robot
     {
         if (mIntermediateRewards)
         {
-            mCurrentReward -= 30;
+            mCurrentReward -= 30.0;
         }
     }
 
     public void onBattleEnded(BattleEndedEvent event)
     {
-        // Save the LUT to the data file
-        saveLut(mLutFile);
+        // Save the NN weights to the data file
+        saveWeights(mNeuralNetWeightsFile);
         // Save the win tracker to the tracker file
         saveStats(mStatsFile);
     }
@@ -540,11 +692,10 @@ public class MettaNN extends AdvancedRobot //Robot
         return result;
     }
 
-    private double[] getQValue(ArrayList<Double> preprocessedState)
+    private double[] getQValues(ArrayList<Double> preprocessedState)
     {
         int i;
         double[] state = new double[preprocessedState.size()];
-        double[] qValues;
 
         // Neural network takes in an array, so we have to convert the ArrayList
         for (i = 0; i < preprocessedState.size(); i++)
@@ -561,32 +712,21 @@ public class MettaNN extends AdvancedRobot //Robot
      */
     private double [] takeStateSnapshot()
     {
+        double [] stateSnapshot = new double[STATE_DIMENSIONALITY];
 
-        // Quantization
-        quantRobotX = quantizeInt(mRobotX, STATE_POS_X_MAX, 1<<STATE_POS_X_WIDTH);
-        quantRobotY = quantizeInt(mRobotY, STATE_POS_Y_MAX, 1<<STATE_POS_Y_WIDTH);
-        quantDistance = quantizeInt(mEnemyDistance, STATE_DISTANCE_MAX, 1<<STATE_DISTANCE_WIDTH);
-        quantRobotHeading = quantizeInt(mRobotHeading, STATE_ROBOT_HEADING_MAX, 1<<STATE_ROBOT_HEADING_WIDTH);
+        // Scale state values and save them to the current stat snapshot
+        stateSnapshot[STATE_POS_X_INDEX] = scaleValue(mRobotX, 0, STATE_POS_X_MAX, MIN_VAL, MAX_VAL);
+        stateSnapshot[STATE_POS_Y_INDEX] = scaleValue(mRobotY, 0, STATE_POS_Y_MAX, MIN_VAL, MAX_VAL);
+        stateSnapshot[STATE_DISTANCE_INDEX] = scaleValue(mEnemyDistance, 0, STATE_DISTANCE_MAX, MIN_VAL, MAX_VAL);
+        stateSnapshot[STATE_HEADING_INDEX] = Math.cos(Math.toRadians(mRobotHeading));
 
-        // Assemble the hash
-        stateHash = updateIntField(stateHash, STATE_POS_X_WIDTH, STATE_POS_X_OFFSET, quantRobotX);
-        stateHash = updateIntField(stateHash, STATE_POS_Y_WIDTH, STATE_POS_Y_OFFSET, quantRobotY);
-        stateHash = updateIntField(stateHash, STATE_DISTANCE_WIDTH, STATE_DISTANCE_OFFSET, quantDistance);
-        stateHash = updateIntField(stateHash, STATE_ROBOT_HEADING_WIDTH, STATE_ROBOT_HEADING_OFFSET, quantRobotHeading);
+        printDebug("Preprocessed state values: %1.3f %1.3f %1.3f %1.3f\n",
+                stateSnapshot[STATE_POS_X_INDEX],
+                stateSnapshot[STATE_POS_Y_INDEX],
+                stateSnapshot[STATE_DISTANCE_INDEX],
+                stateSnapshot[STATE_HEADING_INDEX]);
 
-        //printDebug("Quantized values: %d %d %d %d %d %d\n",
-        //    quantRobotX, quantRobotY, quantDistance, quantRobotHeading, quantEnemyBearingFromGun, quantEnemyEnergy);
-        printDebug("Quantized values: %d %d %d %d\n",
-        quantRobotX, quantRobotY, quantDistance, quantRobotHeading);
-        printDebug("State hash: 0x%08x\n", stateHash);
-
-        // Check if any values are negative, something went wrong
-        if ((quantRobotX < 0) || (quantRobotY < 0) || (quantDistance < 0) || (quantRobotHeading < 0))
-        {
-            throw new ArithmeticException("Quantized value cannot be negative!!!");
-        }
-
-        return stateHash;
+        return stateSnapshot;
     }
 
     /**
@@ -608,80 +748,6 @@ public class MettaNN extends AdvancedRobot //Robot
         //printDebug("Action hash: 0x%08x\n", actionHash);
 
         return actionHash;
-    }
-
-    /**
-     * This parses the actions to take based on a given action hash.
-     *
-     * @param actionHash The action hash to parse into action
-     */
-    private void parseActionHash(int actionHash)
-    {
-        int moveDirection, fireType, newHeading, estimatedEnemyBearingFromGun;
-        double angle;
-
-        moveDirection = getIntFieldVal(actionHash, ACTION_MOVE_WIDTH, ACTION_MOVE_OFFSET);
-        fireType = getIntFieldVal(actionHash, ACTION_FIRE_WIDTH, ACTION_FIRE_OFFSET);
-
-        // Perform the move action
-        newHeading = -1 * normalizeAngle(getHeading());
-        switch (moveDirection)
-        {
-            case ACTION_MOVE_UP:
-                break;
-            case ACTION_MOVE_DN:
-                newHeading = normalizeAngle(newHeading + 180);
-                break;
-            case ACTION_MOVE_LT:
-                newHeading = normalizeAngle(newHeading + 270);
-                break;
-            case ACTION_MOVE_RT:
-                newHeading = normalizeAngle(newHeading + 90);
-                break;
-            default:
-                // We should never be in here, do nothing.
-                break;
-        }
-        setTurnRight(newHeading);
-
-        // Execute the turn
-        execute();
-        waitFor(mTurnComplete);
-        setAhead(ACTION_MOVE_DISTANCE);
-        // Execute the ahead
-        execute();
-        waitFor(mMoveComplete);
-
-        // Re-calculate the enemy's bearing based on its last know position
-        // Calculate gun turn to predicted x,y location
-        angle = absoluteBearing((int) getX(), (int) getY(), mEnemyX, mEnemyY);
-        // Turn the gun to the predicted x,y location
-        estimatedEnemyBearingFromGun = normalizeAngle((int) (angle - getGunHeading()));
-
-        // Perform the aim type action
-        // Aim straight now
-        turnGunRight(estimatedEnemyBearingFromGun);
-
-        // Execute the aim right away
-        execute();
-        waitFor(mGunMoveComplete);
-
-        // Perform the firing type action
-        switch (fireType)
-        {
-            case ACTION_FIRE_0:
-                // We don't fire in this case
-                break;
-            case ACTION_FIRE_3:
-                // Fire a 3 power bullet
-                setFireBullet(3.0);
-                break;
-            default:
-                // We should never be in here, do nothing.
-                break;
-        }
-        // Execute the fire action
-        execute();
     }
 
     /**
@@ -708,10 +774,10 @@ public class MettaNN extends AdvancedRobot //Robot
      * @param y1 Point 1's y coordinate
      * @return Returns an absolute bearing based on the coordinates entered
      */
-    private double absoluteBearing(int x0, int y0, int x1, int y1)
+    private double absoluteBearing(double x0, double y0, double x1, double y1)
     {
-        int xo = x1 - x0;
-        int yo = y1 - y0;
+        double xo = x1 - x0;
+        double yo = y1 - y0;
         double hyp = calculateDistance(x0, y0, x1, y1);
         double asin = Math.toDegrees(Math.asin(xo / hyp));
         double bearing = 0;
@@ -749,7 +815,7 @@ public class MettaNN extends AdvancedRobot //Robot
      * @param y1 Y position of the second coordinate
      * @return A double value representing the distance between two coordinates
      */
-    private double calculateDistance(int x0, int y0, int x1, int y1)
+    private double calculateDistance(double x0, double y0, double x1, double y1)
     {
         double distance;
 
@@ -847,15 +913,13 @@ public class MettaNN extends AdvancedRobot //Robot
     /**
      * Scale a value 0-max into a double with a specified min and max value
      */
-    private double scaleValue(double value, double valMax, double targetMin, double targetMax)
+    private double scaleValue(double value, double fromMin, double fromMax, double toMin, double toMax)
     {
-        double scaledVal, range;
+        double scaledValue;
 
-        range = targetMax - targetMin;
+        scaledValue = (value - fromMin) * (toMax - toMin) / (fromMax - fromMin) - toMin;
 
-        scaledVal = value * range / valMax;
-
-        return scaledVal;
+        return scaledValue;
     }
 
     /**
