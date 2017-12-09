@@ -30,8 +30,8 @@
       <file leaf-file-name="MettaNN.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="237">
-              <caret line="149" column="69" lean-forward="false" selection-start-line="149" selection-start-column="69" selection-end-line="149" selection-end-column="69" />
+            <state relative-caret-position="305">
+              <caret line="600" column="0" lean-forward="true" selection-start-line="600" selection-start-column="0" selection-end-line="601" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#381#412#0" expanded="true" />
@@ -56,8 +56,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>mRobotHeading</find>
-      <find>STATE_HEADING_INDEX</find>
       <find>state_distance_</find>
       <find>STATE_DIMENSIONALITY</find>
       <find>cos</find>
@@ -68,7 +66,6 @@
       <find>state_heading</find>
       <find>STATE_</find>
       <find>train</find>
-      <find>takeStateSnapshot</find>
       <find>takeAction</find>
       <find>previousActionQs</find>
       <find>currentActionQs</find>
@@ -86,6 +83,9 @@
       <find>mRoundDeltaQNum</find>
       <find>mRoundTotalDeltaQ</find>
       <find>mAverageDeltaQ</find>
+      <find>currentStateSnapshot</find>
+      <find>takeStateSnapshot</find>
+      <find>got random</find>
     </findStrings>
     <replaceStrings>
       <replace>0.0</replace>
@@ -323,15 +323,15 @@
       <workItem from="1512328743315" duration="16408000" />
       <workItem from="1512366310146" duration="36973000" />
       <workItem from="1512697956272" duration="278000" />
-      <workItem from="1512698255630" duration="27342000" />
+      <workItem from="1512698255630" duration="30420000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="138846000" />
+    <option name="totallyTimeSpent" value="141924000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1176" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -718,8 +718,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="237">
-          <caret line="149" column="69" lean-forward="false" selection-start-line="149" selection-start-column="69" selection-end-line="149" selection-end-column="69" />
+        <state relative-caret-position="305">
+          <caret line="600" column="0" lean-forward="true" selection-start-line="600" selection-start-column="0" selection-end-line="601" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />

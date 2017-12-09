@@ -621,7 +621,7 @@ public class MettaNN extends AdvancedRobot //Robot
         }
 
         // Iterate through all possible actions
-        printDebug("State Input: [%f, %f, %f, %f, %f]\n",
+        printDebug("State Input: [% f, % f, % f, % f, % f]\n",
             currentStateSnapshot[0], currentStateSnapshot[1], currentStateSnapshot[2], currentStateSnapshot[3], currentStateSnapshot[4]);
         printDebug("Possible Q-values:\n");
         for (index = 0; index < ACTION_DIMENSIONALITY; index++)
@@ -653,10 +653,9 @@ public class MettaNN extends AdvancedRobot //Robot
                 randomDouble = getRandomDouble(0.0, 1.0);
                 if (randomDouble < EPSILON)
                 {
-                    printDebug("Got random number %1.3f\n", randomDouble);
                     // Take random action
                     selectedAction = getRandomInt(0, ACTION_DIMENSIONALITY - 1);
-                    printDebug("Picking random action of [%d:% f]\n", selectedAction, actionQs[selectedAction]);
+                    printDebug("Got random number %1.3f - picking random action of [%d:% f]\n",randomDouble, selectedAction, actionQs[selectedAction]);
                 }
                 else
                 {
@@ -805,12 +804,12 @@ public class MettaNN extends AdvancedRobot //Robot
             stateSnapshot[STATE_HEADING_1_INDEX] = 1.0;
         }
 
-        printDebug("Preprocessed state values: %1.3f %1.3f %1.3f %1.3f %1.3f\n",
-                stateSnapshot[STATE_POS_X_INDEX],
-                stateSnapshot[STATE_POS_Y_INDEX],
-                stateSnapshot[STATE_DISTANCE_INDEX],
-                stateSnapshot[STATE_HEADING_0_INDEX],
-                stateSnapshot[STATE_HEADING_1_INDEX]);
+        //printDebug("Preprocessed state values: %1.3f %1.3f %1.3f %1.3f %1.3f\n",
+        //        stateSnapshot[STATE_POS_X_INDEX],
+        //        stateSnapshot[STATE_POS_Y_INDEX],
+        //        stateSnapshot[STATE_DISTANCE_INDEX],
+        //        stateSnapshot[STATE_HEADING_0_INDEX],
+        //        stateSnapshot[STATE_HEADING_1_INDEX]);
 
         return stateSnapshot;
     }
