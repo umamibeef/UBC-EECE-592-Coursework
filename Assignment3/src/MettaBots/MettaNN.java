@@ -782,14 +782,6 @@ public class MettaNN extends AdvancedRobot //Robot
         stateSnapshot[STATE_POS_X_INDEX] = scaleValue(mRobotX, 0, STATE_POS_X_MAX, MIN_VAL, MAX_VAL);
         stateSnapshot[STATE_POS_Y_INDEX] = scaleValue(mRobotY, 0, STATE_POS_Y_MAX, MIN_VAL, MAX_VAL);
         stateSnapshot[STATE_DISTANCE_INDEX] = scaleValue(mEnemyDistance, 0, STATE_DISTANCE_MAX, MIN_VAL, MAX_VAL);
-<<<<<<< HEAD
-
-
-
-        stateSnapshot[STATE_HEADING_SIN_INDEX] = Math.sin(Math.toRadians(mRobotHeading));
-        stateSnapshot[STATE_HEADING_COS_INDEX] = Math.cos(Math.toRadians(mRobotHeading));
-=======
->>>>>>> e586cbf7a41ff630fd066f5a84b06c808c7b166b
 
         if (mRobotHeading >= 0 && mRobotHeading < 90)
         {
