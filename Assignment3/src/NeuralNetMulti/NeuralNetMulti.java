@@ -409,7 +409,7 @@ public class NeuralNetMulti
             mOutputNeuronValues[outputNeuron] = customSigmoid(mOutputNeuronUnactivatedValues[outputNeuron]);
         }
 
-        return mOutputNeuronValues;
+        return mOutputNeuronValues.clone();
     }
 
     /**

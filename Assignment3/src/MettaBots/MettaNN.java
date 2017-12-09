@@ -28,7 +28,7 @@ public class MettaNN extends AdvancedRobot //Robot
 
     // Neural network parameters
     private static final int NUM_INPUTS = 5;            // Number of NN inputs
-    private static final int NUM_HIDDEN_NEURONS = 200;  // Number of NN hidden neurons
+    private static final int NUM_HIDDEN_NEURONS = 100;  // Number of NN hidden neurons
     private static final int NUM_OUTPUTS = 8;           // Number of NN outputs
     private static final int MIN_VAL = -1;              // Minimum value for activation function (sigmoid)
     private static final int MAX_VAL = 1;               // Maximum value for activation function (sigmoid)
@@ -38,8 +38,8 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final double WEIGHT_INIT_MAX = 1.0;  // Random weight init high limit
 
     // Reinforcement learning parameters
-    private static final double ALPHA = 0.8;    // Fraction of difference used
-    private static final double GAMMA = 0.95;    // Discount factor
+    private static final double ALPHA = 0.7;    // Fraction of difference used
+    private static final double GAMMA = 0.9;    // Discount factor
     private static final double EPSILON = 0.1;  // Probability of exploration
     //private static final double EPSILON = 1.0;  // Probability of exploration
     //private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
@@ -136,11 +136,15 @@ public class MettaNN extends AdvancedRobot //Robot
     private final GunTurnCompleteCondition mGunMoveComplete = new GunTurnCompleteCondition(this);
 
     // Winrate tracking for every 100 rounds
-    private static final int NUM_ROUNDS = 500000;
+    private static final int NUM_ROUNDS = 1000000;
     private static final int NUM_ROUNDS_DIV_100 = NUM_ROUNDS / 100;
     private static int [] mNumWinArray = new int[NUM_ROUNDS_DIV_100];
-    private static double [] mAverageDeltaQ = new double[500000];
+    private static double [] mAverageDeltaQ = new double[NUM_ROUNDS];
+    private static double [] mHighestDeltaQ = new double[NUM_ROUNDS];
+    private static double [] mLowestDeltaQ = new double[NUM_ROUNDS];
     private static double mRoundTotalDeltaQ;
+    private static double mRoundHighestDeltaQ = -999.0;
+    private static double mRoundLowestDeltaQ = 999.0;
     private static int mRoundDeltaQNum = 1;
 
     public void run()
@@ -192,13 +196,15 @@ public class MettaNN extends AdvancedRobot //Robot
         // Choose an action hash that has the maximum Q for this state
         if(mCurrentLearningPolicy == SARSA)
         {
+            // Get own robot's info
+            getRobotInfo();
             // Take a snapshot of the current state
             mCurrentStateSnapshot = takeStateSnapshot();
             actionIndex = getAction(ACTION_MODE_EPSILON_GREEDY, mCurrentStateSnapshot);
             // Take an action based on the current state
             takeAction(actionIndex);
             // Record our previous state snapshot
-            mPreviousStateSnapshot = mCurrentStateSnapshot;
+            mPreviousStateSnapshot = mCurrentStateSnapshot.clone();
         }
 
         // Robot's infinite loop
@@ -230,12 +236,8 @@ public class MettaNN extends AdvancedRobot //Robot
         }
     }
 
-    public void onScannedRobot(ScannedRobotEvent event)
+    public void getRobotInfo()
     {
-        double angle;
-
-        printDebug("==[SCAN]==========================================\n");
-        // Obtain state information
         // Robot's info
         mRobotX = getX();
         mRobotY = getY();
@@ -243,6 +245,15 @@ public class MettaNN extends AdvancedRobot //Robot
         mRobotGunHeading = getGunHeading();
         mRobotGunBearing = normalizeAngle(mRobotHeading - mRobotGunHeading);
         mRobotEnergy = getEnergy();
+    }
+
+    public void onScannedRobot(ScannedRobotEvent event)
+    {
+        double angle;
+
+        //printDebug("==[SCAN]==========================================\n");
+        // Obtain state information
+        getRobotInfo();
 
         // Enemy's info
         mEnemyDistance = event.getDistance();
@@ -257,17 +268,17 @@ public class MettaNN extends AdvancedRobot //Robot
         mEnemyX = (getX() + Math.sin(angle) * event.getDistance());
         mEnemyY = (getY() + Math.cos(angle) * event.getDistance());
 
-        printDebug("Robot: X %1.3f Y %1.3f Heading %1.3f GunHeading %1.3f Energy %1.3f\n",
-        mRobotX, mRobotY, mRobotHeading, mRobotGunHeading, mRobotEnergy);
-        printDebug("Enemy: Distance %1.3f Heading %1.3f Bearing %1.3f BearingFromGun %1.3f Energy %1.3f\n",
-        mEnemyDistance, mEnemyHeading, mEnemyBearing, mEnemyBearingFromGun, mEnemyEnergy);
+        //printDebug("Robot: X %1.3f Y %1.3f Heading %1.3f GunHeading %1.3f Energy %1.3f\n",
+        //mRobotX, mRobotY, mRobotHeading, mRobotGunHeading, mRobotEnergy);
+        //printDebug("Enemy: Distance %1.3f Heading %1.3f Bearing %1.3f BearingFromGun %1.3f Energy %1.3f\n",
+        //mEnemyDistance, mEnemyHeading, mEnemyBearing, mEnemyBearingFromGun, mEnemyEnergy);
 
         learn(NON_TERMINAL_STATE);
     }
 
     private void learn(boolean terminalState)
     {
-        double qPrevNew, qPrevOld, qNext;
+        double qPrevNew, qPrevOld, qPrevDelta, qNext;
 
         double [] currentActionQs;
         double [] previousActionQs;
@@ -282,6 +293,17 @@ public class MettaNN extends AdvancedRobot //Robot
         currentActionQs = mNeuralNet.outputFor(mCurrentStateSnapshot);
         // Feed forward the previous state to the neural network
         previousActionQs = mNeuralNet.outputFor(mPreviousStateSnapshot);
+
+        // DEBUG
+        printDebug("Previous state snapshot: [% f, % f, % f, % f, % f]\n",
+        mPreviousStateSnapshot[0], mPreviousStateSnapshot[1], mPreviousStateSnapshot[2], mPreviousStateSnapshot[3], mPreviousStateSnapshot[4]);
+        printDebug("Current state snapshot:  [% f, % f, % f, % f, % f]\n",
+        mCurrentStateSnapshot[0], mCurrentStateSnapshot[1], mCurrentStateSnapshot[2], mCurrentStateSnapshot[3], mCurrentStateSnapshot[4]);
+        printDebug("Previous action Qs and current action Qs:\n");
+        for (index = 0; index < NUM_OUTPUTS; index++)
+        {
+            printDebug("[%d: % .16f % .16f]\n", index, previousActionQs[index], currentActionQs[index]);
+        }
 
         // Calculate the current reward
         // Reward can be obtained asynchronously through events such as bullet hitting
@@ -320,25 +342,27 @@ public class MettaNN extends AdvancedRobot //Robot
                 // Choose an on-policy action
                 actionIndex = getAction(ACTION_MODE_EPSILON_GREEDY, mCurrentStateSnapshot);
 
-                // DEBUG
-                //printDebug("Output before training:\n");
-                //for (index = 0; index < NUM_OUTPUTS; index++)
-                //{
-                //    printDebug("[%d: % .16f]\n", index, previousActionQs[index]);
-                //}
-
                 // Calculate new value for previous Q;
                 qNext = currentActionQs[actionIndex];
                 qPrevOld = previousActionQs[mPreviousAction];
                 qPrevNew = calculateQPrevNew(qNext, qPrevOld);
+                qPrevDelta = Math.abs(qPrevNew - qPrevOld);
 
+                if (qPrevDelta > mRoundHighestDeltaQ)
+                {
+                    mRoundHighestDeltaQ = qPrevDelta;
+                }
+                if (qPrevDelta < mRoundLowestDeltaQ)
+                {
+                    mRoundLowestDeltaQ = qPrevDelta;
+                }
                 mRoundTotalDeltaQ += Math.abs(qPrevNew - qPrevOld);
                 mRoundDeltaQNum++;
 
                 // DEBUG
                 printDebug("Replacing index %d % .16f -> % .16f\n", mPreviousAction, qPrevOld, qPrevNew);
                 printDebug("Total backpropagations this round: %d\n", mRoundDeltaQNum);
-                printDebug("Delta is %f, round average %f\n", Math.abs(qPrevNew - qPrevOld), mRoundTotalDeltaQ/mRoundDeltaQNum);
+                printDebug("Delta is %f, avg %f, low %f, high %f\n", Math.abs(qPrevNew - qPrevOld), mRoundTotalDeltaQ/mRoundDeltaQNum, mRoundLowestDeltaQ, mRoundHighestDeltaQ);
 
                 // Backpropagate the action through the neural network
                 // Replace the old previous Q value with the new one
@@ -347,12 +371,18 @@ public class MettaNN extends AdvancedRobot //Robot
                 mNeuralNet.train(createTrainingSet(mPreviousStateSnapshot, previousActionQs));
 
                 // DEBUG
-                //previousActionQsUpdated = mNeuralNet.outputFor(mPreviousStateSnapshot);
-                //printDebug("Output after training:\n");
-                //for (index = 0; index < NUM_OUTPUTS; index++)
-                //{
-                //    printDebug("[%d: % .16f]\n", index, previousActionQsUpdated[index]);
-                //}
+                previousActionQsUpdated = mNeuralNet.outputFor(mPreviousStateSnapshot);
+                printDebug("Input for training:\n");
+                printDebug("State Input: [% f, % f, % f, % f, % f]\n",
+                mPreviousStateSnapshot[0], mPreviousStateSnapshot[1], mPreviousStateSnapshot[2], mPreviousStateSnapshot[3], mPreviousStateSnapshot[4]);
+                printDebug("Output before and after training:\n");
+                // put the old q Val back in the array
+                previousActionQs[mPreviousAction] = qPrevOld;
+                for (index = 0; index < NUM_OUTPUTS; index++)
+                {
+                    printDebug("[%d: % .16f -> % .16f]\n", index, previousActionQs[index], previousActionQsUpdated[index]);
+                }
+
 
                 // Reset reward until the next learn
                 mCurrentReward = 0.0;
@@ -391,7 +421,7 @@ public class MettaNN extends AdvancedRobot //Robot
                     // Take the action
                     takeAction(actionIndex);
                     // Record our previous state snapshot
-                    mPreviousStateSnapshot = mCurrentStateSnapshot;
+                    mPreviousStateSnapshot = mCurrentStateSnapshot.clone();
                     // Observe the new environment
                     mCurrentStateSnapshot = takeStateSnapshot();
                     // Feed forward the current state to the neural network
@@ -418,7 +448,7 @@ public class MettaNN extends AdvancedRobot //Robot
         }
 
         // Record our previous state snapshot
-        mPreviousStateSnapshot = mCurrentStateSnapshot;
+        mPreviousStateSnapshot = mCurrentStateSnapshot.clone();
     }
 
     /**
@@ -550,13 +580,26 @@ public class MettaNN extends AdvancedRobot //Robot
         ArrayList<Double> outputVector = new ArrayList<>();
 
         // Convert ArrayLists into static arrays
-        for(i = 0; i < inputVectorArray.length; i++)
+        for(i = 0; i < NUM_INPUTS; i++)
         {
             inputVector.add(inputVectorArray[i]);
         }
-        for(i = 0; i < outputVectorArray.length; i++)
+        for(i = 0; i < NUM_OUTPUTS; i++)
         {
             outputVector.add(outputVectorArray[i]);
+        }
+
+        // DEBUG
+        printDebug("New training set:\n");
+        printDebug("Input:\n");
+        for(i = 0; i < NUM_INPUTS; i++)
+        {
+            printDebug("[%d: % .16f]\n", i, inputVector.get(i));
+        }
+        printDebug("Output:\n");
+        for(i = 0; i < NUM_OUTPUTS; i++)
+        {
+            printDebug("[%d: % .16f]\n", i, outputVector.get(i));
         }
 
         trainingSet.add(inputVector);
@@ -623,13 +666,13 @@ public class MettaNN extends AdvancedRobot //Robot
         // Iterate through all possible actions
         printDebug("State Input: [% f, % f, % f, % f, % f]\n",
             currentStateSnapshot[0], currentStateSnapshot[1], currentStateSnapshot[2], currentStateSnapshot[3], currentStateSnapshot[4]);
-        printDebug("Possible Q-values:\n");
+        printDebug("State Output:\n");
         for (index = 0; index < ACTION_DIMENSIONALITY; index++)
         {
             printDebug("[%d]: % 1.10f\n", index, actionQs[index]);
         }
 
-        printDebug("Max actions: %d\n", qMaxActions.size());
+        //printDebug("Max actions: %d\n", qMaxActions.size());
         if (qMaxActions.size() == 1)
         {
             selectedAction = qMaxActions.get(0);
@@ -693,6 +736,7 @@ public class MettaNN extends AdvancedRobot //Robot
 
     public void onBattleEnded(BattleEndedEvent event)
     {
+        printDebug("BATTLE ENDED AFTER %d ROUNDS!", getRoundNum());
         // Save the NN weights to the data file
         mNeuralNetWeights = mNeuralNet.getWeights();
         saveWeights(mNeuralNetWeightsFile);
@@ -703,11 +747,15 @@ public class MettaNN extends AdvancedRobot //Robot
     public void endOfRoundStats()
     {
         mAverageDeltaQ[getRoundNum()] = mRoundTotalDeltaQ / mRoundDeltaQNum;
+        mLowestDeltaQ[getRoundNum()] = mRoundLowestDeltaQ;
+        mHighestDeltaQ[getRoundNum()] = mRoundHighestDeltaQ;
 
         printDebug("Round %d BATTLE ENDED! Current win rate %d\n", getRoundNum(), mNumWinArray[(getRoundNum() - 1) / 100]);
         printDebug("              Average delta Q % f from %d backpropagations\n", mAverageDeltaQ[getRoundNum()], mRoundDeltaQNum);
 
         mRoundTotalDeltaQ = 0.0;
+        mRoundHighestDeltaQ = -999.0;
+        mRoundLowestDeltaQ = 999.0;
         mRoundDeltaQNum = 1;
     }
 
@@ -1068,7 +1116,7 @@ public class MettaNN extends AdvancedRobot //Robot
             out.format("Alpha, %f,\n", ALPHA);
             out.format("Gamma, %f,\n", GAMMA);
             out.format("Epsilon, %f,\n", EPSILON);
-            switch(mCurrentLearningPolicy)
+            switch (mCurrentLearningPolicy)
             {
                 case NO_LEARNING_RANDOM:
                     out.format("Learning Policy, NO LEARNING RANDOM,\n");
@@ -1086,15 +1134,26 @@ public class MettaNN extends AdvancedRobot //Robot
             out.format("Intermediate Rewards, %b,\n", mIntermediateRewards);
             out.format("Terminal Rewards, %b,\n", mTerminalRewards);
             out.format("100 Rounds, Wins,\n");
-            for (i = 0; i < getRoundNum()/100; i++)
+            for (i = 0; i < getRoundNum() / 100; i++)
             {
                 out.format("%d, %d,\n", i + 1, mNumWinArray[i]);
             }
 
-            out.format("Round, Average Delta Q,\n");
+            out.format("100 Rounds, Average Delta Q,\n");
+            for (i = 0; i < getRoundNum() / 100; i++)
+            {
+                out.format("%d, %f,\n", i + 1, mAverageDeltaQ[i]);
+            }
+
+            out.format("100 Rounds, Highest Delta Q,\n");
             for (i = 0; i < getRoundNum(); i++)
             {
-                out.format("%d, %d,\n", i + 1, mAverageDeltaQ[i]);
+                out.format("%d, %f,\n", i + 1, mHighestDeltaQ[i]);
+            }
+            out.format("100 Rounds, Lowest Delta Q,\n");
+            for (i = 0; i < getRoundNum(); i++)
+            {
+                out.format("%d, %f,\n", i + 1, mLowestDeltaQ[i]);
             }
 
             out.close();

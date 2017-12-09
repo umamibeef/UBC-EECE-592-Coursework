@@ -18,8 +18,8 @@
       <file leaf-file-name="NeuralNetMulti.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2358">
-              <caret line="131" column="35" lean-forward="false" selection-start-line="131" selection-start-column="18" selection-end-line="131" selection-end-column="35" />
+            <state relative-caret-position="7470">
+              <caret line="415" column="76" lean-forward="true" selection-start-line="415" selection-start-column="76" selection-end-line="415" selection-end-column="76" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -30,8 +30,8 @@
       <file leaf-file-name="MettaNN.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="169">
-              <caret line="783" column="114" lean-forward="false" selection-start-line="783" selection-start-column="114" selection-end-line="783" selection-end-column="114" />
+            <state relative-caret-position="349">
+              <caret line="149" column="21" lean-forward="true" selection-start-line="149" selection-start-column="21" selection-end-line="149" selection-end-column="21" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#381#412#0" expanded="true" />
@@ -40,21 +40,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="convergence100hidden_0p2_0p005.csv" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/convergence100hidden_0p2_0p005.csv">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="TestBench.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5742">
-              <caret line="319" column="24" lean-forward="false" selection-start-line="323" selection-start-column="39" selection-end-line="323" selection-end-column="41" />
+            <state relative-caret-position="5796">
+              <caret line="322" column="82" lean-forward="false" selection-start-line="322" selection-start-column="82" selection-end-line="322" selection-end-column="82" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
@@ -67,36 +57,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>newWeightFile</find>
-      <find>setweights</find>
-      <find>weights</find>
-      <find>get</find>
-      <find>neuralnet</find>
-      <find>initi</find>
-      <find>getWeights</find>
-      <find>getWeig</find>
-      <find>getAction</find>
-      <find>mCurrentStateSnapshot</find>
-      <find>MIN_VAL</find>
-      <find>scaleValue</find>
+      <find>mPreviousStateSnapshot</find>
+      <find>Input:</find>
+      <find>before</find>
+      <find>outputbefore</find>
+      <find>static</find>
+      <find>before and af</find>
       <find>snapshot</find>
-      <find>takeStateSnapshot</find>
-      <find>STATE_DISTANCE_MAX</find>
-      <find>WEIGHTS_INPUT_INDEX</find>
-      <find>distanc</find>
-      <find>STATE_HEADING_INDEX</find>
-      <find>state_distance_</find>
-      <find>STATE_DIMENSIONALITY</find>
-      <find>cos</find>
-      <find>stateSnapshot</find>
-      <find>state input</find>
-      <find>max actions</find>
-      <find>found best poss</find>
+      <find>actionQs</find>
+      <find>learn</find>
+      <find>learn(</find>
+      <find>outputFor(</find>
+      <find>mOutputNeuronValues</find>
       <find>outputFor</find>
-      <find>state_in</find>
-      <find>mRobotHeading</find>
-      <find>calculateQPrevNew</find>
-      <find>ALPHA</find>
+      <find>printdebug</find>
+      <find>stats</find>
+      <find>mNumWinArray</find>
+      <find>savestats</find>
+      <find>savestas</find>
+      <find>statsfile</find>
+      <find>saveWeights</find>
+      <find>saveStats</find>
+      <find>new training set:</find>
+      <find>qprev</find>
+      <find>learning</find>
+      <find>mHighestDeltaQ</find>
+      <find>// debug</find>
+      <find>debug</find>
+      <find>output before</find>
+      <find>endOfRoundStats</find>
+      <find>mAverageDeltaQ</find>
     </findStrings>
     <replaceStrings>
       <replace>0.0</replace>
@@ -128,11 +118,11 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="53" />
-    <option name="y" value="-16" />
-    <option name="width" value="1659" />
-    <option name="height" value="989" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="508" />
+    <option name="y" value="61" />
+    <option name="width" value="1546" />
+    <option name="height" value="830" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -149,6 +139,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="PackagesPane" />
       <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
@@ -182,9 +174,7 @@
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -335,31 +325,32 @@
       <workItem from="1512366310146" duration="36973000" />
       <workItem from="1512697956272" duration="278000" />
       <workItem from="1512698255630" duration="16786000" />
-      <workItem from="1512788935981" duration="641000" />
+      <workItem from="1512788935981" duration="9230000" />
+      <workItem from="1512845483167" duration="12052000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="131027000" />
+    <option name="totallyTimeSpent" value="151668000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
+    <frame x="508" y="61" width="1546" height="830" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32632744" sideWeight="0.49791667" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32608697" sideWeight="0.49791667" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3281114" sideWeight="0.50416666" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3367827" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33586955" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32934782" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17963752" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22812921" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -421,14 +412,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java</url>
-          <line>321</line>
-          <properties />
-          <option name="timeStamp" value="23" />
-        </line-breakpoint>
-      </breakpoints>
       <option name="time" value="25" />
     </breakpoint-manager>
     <watches-manager>
@@ -727,10 +710,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="7470">
+          <caret line="415" column="76" lean-forward="true" selection-start-line="415" selection-start-column="76" selection-end-line="415" selection-end-column="76" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5742">
-          <caret line="319" column="24" lean-forward="false" selection-start-line="323" selection-start-column="39" selection-end-line="323" selection-end-column="41" />
+        <state relative-caret-position="5796">
+          <caret line="322" column="82" lean-forward="false" selection-start-line="322" selection-start-column="82" selection-end-line="322" selection-end-column="82" />
           <folding>
             <element signature="imports" expanded="true" />
             <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
@@ -738,20 +731,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2358">
-          <caret line="131" column="35" lean-forward="false" selection-start-line="131" selection-start-column="18" selection-end-line="131" selection-end-column="35" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
-          <caret line="783" column="114" lean-forward="false" selection-start-line="783" selection-start-column="114" selection-end-line="783" selection-end-column="114" />
+        <state relative-caret-position="349">
+          <caret line="149" column="21" lean-forward="true" selection-start-line="149" selection-start-column="21" selection-end-line="149" selection-end-column="21" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#381#412#0" expanded="true" />
