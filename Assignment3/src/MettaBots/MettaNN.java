@@ -34,13 +34,14 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final int MAX_VAL = 1;               // Maximum value for activation function (sigmoid)
     private static final double MOMENTUM = 0.2;         // Momentum parameter for backpropagation
     private static final double LEARNING_RATE = 0.005;  // Learning rate parameter for backpropagation
-    private static final double WEIGHT_INIT_MIN = -2.0; // Random weight init low limit
+    private static final double WEIGHT_INIT_MIN = -1.0; // Random weight init low limit
     private static final double WEIGHT_INIT_MAX = 1.0;  // Random weight init high limit
 
     // Reinforcement learning parameters
     private static final double ALPHA = 0.8;    // Fraction of difference used
     private static final double GAMMA = 0.95;    // Discount factor
     private static final double EPSILON = 0.1;  // Probability of exploration
+    //private static final double EPSILON = 1.0;  // Probability of exploration
     //private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
     //private int mCurrentLearningPolicy = NO_LEARNING_GREEDY;
     private int mCurrentLearningPolicy = SARSA;
@@ -91,8 +92,8 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final int STATE_POS_X_INDEX = 0;
     private static final int STATE_POS_Y_INDEX = 1;
     private static final int STATE_DISTANCE_INDEX = 2;
-    private static final int STATE_HEADING_SIN_INDEX = 3;
-    private static final int STATE_HEADING_COS_INDEX = 4;
+    private static final int STATE_HEADING_0_INDEX = 3;
+    private static final int STATE_HEADING_1_INDEX = 4;
 
     // Neural network file and properties
     private static final String NN_WEIGHTS_FILE_NAME = "./Ass3NeuralNetWeights.dat";
@@ -135,9 +136,12 @@ public class MettaNN extends AdvancedRobot //Robot
     private final GunTurnCompleteCondition mGunMoveComplete = new GunTurnCompleteCondition(this);
 
     // Winrate tracking for every 100 rounds
-    private static final int NUM_ROUNDS = 100000;
+    private static final int NUM_ROUNDS = 500000;
     private static final int NUM_ROUNDS_DIV_100 = NUM_ROUNDS / 100;
     private static int [] mNumWinArray = new int[NUM_ROUNDS_DIV_100];
+    private static double [] mAverageDeltaQ = new double[500000];
+    private static double mRoundTotalDeltaQ;
+    private static int mRoundDeltaQNum = 1;
 
     public void run()
     {
@@ -267,7 +271,8 @@ public class MettaNN extends AdvancedRobot //Robot
 
         double [] currentActionQs;
         double [] previousActionQs;
-        int actionIndex;
+        double [] previousActionQsUpdated;
+        int actionIndex, index;
 
         printDebug("==[LEARN]=========================================\n");
 
@@ -288,7 +293,8 @@ public class MettaNN extends AdvancedRobot //Robot
             mCurrentReward += mCurrentEnergyDifference - mPreviousEnergyDifference;
             mCurrentReward /= REWARD_SCALER;
         }
-        printDebug("Current reward: %f\n", mCurrentReward);
+        printDebug("Current reward (unscaled): %f\n", mCurrentReward * REWARD_SCALER);
+        printDebug("Current reward (scaled): %f\n", mCurrentReward);
 
         switch (mCurrentLearningPolicy)
         {
@@ -314,15 +320,39 @@ public class MettaNN extends AdvancedRobot //Robot
                 // Choose an on-policy action
                 actionIndex = getAction(ACTION_MODE_EPSILON_GREEDY, mCurrentStateSnapshot);
 
+                // DEBUG
+                //printDebug("Output before training:\n");
+                //for (index = 0; index < NUM_OUTPUTS; index++)
+                //{
+                //    printDebug("[%d: % .16f]\n", index, previousActionQs[index]);
+                //}
+
                 // Calculate new value for previous Q;
                 qNext = currentActionQs[actionIndex];
                 qPrevOld = previousActionQs[mPreviousAction];
                 qPrevNew = calculateQPrevNew(qNext, qPrevOld);
+
+                mRoundTotalDeltaQ += Math.abs(qPrevNew - qPrevOld);
+                mRoundDeltaQNum++;
+
+                // DEBUG
+                printDebug("Replacing index %d % .16f -> % .16f\n", mPreviousAction, qPrevOld, qPrevNew);
+                printDebug("Total backpropagations this round: %d\n", mRoundDeltaQNum);
+                printDebug("Delta is %f, round average %f\n", Math.abs(qPrevNew - qPrevOld), mRoundTotalDeltaQ/mRoundDeltaQNum);
+
                 // Backpropagate the action through the neural network
                 // Replace the old previous Q value with the new one
                 previousActionQs[mPreviousAction] = qPrevNew;
                 // Train the neural network with the new dataset
                 mNeuralNet.train(createTrainingSet(mPreviousStateSnapshot, previousActionQs));
+
+                // DEBUG
+                //previousActionQsUpdated = mNeuralNet.outputFor(mPreviousStateSnapshot);
+                //printDebug("Output after training:\n");
+                //for (index = 0; index < NUM_OUTPUTS; index++)
+                //{
+                //    printDebug("[%d: % .16f]\n", index, previousActionQsUpdated[index]);
+                //}
 
                 // Reset reward until the next learn
                 mCurrentReward = 0.0;
@@ -591,25 +621,25 @@ public class MettaNN extends AdvancedRobot //Robot
         }
 
         // Iterate through all possible actions
-        printDebug("State Input: [%f, %f, %f, %f, %f]\n",
+        printDebug("State Input: [% f, % f, % f, % f, % f]\n",
             currentStateSnapshot[0], currentStateSnapshot[1], currentStateSnapshot[2], currentStateSnapshot[3], currentStateSnapshot[4]);
         printDebug("Possible Q-values:\n");
         for (index = 0; index < ACTION_DIMENSIONALITY; index++)
         {
-            printDebug("[%d]: %f\n", index, actionQs[index]);
+            printDebug("[%d]: % 1.10f\n", index, actionQs[index]);
         }
 
         printDebug("Max actions: %d\n", qMaxActions.size());
         if (qMaxActions.size() == 1)
         {
             selectedAction = qMaxActions.get(0);
-            printDebug("Found best possible action to take [%d:%1.3f]\n",
+            printDebug("Found best possible action to take [%d:% f]\n",
             selectedAction, actionQs[selectedAction]);
         }
         else
         {
             selectedAction = getRandomInt(0, qMaxActions.size());
-            printDebug("Found %d possible actions to take, randomly picking action [%d:%1.3f]\n",
+            printDebug("Found %d possible actions to take, randomly picking action [%d:% f]\n",
             actionQs.length, selectedAction, actionQs[selectedAction]);
         }
 
@@ -623,20 +653,19 @@ public class MettaNN extends AdvancedRobot //Robot
                 randomDouble = getRandomDouble(0.0, 1.0);
                 if (randomDouble < EPSILON)
                 {
-                    printDebug("Got random number %1.3f\n", randomDouble);
                     // Take random action
                     selectedAction = getRandomInt(0, ACTION_DIMENSIONALITY - 1);
-                    printDebug("Picking random action of [%d:%1.3f]\n", selectedAction, actionQs[selectedAction]);
+                    printDebug("Got random number %1.3f - picking random action of [%d:% f]\n",randomDouble, selectedAction, actionQs[selectedAction]);
                 }
                 else
                 {
                     // Take greedy action
-                    printDebug("Picking greedy action of [%d:%1.3f]\n", selectedAction, actionQs[selectedAction]);
+                    printDebug("Picking greedy action of [%d:% f]\n", selectedAction, actionQs[selectedAction]);
                 }
                 break;
             // We should already have max Q from above, so choose that
             case ACTION_MODE_MAX_Q:
-                printDebug("Picking max Q action of [%d:%1.3f]\n", selectedAction, actionQs[selectedAction]);
+                printDebug("Picking max Q action of [%d:% f]\n", selectedAction, actionQs[selectedAction]);
                 break;
             default:
                 // We should never be here
@@ -671,15 +700,28 @@ public class MettaNN extends AdvancedRobot //Robot
         saveStats(mStatsFile);
     }
 
+    public void endOfRoundStats()
+    {
+        mAverageDeltaQ[getRoundNum()] = mRoundTotalDeltaQ / mRoundDeltaQNum;
+
+        printDebug("Round %d BATTLE ENDED! Current win rate %d\n", getRoundNum(), mNumWinArray[(getRoundNum() - 1) / 100]);
+        printDebug("              Average delta Q % f from %d backpropagations\n", mAverageDeltaQ[getRoundNum()], mRoundDeltaQNum);
+
+        mRoundTotalDeltaQ = 0.0;
+        mRoundDeltaQNum = 1;
+    }
+
     public void onDeath(DeathEvent event)
     {
-
         // Give terminal reward of -100
         if (mTerminalRewards)
         {
             mCurrentReward -= 100;
             learn(TERMINAL_STATE);
         }
+
+        printDebug("Metta died.\n");
+        endOfRoundStats();
     }
 
     public void onWin(WinEvent event)
@@ -693,6 +735,9 @@ public class MettaNN extends AdvancedRobot //Robot
             mCurrentReward += 100;
             learn(TERMINAL_STATE);
         }
+
+        printDebug("Metta won.\n");
+        endOfRoundStats();
     }
 
     /**
@@ -737,18 +782,42 @@ public class MettaNN extends AdvancedRobot //Robot
         stateSnapshot[STATE_POS_X_INDEX] = scaleValue(mRobotX, 0, STATE_POS_X_MAX, MIN_VAL, MAX_VAL);
         stateSnapshot[STATE_POS_Y_INDEX] = scaleValue(mRobotY, 0, STATE_POS_Y_MAX, MIN_VAL, MAX_VAL);
         stateSnapshot[STATE_DISTANCE_INDEX] = scaleValue(mEnemyDistance, 0, STATE_DISTANCE_MAX, MIN_VAL, MAX_VAL);
+<<<<<<< HEAD
 
 
 
         stateSnapshot[STATE_HEADING_SIN_INDEX] = Math.sin(Math.toRadians(mRobotHeading));
         stateSnapshot[STATE_HEADING_COS_INDEX] = Math.cos(Math.toRadians(mRobotHeading));
+=======
+>>>>>>> e586cbf7a41ff630fd066f5a84b06c808c7b166b
 
-        printDebug("Preprocessed state values: %1.3f %1.3f %1.3f %1.3f %1.3f\n",
-                stateSnapshot[STATE_POS_X_INDEX],
-                stateSnapshot[STATE_POS_Y_INDEX],
-                stateSnapshot[STATE_DISTANCE_INDEX],
-                stateSnapshot[STATE_HEADING_SIN_INDEX],
-                stateSnapshot[STATE_HEADING_COS_INDEX]);
+        if (mRobotHeading >= 0 && mRobotHeading < 90)
+        {
+            stateSnapshot[STATE_HEADING_0_INDEX] = -1.0;
+            stateSnapshot[STATE_HEADING_1_INDEX] = -1.0;
+        }
+        else if (mRobotHeading >= 90 && mRobotHeading < 180)
+        {
+            stateSnapshot[STATE_HEADING_0_INDEX] = 1.0;
+            stateSnapshot[STATE_HEADING_1_INDEX] = -1.0;
+        }
+        else if (mRobotHeading >= 180 && mRobotHeading < 270)
+        {
+            stateSnapshot[STATE_HEADING_0_INDEX] = -1.0;
+            stateSnapshot[STATE_HEADING_1_INDEX] = 1.0;
+        }
+        else if (mRobotHeading >= 270 && mRobotHeading < 360)
+        {
+            stateSnapshot[STATE_HEADING_0_INDEX] = 1.0;
+            stateSnapshot[STATE_HEADING_1_INDEX] = 1.0;
+        }
+
+        //printDebug("Preprocessed state values: %1.3f %1.3f %1.3f %1.3f %1.3f\n",
+        //        stateSnapshot[STATE_POS_X_INDEX],
+        //        stateSnapshot[STATE_POS_Y_INDEX],
+        //        stateSnapshot[STATE_DISTANCE_INDEX],
+        //        stateSnapshot[STATE_HEADING_0_INDEX],
+        //        stateSnapshot[STATE_HEADING_1_INDEX]);
 
         return stateSnapshot;
     }
@@ -1028,6 +1097,12 @@ public class MettaNN extends AdvancedRobot //Robot
             for (i = 0; i < getRoundNum()/100; i++)
             {
                 out.format("%d, %d,\n", i + 1, mNumWinArray[i]);
+            }
+
+            out.format("Round, Average Delta Q,\n");
+            for (i = 0; i < getRoundNum(); i++)
+            {
+                out.format("%d, %d,\n", i + 1, mAverageDeltaQ[i]);
             }
 
             out.close();
