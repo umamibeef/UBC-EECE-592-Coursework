@@ -38,8 +38,8 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final double WEIGHT_INIT_MAX = 1.0;  // Random weight init high limit
 
     // Reinforcement learning parameters
-    private static final double ALPHA = 0.5;    // Fraction of difference used
-    private static final double GAMMA = 0.8;    // Discount factor
+    private static final double ALPHA = 0.8;    // Fraction of difference used
+    private static final double GAMMA = 0.95;    // Discount factor
     private static final double EPSILON = 0.1;  // Probability of exploration
     //private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
     //private int mCurrentLearningPolicy = NO_LEARNING_GREEDY;
@@ -737,6 +737,9 @@ public class MettaNN extends AdvancedRobot //Robot
         stateSnapshot[STATE_POS_X_INDEX] = scaleValue(mRobotX, 0, STATE_POS_X_MAX, MIN_VAL, MAX_VAL);
         stateSnapshot[STATE_POS_Y_INDEX] = scaleValue(mRobotY, 0, STATE_POS_Y_MAX, MIN_VAL, MAX_VAL);
         stateSnapshot[STATE_DISTANCE_INDEX] = scaleValue(mEnemyDistance, 0, STATE_DISTANCE_MAX, MIN_VAL, MAX_VAL);
+
+
+
         stateSnapshot[STATE_HEADING_SIN_INDEX] = Math.sin(Math.toRadians(mRobotHeading));
         stateSnapshot[STATE_HEADING_COS_INDEX] = Math.cos(Math.toRadians(mRobotHeading));
 
