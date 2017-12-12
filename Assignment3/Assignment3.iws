@@ -18,8 +18,8 @@
       <file leaf-file-name="NeuralNetMulti.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7470">
-              <caret line="415" column="76" lean-forward="true" selection-start-line="415" selection-start-column="76" selection-end-line="415" selection-end-column="76" />
+            <state relative-caret-position="8100">
+              <caret line="455" column="48" lean-forward="false" selection-start-line="455" selection-start-column="37" selection-end-line="455" selection-end-column="48" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -30,11 +30,10 @@
       <file leaf-file-name="MettaNN.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="349">
-              <caret line="149" column="21" lean-forward="true" selection-start-line="149" selection-start-column="21" selection-end-line="149" selection-end-column="21" />
+            <state relative-caret-position="677">
+              <caret line="760" column="28" lean-forward="true" selection-start-line="760" selection-start-column="28" selection-end-line="760" selection-end-column="28" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#381#412#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -43,11 +42,11 @@
       <file leaf-file-name="TestBench.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5796">
-              <caret line="322" column="82" lean-forward="false" selection-start-line="322" selection-start-column="82" selection-end-line="322" selection-end-column="82" />
+            <state relative-caret-position="3402">
+              <caret line="193" column="53" lean-forward="false" selection-start-line="193" selection-start-column="53" selection-end-line="193" selection-end-column="53" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+                <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -57,15 +56,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>mPreviousStateSnapshot</find>
-      <find>Input:</find>
-      <find>before</find>
-      <find>outputbefore</find>
-      <find>static</find>
-      <find>before and af</find>
-      <find>snapshot</find>
-      <find>actionQs</find>
-      <find>learn</find>
       <find>learn(</find>
       <find>outputFor(</find>
       <find>mOutputNeuronValues</find>
@@ -86,7 +76,16 @@
       <find>debug</find>
       <find>output before</find>
       <find>endOfRoundStats</find>
+      <find>rms</find>
+      <find>actionMove</find>
+      <find>generateActionHash</find>
+      <find>train(</find>
+      <find>state</find>
+      <find>saveState</find>
       <find>mAverageDeltaQ</find>
+      <find>get</find>
+      <find>mLowestDeltaQ</find>
+      <find>getRoundNum</find>
     </findStrings>
     <replaceStrings>
       <replace>0.0</replace>
@@ -106,8 +105,8 @@
         <option value="$PROJECT_DIR$/src/NeuralNet.java" />
         <option value="$PROJECT_DIR$/src/NeuralNetMulti.java" />
         <option value="$PROJECT_DIR$/src/TestBench.java" />
-        <option value="$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java" />
         <option value="$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java" />
+        <option value="$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java" />
         <option value="$PROJECT_DIR$/src/MettaBots/MettaNN.java" />
       </list>
     </option>
@@ -118,9 +117,9 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="508" />
-    <option name="y" value="61" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="592" />
+    <option name="y" value="-19" />
     <option name="width" value="1546" />
     <option name="height" value="830" />
   </component>
@@ -139,9 +138,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="PackagesPane" />
-      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -174,7 +170,10 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scratches" />
       <pane id="Scope" />
+      <pane id="PackagesPane" />
+      <pane id="AndroidView" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -326,43 +325,44 @@
       <workItem from="1512697956272" duration="278000" />
       <workItem from="1512698255630" duration="16786000" />
       <workItem from="1512788935981" duration="9230000" />
-      <workItem from="1512845483167" duration="12052000" />
+      <workItem from="1512845483167" duration="20405000" />
+      <workItem from="1513056646486" duration="182000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="151668000" />
+    <option name="totallyTimeSpent" value="160203000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="508" y="61" width="1546" height="830" extended-state="0" />
+    <frame x="-8" y="-8" width="2576" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32608697" sideWeight="0.49791667" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3281114" sideWeight="0.50416666" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33586955" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33586955" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32934782" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22812921" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13553259" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5399812" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5399812" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3281114" sideWeight="0.49583334" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32608697" sideWeight="0.49791667" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3228261" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -434,7 +434,6 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -445,7 +444,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -459,7 +458,6 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -470,7 +468,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -484,7 +482,6 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -495,7 +492,7 @@
           <caret line="24" column="51" lean-forward="false" selection-start-line="24" selection-start-column="51" selection-end-line="24" selection-end-column="51" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -506,7 +503,6 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -518,7 +514,7 @@
           <caret line="35" column="41" lean-forward="false" selection-start-line="35" selection-start-column="41" selection-end-line="35" selection-end-column="41" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -529,7 +525,6 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -541,30 +536,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/NeuralNet.java" />
-    <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1081">
-          <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -576,7 +548,6 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -587,7 +558,29 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/NeuralNet.java" />
+    <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1081">
+          <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -599,7 +592,6 @@
           <caret line="47" column="43" lean-forward="false" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -610,7 +602,7 @@
           <caret line="172" column="44" lean-forward="true" selection-start-line="172" selection-start-column="44" selection-end-line="172" selection-end-column="44" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -622,7 +614,6 @@
           <caret line="168" column="9" lean-forward="false" selection-start-line="168" selection-start-column="9" selection-end-line="168" selection-end-column="9" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -633,7 +624,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -644,7 +635,6 @@
           <caret line="936" column="0" lean-forward="false" selection-start-line="936" selection-start-column="0" selection-end-line="948" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -656,7 +646,7 @@
           <caret line="144" column="28" lean-forward="false" selection-start-line="144" selection-start-column="28" selection-end-line="144" selection-end-column="28" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -668,7 +658,6 @@
           <caret line="29" column="62" lean-forward="true" selection-start-line="29" selection-start-column="62" selection-end-line="29" selection-end-column="62" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -679,7 +668,7 @@
           <caret line="3" column="6" lean-forward="false" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="6" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -691,7 +680,7 @@
           <caret line="3" column="6" lean-forward="false" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="6" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -706,38 +695,36 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7470">
-          <caret line="415" column="76" lean-forward="true" selection-start-line="415" selection-start-column="76" selection-end-line="415" selection-end-column="76" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/TestBench.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5796">
-          <caret line="322" column="82" lean-forward="false" selection-start-line="322" selection-start-column="82" selection-end-line="322" selection-end-column="82" />
+        <state relative-caret-position="3402">
+          <caret line="193" column="53" lean-forward="false" selection-start-line="193" selection-start-column="53" selection-end-line="193" selection-end-column="53" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1512718499073" expanded="true" signature="14679:14824" ph="{...}" />
+            <marker date="1513051338776" expanded="true" signature="11444:11589" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/NeuralNetMulti/NeuralNetMulti.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8100">
+          <caret line="455" column="48" lean-forward="false" selection-start-line="455" selection-start-column="37" selection-end-line="455" selection-end-column="48" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/MettaBots/MettaNN.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="349">
-          <caret line="149" column="21" lean-forward="true" selection-start-line="149" selection-start-column="21" selection-end-line="149" selection-end-column="21" />
+        <state relative-caret-position="677">
+          <caret line="760" column="28" lean-forward="true" selection-start-line="760" selection-start-column="28" selection-end-line="760" selection-end-column="28" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#381#412#0" expanded="true" />
           </folding>
         </state>
       </provider>

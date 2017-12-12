@@ -16,7 +16,7 @@ class TestBench
     // Number of NN inputs
     private static final int NUM_INPUTS = 4;
     // Number of NN hidden neurons
-    private static final int NUM_HIDDEN_NEURONS = 2;
+    private static final int NUM_HIDDEN_NEURONS = 100;
     // Number of NN outputs
     private static final int NUM_OUTPUTS = 8;
     // Squared error to b
@@ -29,7 +29,7 @@ class TestBench
     private static final double LEARNING_RATE = 0.005;
     private static final double WEIGHT_INIT_MIN = -2.0;
     private static final double WEIGHT_INIT_MAX = 1.0;
-    private static boolean mShuffleTrainingSet = false;
+    private static boolean mShuffleTrainingSet = true;
 
     // LUT file and properties
     private static final String LUT_FILE_NAME = "1MSARSA.dat";
@@ -106,9 +106,6 @@ class TestBench
         int quantDistance;
         int quantRobotHeading;
 
-        int actionMove;
-        int actionFire;
-
         // Intermediate values
         double robotHeadingInDegrees;
 
@@ -117,28 +114,6 @@ class TestBench
         double bipolarRobotY;
         double bipolarDistance;
         double bipolarRobotHeading;
-
-        double[][] bipolarOutputs = new double[][]
-            {
-                { 1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0}, // up no fire
-                {-1.0, 1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0}, // down no fire
-                {-1.0,-1.0, 1.0,-1.0,-1.0,-1.0,-1.0,-1.0}, // left no fire
-                {-1.0,-1.0,-1.0, 1.0,-1.0,-1.0,-1.0,-1.0}, // right not fire
-                {-1.0,-1.0,-1.0,-1.0, 1.0,-1.0,-1.0,-1.0}, // up fire
-                {-1.0,-1.0,-1.0,-1.0,-1.0, 1.0,-1.0,-1.0}, // down fire
-                {-1.0,-1.0,-1.0,-1.0,-1.0,-1.0, 1.0,-1.0}, // left fire
-                {-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0, 1.0}, // right fire
-            };
-            //{
-            //    { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, // up no fire
-            //    { 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, // down no fire
-            //    { 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0}, // left no fire
-            //    { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0}, // right not fire
-            //    { 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0}, // up fire
-            //    { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0}, // down fire
-            //    { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0}, // left fire
-            //    { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0}, // right fire
-            //};
 
         mLutFile = new File(LUT_FILE_NAME);
 
@@ -202,31 +177,12 @@ class TestBench
             quantDistance = getIntFieldVal(trainingState, STATE_DISTANCE_WIDTH, STATE_DISTANCE_OFFSET);
             quantRobotHeading = getIntFieldVal(trainingState, STATE_ROBOT_HEADING_WIDTH, STATE_ROBOT_HEADING_OFFSET);
 
-            // Get the individual actions
-            //actionMove = getIntFieldVal(mStateToBestActionMap.get(trainingState), ACTION_MOVE_WIDTH, ACTION_MOVE_OFFSET);
-            //actionFire = getIntFieldVal(mStateToBestActionMap.get(trainingState), ACTION_FIRE_WIDTH, ACTION_FIRE_OFFSET);
-
             // Scale the quantizations to bipolar binary representations
             bipolarRobotX = (quantRobotX * 2.0 / 16.0) - 1.0;
             bipolarRobotY = (quantRobotY * 2.0 / 16.0) - 1.0;
             bipolarDistance = (quantDistance * 2.0 / 16.0) - 1.0;
             robotHeadingInDegrees = (quantRobotHeading * 360 / 16.0);
             bipolarRobotHeading = Math.cos(Math.toRadians(robotHeadingInDegrees));
-
-            //bipolarRobotX = (quantRobotX / 16.0);
-            //bipolarRobotY = (quantRobotY / 16.0);
-            //bipolarDistance = (quantDistance / 16.0);
-            //robotHeadingInDegrees = (quantRobotHeading * 360 / 16.0);
-            //bipolarRobotHeading = (Math.cos(Math.toRadians(robotHeadingInDegrees))+1.0)/2.0;
-
-            //printDebug("Final training set:\n");
-            //printDebug("Input:  %1.3f %1.3f %1.3f %1.3f\n", bipolarRobotX, bipolarRobotY, bipolarDistance, bipolarRobotHeading);
-            //printDebug("Output: %1.3f %1.3f %1.3f %1.3f %1.3f\n",
-            //    bipolarOutputs[actionMove + 4*actionFire][0],
-            //    bipolarOutputs[actionMove + 4*actionFire][1],
-            //    bipolarOutputs[actionMove + 4*actionFire][2],
-            //    bipolarOutputs[actionMove + 4*actionFire][3],
-            //    bipolarOutputs[actionMove + 4*actionFire][4]);
 
             ArrayList<ArrayList<Double>> stateAndActionPair = new ArrayList<>();
             ArrayList<Double> bipolarState = new ArrayList<>();
@@ -236,15 +192,6 @@ class TestBench
             bipolarState.add(1, bipolarRobotY);
             bipolarState.add(2, bipolarDistance);
             bipolarState.add(3, bipolarRobotHeading);
-
-            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][0]);
-            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][1]);
-            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][2]);
-            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][3]);
-            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][4]);
-            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][5]);
-            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][6]);
-            //bipolarAction.add(bipolarOutputs[actionMove + 4*actionFire][7]);
 
             for (index = 0; index < 8; index++)
             {
@@ -312,10 +259,6 @@ class TestBench
 
     private static void runTrials(NeuralNetMulti neuralNetObj, ArrayList<ArrayList<ArrayList<Double>>> trainingSet, double convergenceError, int maxEpochs, ArrayList<Double> results)
     {
-        double epochAverage;
-
-        epochAverage = 0.0;
-
         // Clear our results
         results.clear();
         // Initialize weights for a new training session
@@ -329,10 +272,10 @@ class TestBench
 
     private static void attemptConvergence(NeuralNetMulti NeuralNetObj, ArrayList<ArrayList<ArrayList<Double>>> trainingSet, double convergenceError, int maxEpochs, ArrayList<Double> results)
     {
-        double cummError;
+        double cummError, setCummError;
         int index, epoch, output;
 
-        double[] errors = new double[]{};
+        double[] errors;
 
         for (epoch = 0; epoch < maxEpochs; epoch++)
         {
@@ -345,11 +288,14 @@ class TestBench
             cummError = 0.0;
             for (index = 0; index < trainingSet.size(); index++)
             {
+                setCummError = 0.0;
                 errors = NeuralNetObj.train(trainingSet.get(index));
                 for (output = 0; output < errors.length; output++)
                 {
-                    cummError += errors[output] * errors[output];
+                    setCummError += errors[output] * errors[output];
                 }
+                setCummError /= 8;
+                cummError += setCummError;
             }
 
             // RMS error
@@ -357,7 +303,7 @@ class TestBench
             cummError = Math.sqrt(cummError);
             //printDebug("%f %f %f %f %f %f %f %f\n",
             //errors[0], errors[1], errors[2], errors[3], errors[4], errors[5], errors[6], errors[7]);
-            printDebug("Epoch: %09d Cummulative squared error: %f\n", epoch, cummError);
+            printDebug("Epoch: %09d RMS: %f\n", epoch, cummError);
 
             // Append the result to our list
             results.add(cummError);

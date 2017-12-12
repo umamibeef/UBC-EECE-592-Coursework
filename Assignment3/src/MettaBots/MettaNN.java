@@ -139,9 +139,9 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final int NUM_ROUNDS = 1000000;
     private static final int NUM_ROUNDS_DIV_100 = NUM_ROUNDS / 100;
     private static int [] mNumWinArray = new int[NUM_ROUNDS_DIV_100];
-    private static double [] mAverageDeltaQ = new double[NUM_ROUNDS];
-    private static double [] mHighestDeltaQ = new double[NUM_ROUNDS];
-    private static double [] mLowestDeltaQ = new double[NUM_ROUNDS];
+    private static double [] mAverageDeltaQ = new double[NUM_ROUNDS_DIV_100];
+    private static double [] mHighestDeltaQ = new double[NUM_ROUNDS_DIV_100];
+    private static double [] mLowestDeltaQ = new double[NUM_ROUNDS_DIV_100];
     private static double mRoundTotalDeltaQ;
     private static double mRoundHighestDeltaQ = -999.0;
     private static double mRoundLowestDeltaQ = 999.0;
@@ -268,10 +268,10 @@ public class MettaNN extends AdvancedRobot //Robot
         mEnemyX = (getX() + Math.sin(angle) * event.getDistance());
         mEnemyY = (getY() + Math.cos(angle) * event.getDistance());
 
-        //printDebug("Robot: X %1.3f Y %1.3f Heading %1.3f GunHeading %1.3f Energy %1.3f\n",
-        //mRobotX, mRobotY, mRobotHeading, mRobotGunHeading, mRobotEnergy);
-        //printDebug("Enemy: Distance %1.3f Heading %1.3f Bearing %1.3f BearingFromGun %1.3f Energy %1.3f\n",
-        //mEnemyDistance, mEnemyHeading, mEnemyBearing, mEnemyBearingFromGun, mEnemyEnergy);
+        printDebug("Robot: X %1.3f Y %1.3f Heading %1.3f GunHeading %1.3f Energy %1.3f\n",
+        mRobotX, mRobotY, mRobotHeading, mRobotGunHeading, mRobotEnergy);
+        printDebug("Enemy: Distance %1.3f Heading %1.3f Bearing %1.3f BearingFromGun %1.3f Energy %1.3f\n",
+        mEnemyDistance, mEnemyHeading, mEnemyBearing, mEnemyBearingFromGun, mEnemyEnergy);
 
         learn(NON_TERMINAL_STATE);
     }
@@ -746,12 +746,14 @@ public class MettaNN extends AdvancedRobot //Robot
 
     public void endOfRoundStats()
     {
-        mAverageDeltaQ[getRoundNum()] = mRoundTotalDeltaQ / mRoundDeltaQNum;
-        mLowestDeltaQ[getRoundNum()] = mRoundLowestDeltaQ;
-        mHighestDeltaQ[getRoundNum()] = mRoundHighestDeltaQ;
+        int roundNum = getRoundNum();
 
-        printDebug("Round %d BATTLE ENDED! Current win rate %d\n", getRoundNum(), mNumWinArray[(getRoundNum() - 1) / 100]);
-        printDebug("              Average delta Q % f from %d backpropagations\n", mAverageDeltaQ[getRoundNum()], mRoundDeltaQNum);
+        mAverageDeltaQ[roundNum] += (mRoundTotalDeltaQ / mRoundDeltaQNum);
+        mLowestDeltaQ[roundNum] = mRoundLowestDeltaQ;
+        mHighestDeltaQ[roundNum] = mRoundHighestDeltaQ;
+
+        printDebug("Round %d BATTLE ENDED! Current win rate %d\n", roundNum, mNumWinArray[roundNum - 1) / 100]);
+        printDebug("              Average delta Q % f from %d backpropagations\n", mAverageDeltaQ[roundNum], mRoundDeltaQNum);
 
         mRoundTotalDeltaQ = 0.0;
         mRoundHighestDeltaQ = -999.0;
@@ -1106,7 +1108,9 @@ public class MettaNN extends AdvancedRobot //Robot
      */
     private void saveStats(File statsFile)
     {
-        int i;
+        int i, roundNum;
+
+        roundNum = getRoundNum();
 
         try
         {
@@ -1134,24 +1138,24 @@ public class MettaNN extends AdvancedRobot //Robot
             out.format("Intermediate Rewards, %b,\n", mIntermediateRewards);
             out.format("Terminal Rewards, %b,\n", mTerminalRewards);
             out.format("100 Rounds, Wins,\n");
-            for (i = 0; i < getRoundNum() / 100; i++)
+            for (i = 0; i < roundNum / 100; i++)
             {
                 out.format("%d, %d,\n", i + 1, mNumWinArray[i]);
             }
 
             out.format("100 Rounds, Average Delta Q,\n");
-            for (i = 0; i < getRoundNum() / 100; i++)
+            for (i = 0; i < roundNum; i++)
             {
                 out.format("%d, %f,\n", i + 1, mAverageDeltaQ[i]);
             }
 
             out.format("100 Rounds, Highest Delta Q,\n");
-            for (i = 0; i < getRoundNum(); i++)
+            for (i = 0; i < roundNum; i++)
             {
                 out.format("%d, %f,\n", i + 1, mHighestDeltaQ[i]);
             }
             out.format("100 Rounds, Lowest Delta Q,\n");
-            for (i = 0; i < getRoundNum(); i++)
+            for (i = 0; i < roundNum; i++)
             {
                 out.format("%d, %f,\n", i + 1, mLowestDeltaQ[i]);
             }
