@@ -32,7 +32,7 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final int NUM_OUTPUTS = 8;           // Number of NN outputs
     private static final int MIN_VAL = -1;              // Minimum value for activation function (sigmoid)
     private static final int MAX_VAL = 1;               // Maximum value for activation function (sigmoid)
-    private static final double MOMENTUM = 0.2;         // Momentum parameter for backpropagation
+    private static final double MOMENTUM = 0.0;         // Momentum parameter for backpropagation
     private static final double LEARNING_RATE = 0.005;  // Learning rate parameter for backpropagation
     private static final double WEIGHT_INIT_MIN = -1.0; // Random weight init low limit
     private static final double WEIGHT_INIT_MAX = 1.0;  // Random weight init high limit
@@ -40,7 +40,7 @@ public class MettaNN extends AdvancedRobot //Robot
     // Reinforcement learning parameters
     private static final double ALPHA = 0.7;    // Fraction of difference used
     private static final double GAMMA = 0.9;    // Discount factor
-    private static final double EPSILON = 0.1;  // Probability of exploration
+    private static final double EPSILON = 0.0;  // Probability of exploration
     //private static final double EPSILON = 1.0;  // Probability of exploration
     //private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
     //private int mCurrentLearningPolicy = NO_LEARNING_GREEDY;
@@ -99,8 +99,19 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final String NN_WEIGHTS_FILE_NAME = "./Ass3NeuralNetWeights.dat";
     private File mNeuralNetWeightsFile;
     // Stat file and properties
-    private static final String STATS_FILE_NAME = "./Ass3Stats.csv";
-    private File mStatsFile;
+    private static final String STATS_FILE_NAME_WIN_RATE = "./Ass3Stats_WinRate.csv";
+    private static final String STATS_FILE_NAME_AVG_DELTAQ = "./Ass3Stats_AvgDeltaQ.csv";
+    private static final String STATS_FILE_NAME_HIGH_DELTAQ  = "./Ass3Stats_HighDeltaQ.csv";
+    private static final String STATS_FILE_NAME_LOW_DELTAQ = "./Ass3Stats_LowDeltaQ.csv";
+    private File mStatsFileWR;
+    private File mStatsFileAQ;
+    private File mStatsFileHQ;
+    private File mStatsFileLQ;
+    private static final int STATS_WIN_RATE = 0;
+    private static final int STATS_AVG_DELTAQ = 1;
+    private static final int STATS_HIGH_DELTAQ = 2;
+    private static final int STATS_LOW_DELTAQ = 3;
+
 
     // Variables to track the state of the arena
     private double mRobotX;
@@ -136,12 +147,12 @@ public class MettaNN extends AdvancedRobot //Robot
     private final GunTurnCompleteCondition mGunMoveComplete = new GunTurnCompleteCondition(this);
 
     // Winrate tracking for every 100 rounds
-    private static final int NUM_ROUNDS = 1000000;
+    private static final int NUM_ROUNDS = 10000000;
     private static final int NUM_ROUNDS_DIV_100 = NUM_ROUNDS / 100;
     private static int [] mNumWinArray = new int[NUM_ROUNDS_DIV_100];
-    private static double [] mAverageDeltaQ = new double[NUM_ROUNDS_DIV_100];
-    private static double [] mHighestDeltaQ = new double[NUM_ROUNDS_DIV_100];
-    private static double [] mLowestDeltaQ = new double[NUM_ROUNDS_DIV_100];
+    private static double [] mAverageDeltaQ = new double[NUM_ROUNDS];
+    private static double [] mHighestDeltaQ = new double[NUM_ROUNDS];
+    private static double [] mLowestDeltaQ = new double[NUM_ROUNDS];
     private static double mRoundTotalDeltaQ;
     private static double mRoundHighestDeltaQ = -999.0;
     private static double mRoundLowestDeltaQ = 999.0;
@@ -167,7 +178,10 @@ public class MettaNN extends AdvancedRobot //Robot
         // Ask robocode for the neural network weights file
         mNeuralNetWeightsFile = getDataFile(NN_WEIGHTS_FILE_NAME);
         // Ask robocode for the stats file
-        mStatsFile = getDataFile(STATS_FILE_NAME);
+        mStatsFileWR = getDataFile(STATS_FILE_NAME_WIN_RATE);
+        mStatsFileAQ = getDataFile(STATS_FILE_NAME_AVG_DELTAQ);
+        mStatsFileHQ = getDataFile(STATS_FILE_NAME_HIGH_DELTAQ);
+        mStatsFileLQ = getDataFile(STATS_FILE_NAME_LOW_DELTAQ);
 
         // Get the neural network weights file size
         fileSize = mNeuralNetWeightsFile.length();
@@ -496,7 +510,7 @@ public class MettaNN extends AdvancedRobot //Robot
                 break;
             case ACTION_INDEX_RT_FIRE:
                 moveDirection = ACTION_MOVE_RT;
-                fireType = ACTION_FIRE_0;
+                fireType = ACTION_FIRE_3;
                 break;
             default:
                 break;
@@ -741,18 +755,23 @@ public class MettaNN extends AdvancedRobot //Robot
         mNeuralNetWeights = mNeuralNet.getWeights();
         saveWeights(mNeuralNetWeightsFile);
         // Save the win tracker to the tracker file
-        saveStats(mStatsFile);
+        saveStats(STATS_WIN_RATE, mStatsFileWR);
+        saveStats(STATS_AVG_DELTAQ, mStatsFileAQ);
+        saveStats(STATS_HIGH_DELTAQ, mStatsFileHQ);
+        saveStats(STATS_LOW_DELTAQ, mStatsFileLQ);
     }
 
     public void endOfRoundStats()
     {
         int roundNum = getRoundNum();
 
+        printDebug("*** Round %d BATTLE ENDED! ***\n", roundNum);
+
         mAverageDeltaQ[roundNum] += (mRoundTotalDeltaQ / mRoundDeltaQNum);
         mLowestDeltaQ[roundNum] = mRoundLowestDeltaQ;
         mHighestDeltaQ[roundNum] = mRoundHighestDeltaQ;
 
-        printDebug("Round %d BATTLE ENDED! Current win rate %d\n", roundNum, mNumWinArray[roundNum - 1) / 100]);
+        printDebug("              Current win rate %d\n", mNumWinArray[(roundNum - 1) / 100]);
         printDebug("              Average delta Q % f from %d backpropagations\n", mAverageDeltaQ[roundNum], mRoundDeltaQNum);
 
         mRoundTotalDeltaQ = 0.0;
@@ -1104,9 +1123,10 @@ public class MettaNN extends AdvancedRobot //Robot
     /**
      * Save the win tracking statistics file
      *
+     * @param type The type of statistics to save
      * @param statsFile The filename to use for stats file
      */
-    private void saveStats(File statsFile)
+    private void saveStats(int type, File statsFile)
     {
         int i, roundNum;
 
@@ -1137,29 +1157,42 @@ public class MettaNN extends AdvancedRobot //Robot
             }
             out.format("Intermediate Rewards, %b,\n", mIntermediateRewards);
             out.format("Terminal Rewards, %b,\n", mTerminalRewards);
-            out.format("100 Rounds, Wins,\n");
-            for (i = 0; i < roundNum / 100; i++)
-            {
-                out.format("%d, %d,\n", i + 1, mNumWinArray[i]);
-            }
 
-            out.format("100 Rounds, Average Delta Q,\n");
-            for (i = 0; i < roundNum; i++)
+            switch(type)
             {
-                out.format("%d, %f,\n", i + 1, mAverageDeltaQ[i]);
+                case STATS_WIN_RATE:
+                    printDebug("Saving win rate...\n");
+                    out.format("100 Rounds, Wins,\n");
+                    for (i = 0; i < roundNum / 100; i++)
+                    {
+                        out.format("%d, %d,\n", i + 1, mNumWinArray[i]);
+                    }
+                    break;
+                case STATS_AVG_DELTAQ:
+                    printDebug("Saving average delta Q...\n");
+                    out.format("100 Rounds, Average Delta Q,\n");
+                    for (i = 0; i < roundNum; i++)
+                    {
+                        out.format("%d, %f,\n", i + 1, mAverageDeltaQ[i]);
+                    }
+                    break;
+                case STATS_HIGH_DELTAQ:
+                    printDebug("Saving high delta Q...\n");
+                    out.format("100 Rounds, Highest Delta Q,\n");
+                    for (i = 0; i < roundNum; i++)
+                    {
+                        out.format("%d, %f,\n", i + 1, mHighestDeltaQ[i]);
+                    }
+                    break;
+                case STATS_LOW_DELTAQ:
+                    printDebug("Saving low delta Q...\n");
+                    out.format("100 Rounds, Lowest Delta Q,\n");
+                    for (i = 0; i < roundNum; i++)
+                    {
+                        out.format("%d, %f,\n", i + 1, mLowestDeltaQ[i]);
+                    }
+                    break;
             }
-
-            out.format("100 Rounds, Highest Delta Q,\n");
-            for (i = 0; i < roundNum; i++)
-            {
-                out.format("%d, %f,\n", i + 1, mHighestDeltaQ[i]);
-            }
-            out.format("100 Rounds, Lowest Delta Q,\n");
-            for (i = 0; i < roundNum; i++)
-            {
-                out.format("%d, %f,\n", i + 1, mLowestDeltaQ[i]);
-            }
-
             out.close();
             fileOut.close();
         }
