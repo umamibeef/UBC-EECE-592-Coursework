@@ -34,13 +34,13 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final int MAX_VAL = 1;               // Maximum value for activation function (sigmoid)
     private static final double MOMENTUM = 0.0;         // Momentum parameter for backpropagation
     private static final double LEARNING_RATE = 0.005;  // Learning rate parameter for backpropagation
-    private static final double WEIGHT_INIT_MIN = -1.0; // Random weight init low limit
-    private static final double WEIGHT_INIT_MAX = 1.0;  // Random weight init high limit
+    private static final double WEIGHT_INIT_MIN = -0.5; // Random weight init low limit
+    private static final double WEIGHT_INIT_MAX = 0.5;  // Random weight init high limit
 
     // Reinforcement learning parameters
     private static final double ALPHA = 0.7;    // Fraction of difference used
     private static final double GAMMA = 0.9;    // Discount factor
-    private static final double EPSILON = 0.0;  // Probability of exploration
+    private static final double EPSILON = 0.1;  // Probability of exploration
     //private static final double EPSILON = 1.0;  // Probability of exploration
     //private int mCurrentLearningPolicy = NO_LEARNING_RANDOM;
     //private int mCurrentLearningPolicy = NO_LEARNING_GREEDY;
@@ -103,14 +103,17 @@ public class MettaNN extends AdvancedRobot //Robot
     private static final String STATS_FILE_NAME_AVG_DELTAQ = "./Ass3Stats_AvgDeltaQ.csv";
     private static final String STATS_FILE_NAME_HIGH_DELTAQ  = "./Ass3Stats_HighDeltaQ.csv";
     private static final String STATS_FILE_NAME_LOW_DELTAQ = "./Ass3Stats_LowDeltaQ.csv";
+    private static final String STATS_FILE_NAME_BP_ERRORS = "./Ass3Stats_BP_Errors.csv";
     private File mStatsFileWR;
     private File mStatsFileAQ;
     private File mStatsFileHQ;
     private File mStatsFileLQ;
+    private File mStatsFileBP;
     private static final int STATS_WIN_RATE = 0;
     private static final int STATS_AVG_DELTAQ = 1;
     private static final int STATS_HIGH_DELTAQ = 2;
     private static final int STATS_LOW_DELTAQ = 3;
+    private static final int STATS_AVG_BP_ERROR = 4;
 
 
     // Variables to track the state of the arena
@@ -153,6 +156,7 @@ public class MettaNN extends AdvancedRobot //Robot
     private static double [] mAverageDeltaQ = new double[NUM_ROUNDS];
     private static double [] mHighestDeltaQ = new double[NUM_ROUNDS];
     private static double [] mLowestDeltaQ = new double[NUM_ROUNDS];
+    private static double [][] mAverageBackpropErrors = new double[NUM_ROUNDS][NUM_OUTPUTS];
     private static double mRoundTotalDeltaQ;
     private static double mRoundHighestDeltaQ = -999.0;
     private static double mRoundLowestDeltaQ = 999.0;
@@ -182,6 +186,7 @@ public class MettaNN extends AdvancedRobot //Robot
         mStatsFileAQ = getDataFile(STATS_FILE_NAME_AVG_DELTAQ);
         mStatsFileHQ = getDataFile(STATS_FILE_NAME_HIGH_DELTAQ);
         mStatsFileLQ = getDataFile(STATS_FILE_NAME_LOW_DELTAQ);
+        mStatsFileBP = getDataFile(STATS_FILE_NAME_BP_ERRORS);
 
         // Get the neural network weights file size
         fileSize = mNeuralNetWeightsFile.length();
@@ -297,6 +302,7 @@ public class MettaNN extends AdvancedRobot //Robot
         double [] currentActionQs;
         double [] previousActionQs;
         double [] previousActionQsUpdated;
+        double [] trainingErrors;
         int actionIndex, index;
 
         printDebug("==[LEARN]=========================================\n");
@@ -382,7 +388,11 @@ public class MettaNN extends AdvancedRobot //Robot
                 // Replace the old previous Q value with the new one
                 previousActionQs[mPreviousAction] = qPrevNew;
                 // Train the neural network with the new dataset
-                mNeuralNet.train(createTrainingSet(mPreviousStateSnapshot, previousActionQs));
+                trainingErrors = mNeuralNet.train(createTrainingSet(mPreviousStateSnapshot, previousActionQs));
+                for (index = 0; index < NUM_OUTPUTS; index++)
+                {
+                    mAverageBackpropErrors[getRoundNum()-1][index] += trainingErrors[index];
+                }
 
                 // DEBUG
                 previousActionQsUpdated = mNeuralNet.outputFor(mPreviousStateSnapshot);
@@ -756,13 +766,15 @@ public class MettaNN extends AdvancedRobot //Robot
         saveWeights(mNeuralNetWeightsFile);
         // Save the win tracker to the tracker file
         saveStats(STATS_WIN_RATE, mStatsFileWR);
-        saveStats(STATS_AVG_DELTAQ, mStatsFileAQ);
-        saveStats(STATS_HIGH_DELTAQ, mStatsFileHQ);
-        saveStats(STATS_LOW_DELTAQ, mStatsFileLQ);
+        //saveStats(STATS_AVG_DELTAQ, mStatsFileAQ);
+        //saveStats(STATS_HIGH_DELTAQ, mStatsFileHQ);
+        //saveStats(STATS_LOW_DELTAQ, mStatsFileLQ);
+        saveStats(STATS_AVG_BP_ERROR, mStatsFileBP);
     }
 
     public void endOfRoundStats()
     {
+        int index;
         int roundNum = getRoundNum();
 
         printDebug("*** Round %d BATTLE ENDED! ***\n", roundNum);
@@ -770,6 +782,11 @@ public class MettaNN extends AdvancedRobot //Robot
         mAverageDeltaQ[roundNum] += (mRoundTotalDeltaQ / mRoundDeltaQNum);
         mLowestDeltaQ[roundNum] = mRoundLowestDeltaQ;
         mHighestDeltaQ[roundNum] = mRoundHighestDeltaQ;
+
+        for (index = 0; index < NUM_OUTPUTS; index++)
+        {
+            mAverageBackpropErrors[roundNum-1][index] /= mRoundDeltaQNum;
+        }
 
         printDebug("              Current win rate %d\n", mNumWinArray[(roundNum - 1) / 100]);
         printDebug("              Average delta Q % f from %d backpropagations\n", mAverageDeltaQ[roundNum], mRoundDeltaQNum);
@@ -1170,7 +1187,7 @@ public class MettaNN extends AdvancedRobot //Robot
                     break;
                 case STATS_AVG_DELTAQ:
                     printDebug("Saving average delta Q...\n");
-                    out.format("100 Rounds, Average Delta Q,\n");
+                    out.format("Rounds, Average Delta Q,\n");
                     for (i = 0; i < roundNum; i++)
                     {
                         out.format("%d, %f,\n", i + 1, mAverageDeltaQ[i]);
@@ -1178,7 +1195,7 @@ public class MettaNN extends AdvancedRobot //Robot
                     break;
                 case STATS_HIGH_DELTAQ:
                     printDebug("Saving high delta Q...\n");
-                    out.format("100 Rounds, Highest Delta Q,\n");
+                    out.format("Rounds, Highest Delta Q,\n");
                     for (i = 0; i < roundNum; i++)
                     {
                         out.format("%d, %f,\n", i + 1, mHighestDeltaQ[i]);
@@ -1186,10 +1203,28 @@ public class MettaNN extends AdvancedRobot //Robot
                     break;
                 case STATS_LOW_DELTAQ:
                     printDebug("Saving low delta Q...\n");
-                    out.format("100 Rounds, Lowest Delta Q,\n");
+                    out.format("Rounds, Lowest Delta Q,\n");
                     for (i = 0; i < roundNum; i++)
                     {
                         out.format("%d, %f,\n", i + 1, mLowestDeltaQ[i]);
+                    }
+                    break;
+                case STATS_AVG_BP_ERROR:
+                    printDebug("Saving average BP errors...\n");
+                    out.format("Rounds, O0, O1, O2, O3, O4, O5, O6, O7,\n");
+                    for (i = 0; i < roundNum; i++)
+                    {
+                        out.format("%d, %f, %f, %f, %f, %f, %f, %f, %f,\n",
+                                i + 1,
+                                mAverageBackpropErrors[i][0],
+                                mAverageBackpropErrors[i][1],
+                                mAverageBackpropErrors[i][2],
+                                mAverageBackpropErrors[i][3],
+                                mAverageBackpropErrors[i][4],
+                                mAverageBackpropErrors[i][5],
+                                mAverageBackpropErrors[i][6],
+                                mAverageBackpropErrors[i][7]
+                                );
                     }
                     break;
             }
